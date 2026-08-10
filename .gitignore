@@ -1,0 +1,178 @@
+# CATS Assistant — .gitignore
+# Base: Visual Studio / .NET + Node (Husky/lint) + JetBrains + données locales app
+
+##----- OS -----
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+
+##----- JetBrains / IntelliJ / Rider -----
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+##----- Visual Studio / VS Code -----
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+
+##----- Build (.NET) -----
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+.artifacts/
+publish/
+*.appx
+*.appxbundle
+*.appxupload
+
+##----- MSBuild / compiler -----
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+!Directory.Build.rsp
+*.sbr
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.tlog
+*.binlog
+MSBuild_Logs/
+
+##----- Tests / coverage -----
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+*.received.*
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+BenchmarkDotNet.Artifacts/
+
+##----- NuGet -----
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+
+##----- ReSharper / tools -----
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+*.dotCover
+.axoCover/*
+!.axoCover/settings.json
+
+##----- Publish / ClickOnce / store -----
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+PublishScripts/
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+
+##----- SQL / local DB fichiers bruts -----
+*.mdf
+*.ldf
+*.ndf
+
+##----- Node (Husky, ESLint, Prettier, Markdownlint) -----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.pnpm-store/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+##----- Env / secrets (jamais committer) -----
+.env
+.env.*
+!.env.example
+*.pfx
+*.publishsettings
+secrets.json
+**/appsettings.*.local.json
+
+##----- CATS Assistant (données locales runtime) -----
+# SQLite chiffré, coffre, caches WebView2 — restent sur la machine utilisateur
+AppData/
+**/App_Data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+webview2-user-data/
+WebView2Data/
+*.catsvault
+vault/
+
+##----- Divers -----
+*~
+~$*
+*.cache
+!?**/*.cache/
+*.bak
+*.swp
+*.orig
