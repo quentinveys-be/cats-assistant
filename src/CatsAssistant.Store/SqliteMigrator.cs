@@ -7,6 +7,7 @@ public sealed class SqliteMigrator
     private static readonly (int Version, string FileName)[] Migrations =
     {
         (1, "0001_initial_schema.sql"),
+        (2, "0002_activity_events_ts_index.sql"),
     };
 
     public void Migrate(SqliteConnection connection)

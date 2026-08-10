@@ -5,6 +5,8 @@ namespace CatsAssistant.Tests.Store;
 
 public class SqliteMigratorTests
 {
+    private const int LatestSchemaVersion = 2;
+
     private static readonly string[] ExpectedTables =
     {
         "activity_events",
@@ -24,12 +26,26 @@ public class SqliteMigratorTests
 
         new SqliteMigrator().Migrate(connection);
 
-        Assert.Equal(1, GetCurrentSchemaVersion(connection));
+        Assert.Equal(LatestSchemaVersion, GetCurrentSchemaVersion(connection));
 
         foreach (var table in ExpectedTables)
         {
             Assert.True(TableExists(connection, table), $"table manquante : {table}");
         }
+    }
+
+    [Fact]
+    public void Migrate_CreatesTimestampIndexOnActivityEvents()
+    {
+        using var connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
+
+        new SqliteMigrator().Migrate(connection);
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'ix_activity_events_ts';";
+        Assert.Equal(1, Convert.ToInt32(command.ExecuteScalar()));
     }
 
     [Fact]
@@ -42,7 +58,7 @@ public class SqliteMigratorTests
         migrator.Migrate(connection);
         migrator.Migrate(connection);
 
-        Assert.Equal(1, GetCurrentSchemaVersion(connection));
+        Assert.Equal(LatestSchemaVersion, GetCurrentSchemaVersion(connection));
     }
 
     private static int GetCurrentSchemaVersion(SqliteConnection connection)

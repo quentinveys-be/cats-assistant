@@ -7,6 +7,11 @@ public sealed class SqliteActivityEventRepository : IActivityEventRepository
 {
     private readonly SqliteConnection _connection;
 
+    // The collector writes from the WinEvent callback thread and from the idle-poll timer thread while the UI
+    // reads on the dispatcher thread, but a SqliteConnection serves one caller at a time. Serialise here rather
+    // than at every call site — SQLite writes on a local file are short enough that contention stays invisible.
+    private readonly object _gate = new();
+
     public SqliteActivityEventRepository(SqliteConnection connection)
     {
         _connection = connection;
@@ -14,61 +19,68 @@ public sealed class SqliteActivityEventRepository : IActivityEventRepository
 
     public long Insert(DateTime timestampUtc, ActivityEventKind kind, string? process, string? windowTitle, string? url)
     {
-        using (var command = _connection.CreateCommand())
+        lock (_gate)
         {
+            using var command = _connection.CreateCommand();
             command.CommandText = """
                 INSERT INTO activity_events (ts, kind, process, window_title, url)
-                VALUES ($ts, $kind, $process, $windowTitle, $url);
+                VALUES ($ts, $kind, $process, $windowTitle, $url)
+                RETURNING id;
                 """;
             command.Parameters.AddWithValue("$ts", FormatTimestamp(timestampUtc));
             command.Parameters.AddWithValue("$kind", ToDbValue(kind));
             command.Parameters.AddWithValue("$process", (object?)process ?? DBNull.Value);
             command.Parameters.AddWithValue("$windowTitle", (object?)windowTitle ?? DBNull.Value);
             command.Parameters.AddWithValue("$url", (object?)url ?? DBNull.Value);
-            command.ExecuteNonQuery();
+            return (long)command.ExecuteScalar()!;
         }
-
-        using var idCommand = _connection.CreateCommand();
-        idCommand.CommandText = "SELECT last_insert_rowid();";
-        return (long)idCommand.ExecuteScalar()!;
     }
 
     public IReadOnlyList<ActivityEvent> GetByDateRange(DateTime fromUtc, DateTime toUtc)
     {
-        using var command = _connection.CreateCommand();
-        command.CommandText = """
-            SELECT id, ts, kind, process, window_title, url
-            FROM activity_events
-            WHERE ts >= $from AND ts < $to
-            ORDER BY ts;
-            """;
-        command.Parameters.AddWithValue("$from", FormatTimestamp(fromUtc));
-        command.Parameters.AddWithValue("$to", FormatTimestamp(toUtc));
-
-        var results = new List<ActivityEvent>();
-        using var reader = command.ExecuteReader();
-        while (reader.Read())
+        lock (_gate)
         {
-            results.Add(ReadEvent(reader));
-        }
+            using var command = _connection.CreateCommand();
+            command.CommandText = """
+                SELECT id, ts, kind, process, window_title, url
+                FROM activity_events
+                WHERE ts >= $from AND ts < $to
+                ORDER BY ts;
+                """;
+            command.Parameters.AddWithValue("$from", FormatTimestamp(fromUtc));
+            command.Parameters.AddWithValue("$to", FormatTimestamp(toUtc));
 
-        return results;
+            var results = new List<ActivityEvent>();
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(ReadEvent(reader));
+            }
+
+            return results;
+        }
     }
 
     public void Delete(long id)
     {
-        using var command = _connection.CreateCommand();
-        command.CommandText = "DELETE FROM activity_events WHERE id = $id;";
-        command.Parameters.AddWithValue("$id", id);
-        command.ExecuteNonQuery();
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "DELETE FROM activity_events WHERE id = $id;";
+            command.Parameters.AddWithValue("$id", id);
+            command.ExecuteNonQuery();
+        }
     }
 
     public int DeleteOlderThan(DateTime thresholdUtc)
     {
-        using var command = _connection.CreateCommand();
-        command.CommandText = "DELETE FROM activity_events WHERE ts < $threshold;";
-        command.Parameters.AddWithValue("$threshold", FormatTimestamp(thresholdUtc));
-        return command.ExecuteNonQuery();
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "DELETE FROM activity_events WHERE ts < $threshold;";
+            command.Parameters.AddWithValue("$threshold", FormatTimestamp(thresholdUtc));
+            return command.ExecuteNonQuery();
+        }
     }
 
     private static ActivityEvent ReadEvent(SqliteDataReader reader)

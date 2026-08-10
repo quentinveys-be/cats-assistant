@@ -18,7 +18,10 @@ public class SqliteConnectionFactoryTests
             {
                 using var command = connection.CreateCommand();
                 command.CommandText = "SELECT COALESCE(MAX(version), 0) FROM schema_version;";
-                Assert.Equal(1, Convert.ToInt32(command.ExecuteScalar()));
+                var version = Convert.ToInt32(command.ExecuteScalar());
+
+                // La factory doit avoir joué les migrations ; leur contenu est couvert par SqliteMigratorTests.
+                Assert.True(version >= 1, $"aucune migration appliquée (version = {version})");
             }
 
             Assert.True(File.Exists(path));
