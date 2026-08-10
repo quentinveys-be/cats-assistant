@@ -15,10 +15,10 @@ Livrée techniquement le 2026-08-10 : `dotnet build` (solution entière, 7 proje
 Le critère de done complet reste **partiellement vérifié** :
 
 - ✅ Solution .NET + Collector (hooks foreground/titre, idle) + Store (SQLite, purge de rétention)
-  - tray app implémentés et testés unitairement (hors code à dépendance Win32/UI directe, non exécutable en environnement headless — voir STATE.md).
+  - tray app implémentés et testés unitairement (hors code à dépendance Win32/UI directe, non exécutable en environnement headless).
 - ⏳ « 3 jours d'activité capturés et relisibles » et « CPU < 1 % en veille » : vérifications manuelles/temporelles en usage réel, **non exécutables automatiquement dans ce chantier** — à valider par l'utilisateur sur une utilisation prolongée de l'app.
 
-Écarts connus par rapport aux ADRs (déjà tracés dans `STATE.md`) :
+Écarts connus par rapport aux ADRs :
 
 - Chiffrement SQLite (ADR D3) non implémenté en Phase 1 — schéma en clair, décision actée à trancher avant un usage réel des données ou avant la Phase 2.
 
