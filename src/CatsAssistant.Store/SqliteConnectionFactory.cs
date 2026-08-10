@@ -7,7 +7,7 @@ public sealed class SqliteConnectionFactory
     private readonly string _connectionString;
     private readonly SqliteMigrator _migrator;
 
-    public SqliteConnectionFactory(string databasePath, SqliteMigrator? migrator = null)
+    public SqliteConnectionFactory(string databasePath, string? key = null, SqliteMigrator? migrator = null)
     {
         var directory = Path.GetDirectoryName(databasePath);
         if (!string.IsNullOrEmpty(directory))
@@ -15,7 +15,13 @@ public sealed class SqliteConnectionFactory
             Directory.CreateDirectory(directory);
         }
 
-        _connectionString = new SqliteConnectionStringBuilder { DataSource = databasePath }.ToString();
+        var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = databasePath };
+        if (!string.IsNullOrEmpty(key))
+        {
+            connectionStringBuilder.Password = key;
+        }
+
+        _connectionString = connectionStringBuilder.ToString();
         _migrator = migrator ?? new SqliteMigrator();
     }
 
@@ -30,8 +36,16 @@ public sealed class SqliteConnectionFactory
     public SqliteConnection OpenConnection()
     {
         var connection = new SqliteConnection(_connectionString);
-        connection.Open();
-        _migrator.Migrate(connection);
-        return connection;
+        try
+        {
+            connection.Open();
+            _migrator.Migrate(connection);
+            return connection;
+        }
+        catch
+        {
+            connection.Dispose();
+            throw;
+        }
     }
 }

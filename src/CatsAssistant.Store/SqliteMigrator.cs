@@ -4,18 +4,27 @@ namespace CatsAssistant.Store;
 
 public sealed class SqliteMigrator
 {
-    private static readonly (int Version, string FileName)[] Migrations =
-    {
+    public static readonly IReadOnlyList<(int Version, string FileName)> ActivityMigrations =
+    [
         (1, "0001_initial_schema.sql"),
         (2, "0002_activity_events_ts_index.sql"),
-    };
+    ];
+
+    public static readonly IReadOnlyList<(int Version, string FileName)> BusinessMigrations = [];
+
+    private readonly IReadOnlyList<(int Version, string FileName)> _migrations;
+
+    public SqliteMigrator(IReadOnlyList<(int Version, string FileName)>? migrations = null)
+    {
+        _migrations = migrations ?? ActivityMigrations;
+    }
 
     public void Migrate(SqliteConnection connection)
     {
         EnsureSchemaVersionTable(connection);
         var currentVersion = GetCurrentVersion(connection);
 
-        foreach (var migration in Migrations.Where(m => m.Version > currentVersion).OrderBy(m => m.Version))
+        foreach (var migration in _migrations.Where(m => m.Version > currentVersion).OrderBy(m => m.Version))
         {
             ApplyMigration(connection, migration.Version, migration.FileName);
         }
