@@ -21,6 +21,24 @@ Le critère de done complet reste **partiellement vérifié** :
 Écarts connus par rapport aux ADRs :
 
 - Chiffrement SQLite (ADR D3) non implémenté en Phase 1 — schéma en clair, décision actée à trancher avant un usage réel des données ou avant la Phase 2.
+- Purge manuelle (ADR D3, docs/data-model.md) sans déclencheur utilisateur — le service `ActivityEventRetentionPurger` la supporte (seuil injectable), mais seule la purge automatique au démarrage est branchée ; l'entrée d'UI manquante est à couvrir au plus tard en Phase 5 (durcissement rétention).
+
+Audit de clôture (2026-08-11) : relecture complète du code livré contre les ADRs D1–D3 et les règles transverses — stack WPF/.NET 8 conforme (D1) ; capture limitée à SetWinEventHook + GetLastInputInfo, seuil idle 5 min configurable, aucun keylogging ni capture d'écran ni contenu de document, aucun appel réseau (D2) ; user-mode strict (clé Run HKCU uniquement, opt-in décoché par défaut, Collector in-process, pas de service) ; Correlator/Connectors/Filler réduits à des interfaces vides comme exigé. Seuls écarts : les deux points ci-dessus.
+
+## Proposition de plan Phase 2 — Connecteurs
+
+Préalable bloquant, à trancher avant que des données métier (tickets, commits, réunions) ne rejoignent la base :
+
+- **2.0 — Chiffrement SQLite (ADR D3)** : choisir et intégrer la solution de chiffrement — piste principale : SQLCipher via `SQLitePCLRaw.bundle_e_sqlcipher` (changement de provider ADO), clé maître protégée par le coffre de l'étape 2.1. _Action humaine : décision d'architecture._
+
+Étapes (2.1 d'abord — les connecteurs 2.2 et 2.3 consomment ses tokens ; 2.2, 2.3 et 2.4 sont ensuite indépendantes) :
+
+- **2.1 — Coffre de secrets (ADR D6)** : challenge-response HMAC-SHA1 via le SDK Yubico.YubiKey + couche DPAPI per-user ; API stocker/lire/supprimer réservée aux tokens JIRA et GitLab ; YubiKey requise au démarrage (définir le comportement si absente : invite de reconnexion vs mode dégradé sans sync). Jamais de log du contenu du coffre. _Actions humaines : enrôler un slot challenge-response HMAC-SHA1 sur la YubiKey ; présence physique de la clé._
+- **2.2 — Connecteur JIRA Cloud v3 (ADR D7, docs/jira-mapping.md)** : client REST `GET /rest/api/3/search/jql` authentifié par le token du coffre ; parseur ADF → texte brut ; extraction POSID/ZWPID depuis `customfield_10045` (dernier groupe parenthésé — le piège « (hors clients) » doit être couvert par les tests, exigence CLAUDE.md) ; persistance dans `jira_tickets`. `customfield_10047` : lecture locale uniquement, jamais réémis ni loggé. Tests sur fixtures JSON enregistrées, aucun appel réseau. _Action humaine : créer le token API Atlassian et le déposer dans le coffre._
+- **2.3 — Connecteur GitLab REST** : commits et branches de l'utilisateur via token personnel ; extraction `jira_key` (`ULISTROIS[-/](\d+)`, normalisée `ULISTROIS-<n>`) ; persistance dans `vcs_commits`. Tests mockés. _Action humaine : créer le token GitLab (scope `read_api`) et le déposer dans le coffre._
+- **2.4 — Connecteur Outlook COM** : interop avec l'Outlook local ; lecture du calendrier (sujet, organisateur, début/fin — jamais le corps des réunions) ; persistance dans `calendar_events`. Interop isolée derrière `IOutlookConnector` pour rester testable sans Outlook. _Action humaine : Outlook desktop installé et profil configuré._
+- **2.5 — Repositories et contraintes** : repositories `jira_tickets`, `vcs_commits`, `calendar_events` ; migration ajoutant les contraintes NOT NULL différées depuis la Phase 1 (reconstruction des tables — dette actée lors de la revue de Phase 1).
+- **2.6 — Synchronisation et vérification** : déclenchement des syncs (manuel via le menu tray au minimum, périodique optionnel), gestion d'erreur réseau avec backoff, puis vérification du critère de done de la phase : tickets + codes + commits + réunions visibles en base, regex 10045 couverte par tests.
 
 ## Points ouverts
 
