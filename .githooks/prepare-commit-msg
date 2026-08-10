@@ -1,0 +1,20 @@
+#!/bin/sh
+HOOK_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+MSG_FILE=$1
+SOURCE=${2:-}
+
+run_ps() {
+  if command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoProfile -File "$HOOK_DIR/prepare-commit-msg.ps1" "$MSG_FILE" "$SOURCE"
+    return $?
+  fi
+  if command -v powershell.exe >/dev/null 2>&1; then
+    powershell.exe -NoProfile -File "$HOOK_DIR/prepare-commit-msg.ps1" "$MSG_FILE" "$SOURCE"
+    return $?
+  fi
+  echo "pwsh/powershell introuvable : impossible d'injecter l'emoji de commit." >&2
+  return 1
+}
+
+run_ps
+exit $?

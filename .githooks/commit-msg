@@ -1,0 +1,17 @@
+#!/bin/sh
+# Git hook entrypoint (Git Bash / sh). Delegates to PowerShell for robust Unicode checks.
+HOOK_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+MSG_FILE=$1
+
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -File "$HOOK_DIR/commit-msg.ps1" "$MSG_FILE"
+  exit $?
+fi
+
+if command -v powershell.exe >/dev/null 2>&1; then
+  powershell.exe -NoProfile -File "$HOOK_DIR/commit-msg.ps1" "$MSG_FILE"
+  exit $?
+fi
+
+echo "pwsh/powershell introuvable : impossible de valider le message de commit." >&2
+exit 1
