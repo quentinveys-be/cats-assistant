@@ -25,9 +25,10 @@ internal static class WindowInfoReader
             using var process = Process.GetProcessById((int)pid);
             return process.ProcessName;
         }
-        catch (ArgumentException)
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
         {
-            // Process exited between the hook event and this lookup.
+            // Process exited between the hook event and this lookup: GetProcessById validates the pid,
+            // ProcessName loads the process info lazily and throws InvalidOperationException by then.
             return null;
         }
     }

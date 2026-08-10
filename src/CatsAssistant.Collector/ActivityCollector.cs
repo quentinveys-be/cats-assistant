@@ -4,7 +4,7 @@ namespace CatsAssistant.Collector;
 
 /// <summary>
 /// In-process foreground/idle capture via SetWinEventHook + GetLastInputInfo (ADR D2).
-/// Runs inside the WPF App process (no separate service) — see CONVENTIONS.md decision #6.
+/// Runs inside the WPF App process rather than as a separate service, since the project is user-mode only.
 /// </summary>
 public sealed class ActivityCollector : IDisposable
 {
@@ -12,13 +12,16 @@ public sealed class ActivityCollector : IDisposable
     private readonly IdleDetector _idleDetector;
     private readonly RetryBackoff _retryBackoff;
     private readonly TimeSpan _idlePollInterval;
+    private readonly object _sync = new();
 
     private NativeMethods.WinEventDelegate? _hookDelegate;
     private IntPtr _foregroundHook = IntPtr.Zero;
     private IntPtr _nameChangeHook = IntPtr.Zero;
     private Timer? _idleTimer;
+    private SynchronizationContext? _installContext;
     private string? _lastProcess;
     private string? _lastWindowTitle;
+    private bool _hasLastWindow;
     private bool _disposed;
 
     public ActivityCollector(
@@ -37,21 +40,50 @@ public sealed class ActivityCollector : IDisposable
 
     public void Start()
     {
-        if (IsRunning) return;
+        lock (_sync)
+        {
+            if (IsRunning) return;
 
-        IsRunning = true;
-        InstallHooks();
-        _idleTimer = new Timer(_ => PollIdle(), null, TimeSpan.Zero, _idlePollInterval);
+            IsRunning = true;
+
+            // Out-of-context WinEvent callbacks are posted to the thread that installed the hook, which must
+            // pump messages. Every later re-install has to happen on that same thread, so capture it here.
+            _installContext = SynchronizationContext.Current;
+
+            InstallHooks();
+
+            // Nothing fires until the user switches windows, so record the window in focus right now —
+            // otherwise the interval between start and the next switch has no event to anchor a segment.
+            _hasLastWindow = false;
+            TryCaptureForegroundWindow(DateTime.UtcNow, ActivityEventKind.Foreground);
+
+            _idleTimer = new Timer(_ => PollIdle(), null, TimeSpan.Zero, _idlePollInterval);
+        }
     }
 
     public void Stop()
     {
-        if (!IsRunning) return;
+        lock (_sync)
+        {
+            if (!IsRunning) return;
 
-        IsRunning = false;
-        _idleTimer?.Dispose();
-        _idleTimer = null;
-        UninstallHooks();
+            IsRunning = false;
+            _idleTimer?.Dispose();
+            _idleTimer = null;
+            UninstallHooks();
+
+            // Without a marker the pause is invisible downstream and aggregation stretches the segment that
+            // was open at pause time across the whole untracked interval. idle_start is the schema's way of
+            // saying "no tracked activity from here on" (docs/data-model.md fixes the kind vocabulary).
+            if (!_idleDetector.IsIdle)
+            {
+                TryInsert(DateTime.UtcNow, ActivityEventKind.IdleStart, null, null);
+            }
+
+            _hasLastWindow = false;
+            _lastProcess = null;
+            _lastWindowTitle = null;
+        }
     }
 
     private void InstallHooks()
@@ -106,14 +138,31 @@ public sealed class ActivityCollector : IDisposable
     private void ScheduleReinstall()
     {
         var delay = _retryBackoff.NextDelay();
+        var context = _installContext;
+
         _ = Task.Delay(delay).ContinueWith(
             _ =>
             {
-                if (!IsRunning) return;
-                UninstallHooks();
-                InstallHooks();
+                if (context is null)
+                {
+                    ReinstallHooks();
+                    return;
+                }
+
+                context.Post(_ => ReinstallHooks(), null);
             },
             TaskScheduler.Default);
+    }
+
+    private void ReinstallHooks()
+    {
+        // Taking _sync keeps a pending re-install from resurrecting the hooks behind a Stop() that already ran.
+        lock (_sync)
+        {
+            if (!IsRunning) return;
+            UninstallHooks();
+            InstallHooks();
+        }
     }
 
     private void OnWinEvent(
@@ -125,17 +174,21 @@ public sealed class ActivityCollector : IDisposable
         uint dwEventThread,
         uint dwmsEventTime)
     {
-        // An unhandled exception on the native callback thread would crash the host WPF process outright,
-        // so a failed read is treated as a lost hook and folds into the same retry path as a failed install.
+        // An unhandled exception on the native callback thread would crash the host WPF process outright.
         try
         {
-            if (idObject != NativeMethods.OBJID_WINDOW || hwnd == IntPtr.Zero) return;
+            if (idObject != NativeMethods.OBJID_WINDOW || idChild != NativeMethods.CHILDID_SELF || hwnd == IntPtr.Zero) return;
+
+            // The NAMECHANGE hook is system-wide, so background windows retitling themselves (unread counters,
+            // media timers) reach us too. Only the focused window is user activity.
+            if (eventType == NativeMethods.EVENT_OBJECT_NAMECHANGE && hwnd != NativeMethods.GetForegroundWindow()) return;
 
             var process = WindowInfoReader.GetProcessName(hwnd);
             var title = WindowInfoReader.GetWindowTitle(hwnd);
 
-            if (process == _lastProcess && title == _lastWindowTitle) return;
+            if (_hasLastWindow && process == _lastProcess && title == _lastWindowTitle) return;
 
+            _hasLastWindow = true;
             _lastProcess = process;
             _lastWindowTitle = title;
 
@@ -147,7 +200,8 @@ public sealed class ActivityCollector : IDisposable
         }
         catch
         {
-            ScheduleReinstall();
+            // Best-effort capture: a failed read or a failed insert says nothing about the health of the hook,
+            // and tearing the hooks down over it would lose far more activity than the one event we dropped.
         }
     }
 
@@ -165,13 +219,22 @@ public sealed class ActivityCollector : IDisposable
             var idleDuration = IdleTickMath.ComputeIdleDuration(NativeMethods.GetTickCount(), lastInputInfo.dwTime);
             var transition = _idleDetector.Evaluate(idleDuration);
 
+            // The transition is only noticed on the next tick, up to a full threshold after the fact.
+            // Stamping it at detection time would credit that whole delay to the preceding window.
+            var lastInputUtc = DateTime.UtcNow - idleDuration;
+
             switch (transition)
             {
                 case IdleTransition.BecameIdle:
-                    _repository.Insert(DateTime.UtcNow, ActivityEventKind.IdleStart, null, null, null);
+                    TryInsert(lastInputUtc, ActivityEventKind.IdleStart, null, null);
                     break;
                 case IdleTransition.BecameActive:
-                    _repository.Insert(DateTime.UtcNow, ActivityEventKind.IdleEnd, null, null, null);
+                    TryInsert(lastInputUtc, ActivityEventKind.IdleEnd, null, null);
+
+                    // Resuming in the same window fires no WinEvent, so without this the whole stretch between
+                    // the resume and the next window switch would have no event to open a segment from.
+                    _hasLastWindow = false;
+                    TryCaptureForegroundWindow(lastInputUtc, ActivityEventKind.Foreground);
                     break;
                 case IdleTransition.None:
                 default:
@@ -181,6 +244,43 @@ public sealed class ActivityCollector : IDisposable
         catch
         {
             // Best-effort polling tick — a transient failure must not crash the host process nor the timer.
+        }
+    }
+
+    private void TryCaptureForegroundWindow(DateTime timestampUtc, ActivityEventKind kind)
+    {
+        var hwnd = NativeMethods.GetForegroundWindow();
+        if (hwnd == IntPtr.Zero) return;
+
+        string? process;
+        string? title;
+
+        try
+        {
+            process = WindowInfoReader.GetProcessName(hwnd);
+            title = WindowInfoReader.GetWindowTitle(hwnd);
+        }
+        catch
+        {
+            return;
+        }
+
+        _hasLastWindow = true;
+        _lastProcess = process;
+        _lastWindowTitle = title;
+
+        TryInsert(timestampUtc, kind, process, title);
+    }
+
+    private void TryInsert(DateTime timestampUtc, ActivityEventKind kind, string? process, string? windowTitle)
+    {
+        try
+        {
+            _repository.Insert(timestampUtc, kind, process, windowTitle, null);
+        }
+        catch
+        {
+            // Best-effort capture — see OnWinEvent.
         }
     }
 

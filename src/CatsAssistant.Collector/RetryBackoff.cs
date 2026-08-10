@@ -21,8 +21,11 @@ public sealed class RetryBackoff
         var delayMs = _initialDelay.TotalMilliseconds * Math.Pow(2, AttemptCount);
         AttemptCount++;
 
-        var delay = TimeSpan.FromMilliseconds(delayMs);
-        return delay > _maxDelay ? _maxDelay : delay;
+        // Clamp before building the TimeSpan: past ~40 attempts the doubling exceeds TimeSpan.MaxValue
+        // and the constructor would throw instead of returning the capped delay.
+        return delayMs >= _maxDelay.TotalMilliseconds
+            ? _maxDelay
+            : TimeSpan.FromMilliseconds(delayMs);
     }
 
     public void Reset() => AttemptCount = 0;

@@ -31,6 +31,17 @@ public class RetryBackoffTests
     }
 
     [Fact]
+    public void NextDelay_StaysCapped_WhenDoublingWouldOverflowTimeSpan()
+    {
+        var backoff = new RetryBackoff(initialDelay: TimeSpan.FromSeconds(1), maxDelay: TimeSpan.FromMinutes(1));
+
+        for (var attempt = 0; attempt < 100; attempt++)
+        {
+            Assert.True(backoff.NextDelay() <= TimeSpan.FromMinutes(1));
+        }
+    }
+
+    [Fact]
     public void AttemptCount_TracksNumberOfCalls()
     {
         var backoff = new RetryBackoff();

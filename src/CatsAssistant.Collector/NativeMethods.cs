@@ -9,6 +9,7 @@ internal static class NativeMethods
     public const uint EVENT_OBJECT_NAMECHANGE = 0x800C;
     public const uint WINEVENT_OUTOFCONTEXT = 0x0000;
     public const int OBJID_WINDOW = 0;
+    public const int CHILDID_SELF = 0;
 
     public delegate void WinEventDelegate(
         IntPtr hWinEventHook,
@@ -55,4 +56,7 @@ internal static class NativeMethods
 
     [DllImport("user32.dll")]
     public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
 }
