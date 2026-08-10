@@ -1,0 +1,3 @@
+# D4 — Intégration SAP CATS : OData direct + session WebView2 — DÉCIDÉ
+
+Client OData v2 (SAP Gateway), service HCM_TIMESHEET_MAN_SRV. Écriture : $batch / changeset POST TimeEntries. CSRF : GET racine avec x-csrf-token: Fetch, réutilisation du jeton. Session : logon interactif dans WebView2 (gère formulaire/SAML/Kerberos), cookies extraits via CoreWebView2CookieManager → HttpClient. Renouvellement sur 401/302. Réseau : intranet ULiège/VPN uniquement. STOP gate : aucune soumission sans clic explicite de validation. Spécification complète : docs/sap-cats-api.md. Rejeté : automation UI Playwright (fragile, non nécessaire).
