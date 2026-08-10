@@ -8,6 +8,20 @@
 | 4     | Filler : logon WebView2, client OData ($batch, CSRF), garde-fou ValueHelpList, STOP gate ; résoudre Q5 (format Note via TimeDataList) | Soumission d'une journée test dans CATS, vérifiée manuellement dans le Fiori           |
 | 5     | Durcissement : rétention, export, onboarding config, runbook, Definition of Done                                                      | Runbook complet ; installation propre sur machine vierge sans admin                    |
 
+## État Phase 1
+
+Livrée techniquement le 2026-08-10 : `dotnet build` (solution entière, 7 projets) et `dotnet test` passent tous les deux depuis la racine, 0 avertissement, 0 erreur, 23/23 tests réussis.
+
+Le critère de done complet reste **partiellement vérifié** :
+
+- ✅ Solution .NET + Collector (hooks foreground/titre, idle) + Store (SQLite, purge de rétention)
+  - tray app implémentés et testés unitairement (hors code à dépendance Win32/UI directe, non exécutable en environnement headless — voir STATE.md).
+- ⏳ « 3 jours d'activité capturés et relisibles » et « CPU < 1 % en veille » : vérifications manuelles/temporelles en usage réel, **non exécutables automatiquement dans ce chantier** — à valider par l'utilisateur sur une utilisation prolongée de l'app.
+
+Écarts connus par rapport aux ADRs (déjà tracés dans `STATE.md`) :
+
+- Chiffrement SQLite (ADR D3) non implémenté en Phase 1 — schéma en clair, décision actée à trancher avant un usage réel des données ou avant la Phase 2.
+
 ## Points ouverts
 
 | ID  | Question                      | Résolution prévue                                 |
