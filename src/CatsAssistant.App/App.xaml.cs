@@ -11,7 +11,7 @@ namespace CatsAssistant.App;
 
 /// <summary>
 /// Interaction logic for App.xaml — starts in the system tray, no main window by default.
-/// The Collector (step-1.5) runs in-process here, not as a separate service (CONVENTIONS.md decision #6).
+/// The Collector runs in-process here rather than as a separate service, since the project is user-mode only.
 /// </summary>
 public partial class App : Application
 {
@@ -36,6 +36,11 @@ public partial class App : Application
         _connection = connectionFactory.OpenConnection();
 
         _repository = new SqliteActivityEventRepository(_connection);
+
+        // Retention is 90 days (docs/data-model.md, ADR D3); startup is the only moment the app is
+        // guaranteed to reach in a user-mode, no-scheduler deployment.
+        new ActivityEventRetentionPurger(_repository).Purge();
+
         _collector = new ActivityCollector(_repository);
         _collector.Start();
 

@@ -4,7 +4,7 @@ using CatsAssistant.Store;
 namespace CatsAssistant.App;
 
 /// <summary>
-/// Fenêtre minimale listant les activity_events du jour, non agrégés (CONVENTIONS.md décision #2).
+/// Fenêtre minimale listant les activity_events du jour, non agrégés — la timeline agrégée arrive en Phase 3.
 /// </summary>
 public partial class TodayEventsWindow : Window
 {
