@@ -1,0 +1,30 @@
+{
+  "name": "cats-assistant",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "lint": "eslint . && prettier --check . && markdownlint \"**/*.md\"",
+    "lint:fix": "eslint . --fix && prettier --write . && markdownlint --fix \"**/*.md\""
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write",
+      "markdownlint --fix"
+    ],
+    "*.{json,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "markdownlint-cli": "^0.45.0",
+    "prettier": "^3.9.6"
+  }
+}

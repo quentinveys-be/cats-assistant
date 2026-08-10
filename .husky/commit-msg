@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+pwsh -NoProfile -File "$(dirname "$0")/../.githooks/commit-msg.ps1" "$1"
