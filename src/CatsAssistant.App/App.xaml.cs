@@ -18,9 +18,11 @@ public partial class App : Application
     private readonly StartupRegistration _startupRegistration = new();
 
     private SqliteConnection? _connection;
+    private IActivityEventRepository? _repository;
     private ActivityCollector? _collector;
     private NotifyIcon? _trayIcon;
     private ToolStripMenuItem? _toggleCaptureItem;
+    private TodayEventsWindow? _todayEventsWindow;
     private string _dataDirectory = string.Empty;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -33,8 +35,8 @@ public partial class App : Application
         var connectionFactory = new SqliteConnectionFactory(databasePath);
         _connection = connectionFactory.OpenConnection();
 
-        var repository = new SqliteActivityEventRepository(_connection);
-        _collector = new ActivityCollector(repository);
+        _repository = new SqliteActivityEventRepository(_connection);
+        _collector = new ActivityCollector(_repository);
         _collector.Start();
 
         _trayIcon = BuildTrayIcon();
@@ -62,6 +64,8 @@ public partial class App : Application
 
         var openDataFolderItem = new ToolStripMenuItem("Ouvrir le dossier de données", null, OnOpenDataFolder);
 
+        var showTodayEventsItem = new ToolStripMenuItem("Afficher les événements du jour", null, OnShowTodayEvents);
+
         var startWithWindowsItem = new ToolStripMenuItem("Démarrer avec Windows")
         {
             CheckOnClick = true,
@@ -74,6 +78,7 @@ public partial class App : Application
         var contextMenu = new ContextMenuStrip();
         contextMenu.Items.Add(_toggleCaptureItem);
         contextMenu.Items.Add(openDataFolderItem);
+        contextMenu.Items.Add(showTodayEventsItem);
         contextMenu.Items.Add(startWithWindowsItem);
         contextMenu.Items.Add(new ToolStripSeparator());
         contextMenu.Items.Add(exitItem);
@@ -116,6 +121,21 @@ public partial class App : Application
             FileName = _dataDirectory,
             UseShellExecute = true,
         });
+    }
+
+    private void OnShowTodayEvents(object? sender, EventArgs e)
+    {
+        if (_repository is null) return;
+
+        if (_todayEventsWindow is not null)
+        {
+            _todayEventsWindow.Activate();
+            return;
+        }
+
+        _todayEventsWindow = new TodayEventsWindow(_repository);
+        _todayEventsWindow.Closed += (_, _) => _todayEventsWindow = null;
+        _todayEventsWindow.Show();
     }
 
     private void OnToggleStartWithWindows(object? sender, EventArgs e)

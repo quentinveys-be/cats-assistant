@@ -1,0 +1,23 @@
+<Window x:Class="CatsAssistant.App.TodayEventsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CatsAssistant.App"
+        mc:Ignorable="d"
+        Title="Événements du jour" Height="450" Width="800">
+    <Grid>
+        <DataGrid x:Name="EventsGrid"
+                  Margin="8"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Heure" Binding="{Binding Time}" Width="100" />
+                <DataGridTextColumn Header="Type" Binding="{Binding Kind}" Width="110" />
+                <DataGridTextColumn Header="Processus" Binding="{Binding Process}" Width="180" />
+                <DataGridTextColumn Header="Titre de fenêtre" Binding="{Binding WindowTitle}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
