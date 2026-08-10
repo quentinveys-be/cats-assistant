@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#E9E9EA;font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--acc-txt);text-decoration:none}
+a:hover{color:var(--acc-fill);text-decoration:underline}
+.catsapp{
+--bg-desk:#E9E9EA;--bg-base:#F3F3F3;--bg-layer:#FBFBFB;--bg-card:#FFFFFF;--bg-card-2:#F6F6F6;
+--bg-subtle:#F0F0F0;--bg-subtle-2:#E6E6E6;--smoke:rgba(0,0,0,.30);
+--stroke:#E5E5E5;--stroke-ctrl:#D8D8D8;--stroke-strong:#C6C6C6;
+--txt:#1A1A1A;--txt-2:#5D5D5D;--txt-3:#767676;--txt-dis:#A0A0A0;
+--acc:#5980A6;--acc-fill:#4B6E92;--acc-fill-h:#41628A;--acc-fill-p:#37546F;--acc-on:#FFFFFF;
+--acc-txt:#3D5A79;--acc-tint:#ECF1F6;--acc-tint-2:#DCE6EF;--acc-stroke:#B9CBDC;
+--ok:#0F7B0F;--ok-bg:#E6F4E6;--ok-stroke:#B6DDB6;
+--warn:#8A5300;--warn-bg:#FBF0DC;--warn-stroke:#E5C58F;
+--err:#B02A1B;--err-bg:#FDECEA;--err-stroke:#F0BFB8;
+--neu:#616161;--neu-bg:#EFEFEF;--neu-stroke:#DCDCDC;
+--sh-card:0 1px 3px rgba(0,0,0,.07);--sh-fly:0 8px 16px rgba(0,0,0,.14);--sh-dlg:0 32px 64px rgba(0,0,0,.19);
+--tl-grid:#E8E8E8;--tl-idle-bg:#EDEDED;--tl-idle-st:#E0E0E0;--tl-hatch:#BDBDBD;--tl-hatch-bg:#F2F2F2;
+--t1:#4B6E92;--t1-bg:#E7EEF5;--t2:#6F5691;--t2-bg:#EFEAF4;--t3:#1F7A6B;--t3-bg:#E4F1EE;--t4:#8A6234;--t4-bg:#F4EDE3;
+--ann:#4B6E92;--ann-bg:rgba(89,128,166,.10);
+}
+.catsapp[data-theme="sombre"]{
+--bg-desk:#171717;--bg-base:#202020;--bg-layer:#272727;--bg-card:#2B2B2B;--bg-card-2:#232323;
+--bg-subtle:#2F2F2F;--bg-subtle-2:#383838;--smoke:rgba(0,0,0,.45);
+--stroke:#333333;--stroke-ctrl:#3D3D3D;--stroke-strong:#4A4A4A;
+--txt:#FFFFFF;--txt-2:#CFCFCF;--txt-3:#9E9E9E;--txt-dis:#6E6E6E;
+--acc:#5980A6;--acc-fill:#8CA9C4;--acc-fill-h:#9DB6CD;--acc-fill-p:#7C9CBA;--acc-on:#1A1A1A;
+--acc-txt:#A9C0D6;--acc-tint:#26313B;--acc-tint-2:#2F3D4A;--acc-stroke:#3E505F;
+--ok:#6CCB5F;--ok-bg:#1B2A18;--ok-stroke:#31492C;
+--warn:#E5A34D;--warn-bg:#2E2418;--warn-stroke:#4C3A22;
+--err:#FF99A4;--err-bg:#2E1B1D;--err-stroke:#4E2A2E;
+--neu:#A8A8A8;--neu-bg:#2C2C2C;--neu-stroke:#3A3A3A;
+--sh-card:0 1px 3px rgba(0,0,0,.28);--sh-fly:0 8px 16px rgba(0,0,0,.44);--sh-dlg:0 32px 64px rgba(0,0,0,.56);
+--tl-grid:#2C2C2C;--tl-idle-bg:#262626;--tl-idle-st:#313131;--tl-hatch:#4E4E4E;--tl-hatch-bg:#242424;
+--t1:#8CA9C4;--t1-bg:#28323C;--t2:#B49BD1;--t2-bg:#302A3A;--t3:#63C4B0;--t3-bg:#1E2E2B;--t4:#D0A971;--t4-bg:#302A21;
+--ann:#A9C0D6;--ann-bg:rgba(169,192,214,.12);
+}
+.catsapp[data-theme="monokai"]{
+--bg-desk:#15160F;--bg-base:#272822;--bg-layer:#2D2E27;--bg-card:#32332B;--bg-card-2:#2B2C24;
+--bg-subtle:#3A3B32;--bg-subtle-2:#45463B;--smoke:rgba(0,0,0,.55);
+--stroke:#3E3F35;--stroke-ctrl:#4A4B3F;--stroke-strong:#5A5B4C;
+--txt:#F8F8F2;--txt-2:#D7D8CB;--txt-3:#9C9A88;--txt-dis:#75715E;
+--acc:#66D9EF;--acc-fill:#66D9EF;--acc-fill-h:#7FE1F3;--acc-fill-p:#4FC4DA;--acc-on:#23241D;
+--acc-txt:#8DE6F7;--acc-tint:#23343A;--acc-tint-2:#2C4249;--acc-stroke:#3A5A63;
+--ok:#A6E22E;--ok-bg:#262E1B;--ok-stroke:#3E5323;
+--warn:#FD971F;--warn-bg:#322317;--warn-stroke:#56391C;
+--err:#F92672;--err-bg:#351B24;--err-stroke:#5A2438;
+--neu:#9C9A88;--neu-bg:#2E2F26;--neu-stroke:#43443A;
+--sh-card:0 1px 3px rgba(0,0,0,.35);--sh-fly:0 8px 16px rgba(0,0,0,.5);--sh-dlg:0 32px 64px rgba(0,0,0,.62);
+--tl-grid:#33342B;--tl-idle-bg:#2B2C24;--tl-idle-st:#35362D;--tl-hatch:#4E4F42;--tl-hatch-bg:#2A2B23;
+--t1:#66D9EF;--t1-bg:#23343A;--t2:#AE81FF;--t2-bg:#2D2739;--t3:#A6E22E;--t3-bg:#262E1B;--t4:#E6DB74;--t4-bg:#333019;
+--ann:#8DE6F7;--ann-bg:rgba(102,217,239,.12);
+}
+.catsapp[data-theme="dracula"]{
+--bg-desk:#191A21;--bg-base:#282A36;--bg-layer:#2D2F3B;--bg-card:#343746;--bg-card-2:#2B2D39;
+--bg-subtle:#3C3F52;--bg-subtle-2:#44475A;--smoke:rgba(0,0,0,.55);
+--stroke:#3B3E4F;--stroke-ctrl:#474B5F;--stroke-strong:#565A70;
+--txt:#F8F8F2;--txt-2:#D9DBE8;--txt-3:#9AA0C0;--txt-dis:#6272A4;
+--acc:#BD93F9;--acc-fill:#BD93F9;--acc-fill-h:#CBA9FB;--acc-fill-p:#A87BEB;--acc-on:#21222C;
+--acc-txt:#D0B3FC;--acc-tint:#322C46;--acc-tint-2:#3D3556;--acc-stroke:#4E4470;
+--ok:#50FA7B;--ok-bg:#1E3226;--ok-stroke:#2E5238;
+--warn:#FFB86C;--warn-bg:#37291B;--warn-stroke:#5A4227;
+--err:#FF5555;--err-bg:#35222A;--err-stroke:#5E2E35;
+--neu:#9AA0C0;--neu-bg:#2F3242;--neu-stroke:#444862;
+--sh-card:0 1px 3px rgba(0,0,0,.35);--sh-fly:0 8px 16px rgba(0,0,0,.5);--sh-dlg:0 32px 64px rgba(0,0,0,.62);
+--tl-grid:#34374A;--tl-idle-bg:#2B2D39;--tl-idle-st:#363949;--tl-hatch:#4E5268;--tl-hatch-bg:#2A2C38;
+--t1:#BD93F9;--t1-bg:#322C46;--t2:#8BE9FD;--t2-bg:#1F3540;--t3:#50FA7B;--t3-bg:#1E3226;--t4:#FF79C6;--t4-bg:#3A2436;
+--ann:#D0B3FC;--ann-bg:rgba(189,147,249,.14);
+}
+.catsapp[data-theme="arcenciel"]{
+--bg-desk:#000000;--bg-base:#0A0A0B;--bg-layer:#121214;--bg-card:#17171A;--bg-card-2:#101012;
+--bg-subtle:#1F1F23;--bg-subtle-2:#2A2A30;--smoke:rgba(0,0,0,.68);
+--stroke:#232329;--stroke-ctrl:#33333B;--stroke-strong:#45454F;
+--txt:#FFFFFF;--txt-2:#D6D6DE;--txt-3:#9A9AA6;--txt-dis:#6A6A76;
+--acc:#FFCC33;--acc-fill:#FFCC33;--acc-fill-h:#FFD866;--acc-fill-p:#E6B21F;--acc-on:#0A0A0B;
+--acc-txt:#FFDE7A;--acc-tint:#2A2106;--acc-tint-2:#3A2D08;--acc-stroke:#5C4A12;
+--ok:#3DF08B;--ok-bg:#062514;--ok-stroke:#10502D;
+--warn:#FF9F2E;--warn-bg:#2A1A06;--warn-stroke:#5A3610;
+--err:#FF5E5E;--err-bg:#2A0D0D;--err-stroke:#5C1F1F;
+--neu:#9A9AA6;--neu-bg:#1A1A1E;--neu-stroke:#2C2C34;
+--sh-card:0 1px 3px rgba(0,0,0,.6);--sh-fly:0 8px 16px rgba(0,0,0,.7);--sh-dlg:0 32px 64px rgba(0,0,0,.8);
+--tl-grid:#1E1E23;--tl-idle-bg:#131316;--tl-idle-st:#1E1E24;--tl-hatch:#3A3A44;--tl-hatch-bg:#101013;
+--t1:#4CC2FF;--t1-bg:#07222E;--t2:#B57BFF;--t2-bg:#1B0F2E;--t3:#3DF08B;--t3-bg:#062514;--t4:#FF6FB5;--t4-bg:#2C0F1F;
+--ann:#FFDE7A;--ann-bg:rgba(255,204,51,.14);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+</style>
+</helmet>
+<div class="catsapp" data-theme="{{ theme }}" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:56px 120px;box-sizing:border-box;background:var(--bg-desk);color:var(--txt);font-family:'Segoe UI Variable Text','Segoe UI',system-ui,sans-serif;font-size:14px;line-height:20px">
+<div style="position:relative;flex:none">
+<sc-if value="{{ showAnn }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;left:0;top:-26px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ann);letter-spacing:.02em;text-transform:uppercase">Barre de titre 32 px · boutons 46×32</div>
+  <div style="position:absolute;left:-112px;top:120px;width:104px;text-align:right;font-size:10px;color:var(--ann);line-height:14px">NavigationView<br>248 px · rail 3 px</div>
+  <div style="position:absolute;left:-8px;top:120px;width:8px;border-top:1px dashed var(--ann)"></div>
+  <div style="position:absolute;left:-112px;top:300px;width:104px;text-align:right;font-size:10px;color:var(--ann);line-height:14px">Timeline<br>1 h = 56 px</div>
+  <div style="position:absolute;left:-8px;top:300px;width:8px;border-top:1px dashed var(--ann)"></div>
+  <div style="position:absolute;right:-124px;top:150px;width:116px;font-size:10px;color:var(--ann);line-height:14px">Panneau CATS 372 px<br>carte r = 4 px · liseré 3 px</div>
+  <div style="position:absolute;right:-8px;top:150px;width:8px;border-top:1px dashed var(--ann)"></div>
+  <div style="position:absolute;right:-124px;top:420px;width:116px;font-size:10px;color:var(--ann);line-height:14px">Durée : 18/24 SemiBold<br>Note : 13/17 Regular</div>
+  <div style="position:absolute;right:-8px;top:420px;width:8px;border-top:1px dashed var(--ann)"></div>
+  <div style="position:absolute;left:0;bottom:-24px;font-size:10px;color:var(--ann);letter-spacing:.02em;text-transform:uppercase">Barre d'état 28 px · pastilles 8 px</div>
+</sc-if>
+<div style="position:relative;flex:none;width:1280px;height:840px;border-radius:8px;overflow:hidden;background:var(--bg-base);box-shadow:0 18px 50px rgba(0,0,0,.28);border:1px solid var(--stroke-ctrl);display:flex;flex-direction:column">
+
+  <div style="height:32px;flex:none;display:flex;align-items:center;gap:8px;padding-left:12px;background:var(--bg-layer);border-bottom:1px solid var(--stroke);-webkit-user-select:none">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--acc-fill)" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5V12l3 2"></path></svg>
+    <span style="font-size:12px;color:var(--txt-2)">CATS Assistant</span>
+    <span style="flex:1"></span>
+    <div style="display:flex;height:32px">
+      <div style="width:46px;display:flex;align-items:center;justify-content:center" style-hover="background:var(--bg-subtle)"><svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--txt-2)" stroke-width="1"><path d="M0 5h10"></path></svg></div>
+      <div style="width:46px;display:flex;align-items:center;justify-content:center" style-hover="background:var(--bg-subtle)"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--txt-2)" stroke-width="1"><rect x="0.5" y="0.5" width="9" height="9"></rect></svg></div>
+      <div style="width:46px;display:flex;align-items:center;justify-content:center" style-hover="background:#C42B1C"><svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--txt-2)" stroke-width="1"><path d="M0 0l10 10M10 0L0 10"></path></svg></div>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;min-height:0">
+
+    <div style="width:248px;flex:none;background:var(--bg-layer);border-right:1px solid var(--stroke);display:flex;flex-direction:column;padding:4px 8px 8px">
+      <div style="padding:8px 8px 12px;display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;border-radius:6px;background:var(--acc-tint);border:1px solid var(--acc-stroke);display:flex;align-items:center;justify-content:center">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--acc-txt)" stroke-width="1.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5V12l3 2"></path></svg>
+        </div>
+        <div style="min-width:0">
+          <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:14px;line-height:18px;font-weight:600;letter-spacing:-.01em;white-space:nowrap">CATS Assistant</div>
+          <div style="font-size:12px;line-height:15px;color:var(--txt-3);white-space:nowrap">Saisie des temps</div>
+        </div>
+      </div>
+
+      <div onClick="{{ goTimeline }}" style="{{ navTL }}" style-hover="background:var(--bg-subtle)">
+        <div style="{{ railTL }}"></div>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4l3 2"></path></svg>
+        <span style="flex:1">Journée</span>
+      </div>
+      <div onClick="{{ goRattrapage }}" style="{{ navRA }}" style-hover="background:var(--bg-subtle)">
+        <div style="{{ railRA }}"></div>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex:none"><path d="M3.5 12a8.5 8.5 0 1 0 2.9-6.4L3 8"></path><path d="M3 4v4.4h4.4"></path></svg>
+        <span style="flex:1">Rattrapage</span>
+        <span style="{{ badge3 }}">3</span>
+      </div>
+      <div onClick="{{ goRecap }}" style="{{ navRC }}" style-hover="background:var(--bg-subtle)">
+        <div style="{{ railRC }}"></div>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex:none"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"></path></svg>
+        <span style="flex:1">Récapitulatif</span>
+        <span style="{{ badgeRC }}">{{ recapCount }}</span>
+      </div>
+
+      <span style="flex:1"></span>
+
+      <div style="border-top:1px solid var(--stroke);margin:0 4px 8px;padding-top:8px;display:flex;flex-direction:column;gap:2px">
+        <div onClick="{{ toggleTheme }}" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:4px;cursor:pointer;color:var(--txt-2);font-size:14px" style-hover="background:var(--bg-subtle)">
+          <sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex:none"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"></path></svg>
+          </sc-if>
+          <sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex:none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path></svg>
+          </sc-if>
+          <span style="flex:1">{{ themeLabel }}</span>
+        </div>
+        <div onClick="{{ goParams }}" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:4px;cursor:pointer;color:var(--txt-2);font-size:14px" style-hover="background:var(--bg-subtle)">
+          <div style="width:20px;display:flex;justify-content:center;flex:none">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15H2.9a2 2 0 1 1 0-4H3a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.1V4a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11h.1a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.6 1z"></path></svg>
+          </div>
+          <span style="flex:1">Paramètres</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="content" style="flex:1;min-width:0;display:flex;flex-direction:column;position:relative">
+
+      <sc-if value="{{ isTimeline }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+        <div style="flex:none;padding:16px 20px 12px;display:flex;align-items:center;gap:12px">
+          <div style="display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;height:32px;background:var(--bg-card);overflow:hidden">
+            <div onClick="{{ prevDay }}" style="width:32px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-right:1px solid var(--stroke)" style-hover="background:var(--bg-subtle)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--txt-2)" stroke-width="1.5"><path d="M15 18l-6-6 6-6"></path></svg>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:0 12px;height:30px;cursor:pointer" style-hover="background:var(--bg-subtle)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--txt-2)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+              <span style="font-size:14px;font-weight:600;white-space:nowrap">{{ dayLabel }}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--txt-3)" stroke-width="1.6"><path d="M6 9l6 6 6-6"></path></svg>
+            </div>
+            <div onClick="{{ nextDay }}" style="width:32px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-left:1px solid var(--stroke)" style-hover="background:var(--bg-subtle)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--txt-2)" stroke-width="1.5"><path d="M9 18l6-6-6-6"></path></svg>
+            </div>
+          </div>
+          <div style="height:32px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:14px;color:var(--txt-2);cursor:pointer" style-hover="background:var(--bg-subtle)">Aujourd'hui</div>
+          <span style="flex:1"></span>
+          <div onClick="{{ goRattrapage }}" style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 8px;border-radius:4px;background:var(--warn-bg);border:1px solid var(--warn-stroke);cursor:pointer">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.5"><path d="M12 9v4M12 16.5v.5"></path><path d="M10.3 3.9L2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
+            <span style="font-size:14px;color:var(--warn);font-weight:600">3 jours non complétés</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.6"><path d="M9 18l6-6-6-6"></path></svg>
+          </div>
+        </div>
+
+        <sc-if value="{{ offline }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;margin:0 20px 12px;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--err-stroke);border-left:3px solid var(--err);border-radius:4px;background:var(--err-bg)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--err)" stroke-width="1.6" style="flex:none"><path d="M2 8.8A16 16 0 0 1 22 8.8M5 12.5a11 11 0 0 1 14 0M8.5 16a6 6 0 0 1 7 0M12 20h.01"></path><path d="M3 3l18 18"></path></svg>
+            <div style="flex:1">
+              <span style="font-size:13px;font-weight:600;color:var(--err)">SAP inaccessible — poste hors réseau ULiège</span>
+              <span style="font-size:13px;color:var(--txt-2)"> · la capture et la corrélation continuent ; l'envoi vers CATS est désactivé jusqu'au retour du VPN.</span>
+            </div>
+            <div style="height:28px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:13px;cursor:pointer;white-space:nowrap" style-hover="background:var(--bg-subtle)">Réessayer</div>
+          </div>
+        </sc-if>
+        <div style="flex:1;display:flex;gap:16px;padding:0 20px 16px;min-height:0">
+
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;border:1px solid var(--stroke);border-radius:6px;background:var(--bg-card);box-shadow:var(--sh-card);overflow:hidden">
+            <div style="flex:none;height:40px;display:flex;align-items:center;gap:14px;padding:0 14px;border-bottom:1px solid var(--stroke);background:var(--bg-card-2)">
+              <span style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:14px;font-weight:600;white-space:nowrap">Journée capturée</span>
+              <span style="flex:1"></span>
+              <div style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:var(--t1)"></span><span style="font-size:12px;color:var(--txt-3);white-space:nowrap">corrélé</span></div>
+              <div style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:var(--tl-hatch-bg);border:1px solid var(--tl-hatch);background-image:repeating-linear-gradient(135deg,transparent 0 2px,var(--tl-hatch) 2px 3px)"></span><span style="font-size:12px;color:var(--txt-3);white-space:nowrap">non corrélé</span></div>
+              <div style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:var(--tl-idle-bg);border:1px solid var(--tl-idle-st)"></span><span style="font-size:12px;color:var(--txt-3);white-space:nowrap">inactivité</span></div>
+              <div style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;border:1px dashed var(--acc);background:var(--acc-tint)"></span><span style="font-size:12px;color:var(--txt-3);white-space:nowrap">réunion</span></div>
+            </div>
+            <div style="flex:none;height:24px;display:flex;align-items:center;border-bottom:1px solid var(--stroke);background:var(--bg-card)">
+              <span style="width:46px;flex:none"></span>
+              <span style="width:306px;flex:none;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--txt-3)">{{ rawHeader }}</span>
+              <span style="width:10px;flex:none"></span>
+              <span style="flex:1;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--acc-txt)">{{ groupHeader }}</span>
+            </div>
+            <div style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative">
+              <div style="position:relative;height:{{ tlHeight }};margin:8px 8px 8px 0">
+                <div style="position:absolute;left:356px;top:0;bottom:0;width:1px;background:var(--stroke)"></div>
+                <sc-for list="{{ hours }}" as="h" hint-placeholder-count="11">
+                  <div style="{{ h.style }}">
+                    <span style="position:absolute;left:0;top:-8px;width:38px;text-align:right;font-size:11px;color:var(--txt-3);font-variant-numeric:tabular-nums">{{ h.label }}</span>
+                    <div style="position:absolute;left:46px;right:0;top:0;border-top:1px solid var(--tl-grid)"></div>
+                  </div>
+                </sc-for>
+                <sc-for list="{{ gaps }}" as="g" hint-placeholder-count="5">
+                  <div onClick="{{ g.onClick }}" style="{{ g.style }}" style-hover="background:var(--warn-stroke)"><span style="{{ g.labelStyle }}">{{ g.label }}</span></div>
+                </sc-for>
+                <sc-for list="{{ groups }}" as="g" hint-placeholder-count="7">
+                  <div onClick="{{ g.onClick }}" style="{{ g.style }}" style-hover="filter:brightness(1.04)">
+                    <div style="{{ g.dotStyle }}"></div>
+                    <div style="{{ g.keyStyle }}">{{ g.key }} · {{ g.dur }}</div>
+                    <div style="{{ g.metaStyle }}">{{ g.meta }}</div>
+                  </div>
+                </sc-for>
+                <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="20">
+                  <div onClick="{{ b.onClick }}" style="{{ b.style }}" style-hover="filter:brightness(1.03)">
+                    <div style="{{ b.bar }}"></div>
+                    <span style="{{ b.durStyle }}">{{ b.dur }}</span>
+                    <sc-if value="{{ b.showTitle }}" hint-placeholder-val="{{ true }}">
+                      <span style="{{ b.titleStyle }}">{{ b.title }}</span>
+                    </sc-if>
+                    <sc-if value="{{ b.showSub }}" hint-placeholder-val="{{ true }}">
+                      <span style="{{ b.subStyle }}">{{ b.sub }}</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+                <sc-for list="{{ meetings }}" as="m" hint-placeholder-count="2">
+                  <div style="{{ m.style }}">
+                    <sc-if value="{{ m.showLabel }}" hint-placeholder-val="{{ true }}">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--acc-txt)" stroke-width="1.5" style="flex:none"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+                    </sc-if>
+                    <sc-if value="{{ m.showLabel }}" hint-placeholder-val="{{ true }}">
+                      <span style="font-size:12px;line-height:14px;font-weight:600;color:var(--acc-txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.label }}</span>
+                    </sc-if>
+                    <sc-if value="{{ m.showLabel }}" hint-placeholder-val="{{ true }}">
+                      <span style="font-size:11px;line-height:14px;color:var(--acc-txt);opacity:.8;font-variant-numeric:tabular-nums;flex:none">{{ m.time }}</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="width:372px;flex:none;display:flex;flex-direction:column;border:1px solid var(--stroke);border-radius:6px;background:var(--bg-card);box-shadow:var(--sh-card);overflow:hidden">
+            <div style="flex:none;padding:12px 14px 10px;border-bottom:1px solid var(--stroke);background:var(--bg-card-2)">
+              <div style="display:flex;align-items:baseline;gap:8px">
+                <span style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:14px;font-weight:600;flex:1">Lignes CATS proposées</span>
+                <span style="font-size:12px;color:var(--txt-3);font-variant-numeric:tabular-nums">{{ totalProposed }} / {{ expected }}</span>
+              </div>
+              <div style="margin-top:8px;height:4px;border-radius:2px;background:var(--bg-subtle-2);overflow:hidden">
+                <div style="{{ gaugeStyle }}"></div>
+              </div>
+            </div>
+            <div style="flex:none;padding:8px 10px;border-bottom:1px solid var(--stroke);background:var(--bg-card)">
+              <div onClick="{{ toggleQuick }}" style="display:flex;align-items:center;gap:8px;height:28px;padding:0 8px;border-radius:4px;cursor:pointer;color:var(--acc-txt)" style-hover="background:var(--acc-tint)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="flex:none"><path d="M12 5v14M5 12h14"></path></svg>
+                <span style="font-size:13px;font-weight:600;flex:1">Encodage rapide</span>
+                <span style="font-size:11px;color:var(--txt-3)">ligne manuelle, sans activité captée</span>
+              </div>
+              <sc-if value="{{ quickOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:8px;padding:10px;border:1px solid var(--acc-stroke);border-radius:4px;background:var(--acc-tint);display:flex;flex-direction:column;gap:8px;position:relative">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="display:flex;align-items:center;flex:none">
+                      <div onClick="{{ qMinus }}" style="width:28px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:4px 0 0 4px;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path></svg></div>
+                      <div style="width:56px;height:30px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--stroke-ctrl);border-bottom:1px solid var(--stroke-ctrl);background:var(--bg-card);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">{{ qDur }}</div>
+                      <div onClick="{{ qPlus }}" style="width:28px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:0 4px 4px 0;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg></div>
+                    </div>
+                    <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;height:30px;padding:0 8px;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card)">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--txt-3)" stroke-width="1.5" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5L21 21"></path></svg>
+                      <input value="{{ qQuery }}" onInput="{{ qOnQuery }}" onFocus="{{ qOpenList }}" placeholder="Ticket…" style="flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:13px;color:var(--txt);min-width:0" />
+                    </div>
+                  </div>
+                  <sc-if value="{{ qListOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;left:10px;right:10px;top:48px;z-index:6;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-layer);box-shadow:var(--sh-fly);max-height:168px;overflow-y:auto">
+                      <sc-for list="{{ qSuggestions }}" as="t" hint-placeholder-count="3">
+                        <div onClick="{{ t.pick }}" style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:1px solid var(--stroke)" style-hover="background:var(--bg-subtle)">
+                          <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:11px;font-weight:600;color:var(--acc-txt);flex:none">{{ t.key }}</span>
+                          <span style="flex:1;font-size:12px;color:var(--txt-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.sum }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <input value="{{ qNote }}" onInput="{{ qOnNote }}" placeholder="Note (80 caractères)" style="height:30px;box-sizing:border-box;padding:0 8px;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);color:var(--txt);font-family:inherit;font-size:13px;outline:none" />
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="flex:1;font-size:11px;color:var(--txt-3);font-family:Consolas,'Cascadia Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ qCodes }}</span>
+                    <div onClick="{{ toggleQuick }}" style="height:30px;padding:0 10px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:13px;cursor:pointer" style-hover="background:var(--bg-subtle)">Annuler</div>
+                    <div onClick="{{ qAdd }}" style="{{ qAddStyle }}">Ajouter la ligne</div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <div style="flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ lines }}" as="l" hint-placeholder-count="5">
+                <div style="{{ l.cardStyle }}">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em">{{ l.dur }}</span>
+                    <span style="{{ l.keyStyle }}">{{ l.key }}</span>
+                    <span style="flex:1"></span>
+                    <span style="{{ l.chipStyle }}"><span style="{{ l.dotStyle }}"></span>{{ l.statusLabel }}</span>
+                  </div>
+                  <div style="font-size:13px;line-height:17px;color:var(--txt-2);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ l.note }}</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:7px">
+                    <span style="font-size:11px;color:var(--txt-3);font-family:Consolas,'Cascadia Mono',monospace">{{ l.posid }}</span>
+                    <span style="width:1px;height:10px;background:var(--stroke-ctrl)"></span>
+                    <span style="font-size:11px;color:var(--txt-3);font-family:Consolas,'Cascadia Mono',monospace">{{ l.zwpid }}</span>
+                    <span style="{{ l.vStyle }}">{{ l.vLabel }}</span>
+                  </div>
+                  <sc-if value="{{ l.actions }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;gap:6px;margin-top:9px">
+                      <div onClick="{{ l.onEdit }}" style="height:28px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;font-size:13px;color:var(--txt);cursor:pointer;background:var(--bg-card)" style-hover="background:var(--bg-subtle)">Modifier</div>
+                      <div onClick="{{ l.onValidate }}" style="{{ l.validStyle }}" style-hover="background:var(--acc-fill-h)">{{ l.validLabel }}</div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <sc-if value="{{ emptyDay }}" hint-placeholder-val="{{ false }}">
+                <div style="margin:auto;text-align:center;padding:40px 24px;max-width:260px">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--txt-dis)" stroke-width="1.2"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4M9 15h6"></path></svg>
+                  <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:14px;font-weight:600;margin-top:12px">Aucune activité capturée</div>
+                  <div style="font-size:13px;line-height:18px;color:var(--txt-3);margin-top:4px">La capture était en pause ou le poste éteint. Vous pouvez ajouter une ligne manuellement.</div>
+                  <div style="margin-top:14px;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--stroke-ctrl);border-radius:4px;font-size:13px;cursor:pointer;background:var(--bg-card)" style-hover="background:var(--bg-subtle)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"></path></svg>Ajouter une ligne
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <div style="flex:none;padding:10px;border-top:1px solid var(--stroke);background:var(--bg-card-2);display:flex;gap:8px">
+              <div onClick="{{ validateAll }}" style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:14px;cursor:pointer" style-hover="background:var(--bg-subtle)">Tout valider</div>
+              <div onClick="{{ goRecap }}" style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:4px;background:var(--acc-fill);color:var(--acc-on);font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent" style-hover="background:var(--acc-fill-h)">
+                Récapitulatif
+                <span style="background:rgba(255,255,255,.22);border-radius:9px;padding:0 6px;font-size:11px;font-variant-numeric:tabular-nums">{{ recapCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isRattrapage }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;padding:18px 20px 16px">
+        <div style="flex:none;display:flex;align-items:flex-end;gap:12px">
+          <div style="flex:1">
+            <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em">Rattrapage</div>
+            <div style="font-size:13px;color:var(--txt-3);margin-top:2px">3 journées non complétées depuis le jeudi 6 août 2026 · 38 h/semaine, 7:36 attendues par jour</div>
+          </div>
+          <div onClick="{{ startWalk }}" style="height:32px;padding:0 14px;display:flex;align-items:center;gap:8px;border-radius:4px;background:var(--acc-fill);color:var(--acc-on);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="background:var(--acc-fill-h)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h13M13 7l5 5-5 5"></path></svg>
+            Tout valider jour par jour
+          </div>
+        </div>
+
+        <sc-if value="{{ walking }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:12px;display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--acc-stroke);border-left:3px solid var(--acc-fill);border-radius:4px;background:var(--acc-tint)">
+            <span style="font-size:13px;font-weight:600;color:var(--acc-txt);white-space:nowrap">{{ walkLabel }}</span>
+            <span style="font-size:13px;color:var(--txt-2);flex:1">{{ walkDay }} — vérifiez les lignes, puis validez. Aucune journée n'est validée sans votre clic.</span>
+            <div onClick="{{ walkValidate }}" style="height:28px;padding:0 12px;display:flex;align-items:center;border-radius:4px;background:var(--acc-fill);color:var(--acc-on);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="background:var(--acc-fill-h)">Valider et continuer</div>
+            <div onClick="{{ walkSkip }}" style="height:28px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:13px;cursor:pointer;white-space:nowrap" style-hover="background:var(--bg-subtle)">Ignorer</div>
+          </div>
+        </sc-if>
+
+        <div style="flex:1;min-height:0;overflow:auto;margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ days }}" as="d" hint-placeholder-count="4">
+            <div style="{{ d.cardStyle }}">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:220px;flex:none">
+                  <div style="font-size:14px;font-weight:600">{{ d.long }}</div>
+                  <div style="font-size:12px;color:var(--txt-3);margin-top:1px">{{ d.note }}</div>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+                    <span style="font-size:13px;font-variant-numeric:tabular-nums;font-weight:600">{{ d.prop }}</span>
+                    <span style="font-size:12px;color:var(--txt-3);font-variant-numeric:tabular-nums">/ {{ d.exp }} attendues</span>
+                    <span style="flex:1"></span>
+                    <span style="{{ d.pctStyle }}">{{ d.pct }}</span>
+                  </div>
+                  <div style="height:6px;border-radius:3px;background:var(--bg-subtle-2);overflow:hidden">
+                    <div style="{{ d.gauge }}"></div>
+                  </div>
+                </div>
+                <span style="{{ d.chipStyle }}">{{ d.stLabel }}</span>
+                <div onClick="{{ d.open }}" style="height:30px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:13px;cursor:pointer;white-space:nowrap;flex:none" style-hover="background:var(--bg-subtle)">Ouvrir la journée</div>
+                <div onClick="{{ d.validate }}" style="{{ d.valStyle }}" style-hover="background:var(--acc-fill-h)">{{ d.valLabel }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isRecap }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;padding:18px 20px 16px">
+        <div style="flex:none;display:flex;align-items:center;gap:10px">
+          <div onClick="{{ goTimeline }}" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);cursor:pointer;flex:none" style-hover="background:var(--bg-subtle)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--txt-2)" stroke-width="1.6"><path d="M19 12H6M11 7l-5 5 5 5"></path></svg>
+          </div>
+          <div style="flex:1">
+            <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em">Récapitulatif avant envoi</div>
+            <div style="font-size:13px;color:var(--txt-3);margin-top:2px">{{ recapCount }} lignes validées · {{ recapTotal }} au total · codes OTP/Activité vérifiés dans ValueHelpList</div>
+          </div>
+        </div>
+
+        <div style="{{ gateStyle }}">
+          <div style="{{ gateIconStyle }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 9v4M12 16.5v.5"></path><path d="M10.3 3.9L2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600;color:{{ gateColor }}">{{ gateTitle }}</div>
+            <div style="font-size:13px;line-height:18px;color:var(--txt-2);margin-top:2px">{{ gateBody }}</div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;margin-top:12px;border:1px solid var(--stroke);border-radius:6px;background:var(--bg-card);box-shadow:var(--sh-card);display:flex;flex-direction:column;overflow:hidden">
+          <div style="{{ rowGrid }}">
+            <span>Date</span><span>Durée</span><span>Ticket</span><span>Note (LONGTEXT_DATA)</span><span>OTP · POSID</span><span>Activité</span><span>État</span>
+          </div>
+          <div style="flex:1;overflow:auto">
+            <sc-for list="{{ recapRows }}" as="r" hint-placeholder-count="6">
+              <div style="{{ r.rowStyle }}">
+                <span style="font-variant-numeric:tabular-nums;color:var(--txt-2)">{{ r.date }}</span>
+                <span style="font-variant-numeric:tabular-nums;font-weight:600">{{ r.dur }}</span>
+                <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:var(--acc-txt);white-space:nowrap">{{ r.key }}</span>
+                <span style="color:var(--txt-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.note }}</span>
+                <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:var(--txt-2);white-space:nowrap">{{ r.posid }}</span>
+                <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:var(--txt-2)">{{ r.zwpid }}</span>
+                <span style="{{ r.stateStyle }}">{{ r.state }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="flex:none;display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;border-top:1px solid var(--stroke);background:var(--bg-card-2)">
+            <span style="font-size:13px;color:var(--txt-3)">Total</span>
+            <span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">{{ recapTotal }}</span>
+            <span style="flex:1"></span>
+            <span style="font-size:12px;color:var(--txt-3)">{{ recapFoot }}</span>
+          </div>
+        </div>
+
+        <div style="flex:none;display:flex;align-items:center;gap:10px;margin-top:14px">
+          <div onClick="{{ goTimeline }}" style="height:34px;padding:0 16px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:14px;cursor:pointer" style-hover="background:var(--bg-subtle)">Retour</div>
+          <span style="flex:1;font-size:12px;color:var(--txt-3)">POST $batch → TimeEntries · aucune soumission sans ce clic</span>
+          <div onClick="{{ send }}" style="{{ sendStyle }}" style-hover="background:var(--acc-fill-h)">
+            <sc-if value="{{ sending }}" hint-placeholder-val="{{ false }}">
+              <span style="width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;display:inline-block"></span>
+            </sc-if>
+            {{ sendLabel }}
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isParams }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;padding:18px 20px 16px">
+        <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em;flex:none">Paramètres</div>
+        <div style="flex:none;display:flex;gap:2px;margin-top:12px;border-bottom:1px solid var(--stroke)">
+          <div onClick="{{ tabCo }}" style="{{ tabCoStyle }}">Connexions</div>
+          <div onClick="{{ tabCa }}" style="{{ tabCaStyle }}">Capture</div>
+          <div onClick="{{ tabDo }}" style="{{ tabDoStyle }}">Données</div>
+          <div onClick="{{ tabRu }}" style="{{ tabRuStyle }}">Règles</div>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto;padding-top:16px">
+
+          <sc-if value="{{ tabIsCo }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:10px;max-width:900px">
+              <div style="border:1px solid var(--stroke);border-radius:6px;background:var(--bg-card);padding:14px 16px;box-shadow:var(--sh-card)">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none"></span>
+                  <div style="flex:1">
+                    <div style="font-size:14px;font-weight:600">SAP — HCM_TIMESHEET_MAN_SRV</div>
+                    <div style="font-size:13px;color:var(--txt-3);margin-top:2px">p09.sap.ulg.ac.be · client 010 · session ouverte à 14:32, cookies en mémoire uniquement</div>
+                  </div>
+                  <span style="{{ chipOk }}">connecté</span>
+                  <div onClick="{{ openSapLogon }}" style="height:30px;padding:0 14px;display:flex;align-items:center;border-radius:4px;background:var(--acc-fill);color:var(--acc-on);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="background:var(--acc-fill-h)">Se connecter</div>
+                </div>
+                <div style="margin-top:10px;padding:8px 10px;border-radius:4px;background:var(--bg-card-2);border:1px solid var(--stroke);font-size:12px;line-height:17px;color:var(--txt-2)">Aucun identifiant SAP n'est enregistré. Le bouton ouvre la fenêtre de logon SAP (WebView2) ; seuls les cookies de session sont réutilisés, jamais stockés sur le disque.</div>
+              </div>
+
+              <div style="border:1px solid var(--stroke);border-radius:6px;background:var(--bg-card);box-shadow:var(--sh-card);overflow:hidden">
+                <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--stroke)">
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none"></span>
+                  <div style="flex:1">
+                    <div style="font-size:14px;font-weight:600">JIRA Cloud — ulis-uliege.atlassian.net</div>
+                    <div style="font-size:13px;color:var(--txt-3);margin-top:2px">Token API personnel · coffre YubiKey · dernière synchro 14:28</div>
+                  </div>
+                  <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:var(--txt-3)">••••••••••••4f2a</span>
+                  <div style="height:30px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;font-size:13px;cursor:pointer;background:var(--bg-card);white-space:nowrap" style-hover="background:var(--bg-subtle)">Remplacer</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:14px 16px">
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none"></span>
+                  <div style="flex:1">
+                    <div style="font-size:14px;font-weight:600">GitLab — gitlab.uliege.be</div>
+                    <div style="font-size:13px;color:var(--warn);margin-top:2px">Token expiré le 09/08/2026 · les commits ne sont plus corrélés</div>
+                  </div>
+                  <span style="{{ chipWarn }}">expiré</span>
+                  <div style="height:30px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;font-size:13px;cursor:pointer;background:var(--bg-card);white-space:nowrap" style-hover="background:var(--bg-subtle)">Remplacer</div>
+                </div>
+              </div>
+
+              <div style="border:1px solid var(--stroke);border-radius:6px;background:var(--bg-card);padding:14px 16px;box-shadow:var(--sh-card);display:flex;align-items:center;gap:10px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--acc-txt)" stroke-width="1.5" style="flex:none"><circle cx="8" cy="15" r="4"></circle><path d="M10.8 12.2L20 3M17 3h3v3"></path></svg>
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:600">Coffre YubiKey</div>
+                  <div style="font-size:13px;color:var(--txt-3);margin-top:2px">Clé maître dérivée par challenge-response HMAC-SHA1 + DPAPI · contient les tokens JIRA et GitLab uniquement</div>
+                </div>
+                <span style="{{ chipOk }}">déverrouillé</span>
+                <div onClick="{{ openYubi }}" style="height:30px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;font-size:13px;cursor:pointer;background:var(--bg-card);white-space:nowrap" style-hover="background:var(--bg-subtle)">Tester la clé</div>
+              </div>
+
+              <div style="border:1px solid var(--stroke);border-radius:6px;background:var(--bg-card);padding:14px 16px;box-shadow:var(--sh-card);display:flex;align-items:center;gap:10px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--acc-txt)" stroke-width="1.5" style="flex:none"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:600">Outlook local</div>
+                  <div style="font-size:13px;color:var(--txt-3);margin-top:2px">Interop COM · lecture du calendrier par défaut · sujets et organisateurs seulement</div>
+                </div>
+                <span style="{{ chipOk }}">connecté</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabIsCa }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:640px">
+              <div>
+                <div style="font-size:14px;font-weight:600">Seuil d'inactivité</div>
+                <div style="font-size:13px;color:var(--txt-3);margin:2px 0 8px">Au-delà de ce délai sans saisie ni souris, le temps est marqué inactif (GetLastInputInfo).</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div onClick="{{ idleMinus }}" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-right:none;border-radius:4px 0 0 4px;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path></svg></div>
+                  <div style="width:70px;height:32px;margin:0 -8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);background:var(--bg-card);font-size:14px;font-variant-numeric:tabular-nums">{{ idle }} min</div>
+                  <div onClick="{{ idlePlus }}" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-left:none;border-radius:0 4px 4px 0;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg></div>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:600">Durée minimale d'un bloc</div>
+                <div style="font-size:13px;color:var(--txt-3);margin:2px 0 8px">Les activités plus courtes sont fusionnées avec le bloc voisin.</div>
+                <div style="display:flex;gap:0;border:1px solid var(--stroke-ctrl);border-radius:4px;overflow:hidden;width:max-content">
+                  <div onClick="{{ minB10 }}" style="{{ minB10Style }}">10 min</div>
+                  <div onClick="{{ minB15 }}" style="{{ minB15Style }}">15 min</div>
+                  <div onClick="{{ minB30 }}" style="{{ minB30Style }}">30 min</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--stroke)">
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:600">Capture au démarrage de Windows</div>
+                  <div style="font-size:13px;color:var(--txt-3);margin-top:2px">Clé HKCU\\Run · aucun service, aucun droit administrateur</div>
+                </div>
+                <div onClick="{{ toggleAutostart }}" style="{{ swAuto }}"><span style="{{ swAutoKnob }}"></span></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--stroke)">
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:600">Capture en pause</div>
+                  <div style="font-size:13px;color:var(--txt-3);margin-top:2px">Suspend l'enregistrement des titres de fenêtre jusqu'à réactivation</div>
+                </div>
+                <div onClick="{{ togglePause }}" style="{{ swPause }}"><span style="{{ swPauseKnob }}"></span></div>
+              </div>
+              <div style="padding:10px 12px;border-radius:4px;background:var(--bg-card-2);border:1px solid var(--stroke);font-size:12px;line-height:17px;color:var(--txt-2)">Ne sont jamais capturés : frappes clavier, captures d'écran, contenu des documents. Seuls le processus, le titre de fenêtre et l'URL de l'onglet actif sont enregistrés.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabIsDo }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:640px">
+              <div>
+                <div style="font-size:14px;font-weight:600">Rétention</div>
+                <div style="font-size:13px;color:var(--txt-3);margin:2px 0 8px">Les événements d'activité plus anciens sont purgés automatiquement. Les lignes soumises à SAP sont conservées comme trace.</div>
+                <div style="display:flex;gap:0;border:1px solid var(--stroke-ctrl);border-radius:4px;overflow:hidden;width:max-content">
+                  <div onClick="{{ ret30 }}" style="{{ ret30Style }}">30 jours</div>
+                  <div onClick="{{ ret90 }}" style="{{ ret90Style }}">90 jours</div>
+                  <div onClick="{{ ret180 }}" style="{{ ret180Style }}">180 jours</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding-top:12px;border-top:1px solid var(--stroke)">
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:600">Base locale</div>
+                  <div style="font-size:13px;color:var(--txt-3);margin-top:2px">%LOCALAPPDATA%\\CatsAssistant\\store.db · SQLite chiffré · 18,4 Mo · 41 208 événements</div>
+                </div>
+                <div style="height:30px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;font-size:13px;cursor:pointer;background:var(--bg-card);white-space:nowrap" style-hover="background:var(--bg-subtle)">Exporter (CSV)</div>
+                <div onClick="{{ openPurge }}" style="{{ dangerBtn }}" style-hover="background:var(--err-bg)">Purger les données</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabIsRu }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px solid var(--stroke);border-radius:6px;background:var(--bg-card);box-shadow:var(--sh-card);overflow:hidden;max-width:920px">
+              <div style="{{ ruleHead }}"><span>Type</span><span>Motif</span><span>Cible</span><span>Priorité</span><span>Origine</span></div>
+              <sc-for list="{{ rules }}" as="r" hint-placeholder-count="6">
+                <div style="{{ r.rowStyle }}">
+                  <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:var(--txt-2)">{{ r.k }}</span>
+                  <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.v }}</span>
+                  <span style="color:var(--txt-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.t }}</span>
+                  <span style="font-variant-numeric:tabular-nums;color:var(--txt-2)">{{ r.p }}</span>
+                  <span style="{{ r.oStyle }}">{{ r.o }}</span>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--stroke);background:var(--bg-card-2)">
+                <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:6px;border:1px solid var(--stroke-ctrl);border-radius:4px;font-size:13px;cursor:pointer;background:var(--bg-card)" style-hover="background:var(--bg-subtle)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"></path></svg>Ajouter une règle
+                </div>
+                <span style="font-size:12px;color:var(--txt-3)">Chaque correction manuelle d'un bloc propose une règle « apprise » à la prochaine corrélation.</span>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <div style="flex:none;height:28px;display:flex;align-items:center;gap:14px;padding:0 14px;background:var(--bg-layer);border-top:1px solid var(--stroke)">
+    <sc-for list="{{ pills }}" as="p" hint-placeholder-count="5">
+      <div style="display:flex;align-items:center;gap:6px" title="{{ p.title }}">
+        <span style="{{ p.dot }}"></span>
+        <span style="font-size:12px;color:var(--txt-2)">{{ p.label }}</span>
+        <span style="{{ p.stateStyle }}">{{ p.state }}</span>
+      </div>
+    </sc-for>
+    <span style="flex:1"></span>
+    <span style="font-size:12px;color:var(--txt-3)">{{ statusRight }}</span>
+  </div>
+
+  <sc-if value="{{ ovSap }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:var(--smoke);display:flex;align-items:center;justify-content:center;z-index:34;animation:fadein .12s ease-out">
+      <div style="width:760px;height:540px;border-radius:8px;background:var(--bg-base);border:1px solid var(--stroke-ctrl);box-shadow:var(--sh-dlg);display:flex;flex-direction:column;overflow:hidden;animation:pop .14s ease-out">
+        <div style="height:32px;flex:none;display:flex;align-items:center;gap:8px;padding-left:12px;background:var(--bg-layer);border-bottom:1px solid var(--stroke)">
+          <span style="font-size:12px;color:var(--txt-2)">Connexion SAP · fenêtre WebView2</span>
+          <span style="flex:1"></span>
+          <div onClick="{{ closeOverlay }}" style="width:46px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#C42B1C">
+            <svg width="10" height="10" viewBox="0 0 10 10" stroke="var(--txt-2)" stroke-width="1"><path d="M0 0l10 10M10 0L0 10"></path></svg>
+          </div>
+        </div>
+        <div style="flex:none;height:34px;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--bg-card-2);border-bottom:1px solid var(--stroke)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="1.6" style="flex:none"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+          <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:var(--txt-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">https://p09.sap.ulg.ac.be:50001/sap/bc/ui2/flp?sap-client=010</span>
+        </div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg-card)">
+          <div style="width:340px">
+            <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:20px;font-weight:600;letter-spacing:-.01em">Université de Liège</div>
+            <div style="font-size:13px;color:var(--txt-3);margin-top:2px">Authentification SAP · système P09</div>
+            <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+              <div>
+                <div style="font-size:13px;color:var(--txt-2);margin-bottom:5px">Utilisateur</div>
+                <div style="height:32px;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-layer);display:flex;align-items:center;padding:0 10px;font-size:14px">u234815</div>
+              </div>
+              <div>
+                <div style="font-size:13px;color:var(--txt-2);margin-bottom:5px">Mot de passe</div>
+                <div style="height:32px;border:1px solid var(--stroke-ctrl);border-bottom:2px solid var(--acc-fill);border-radius:4px;background:var(--bg-layer);display:flex;align-items:center;padding:0 10px;font-size:14px;letter-spacing:.18em">••••••••••</div>
+              </div>
+              <div onClick="{{ closeOverlay }}" style="margin-top:4px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:var(--acc-fill);color:var(--acc-on);font-size:14px;font-weight:600;cursor:pointer" style-hover="background:var(--acc-fill-h)">Se connecter</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:10px 14px;border-top:1px solid var(--stroke);background:var(--bg-layer);font-size:12px;line-height:17px;color:var(--txt-3)">Aucun identifiant n'est enregistré par CATS Assistant. À la fermeture de cette fenêtre, seuls les cookies de session (SAP_SESSIONID_P09_010, sap-usercontext) sont récupérés en mémoire, puis le jeton x-csrf-token est demandé.</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ovYubi }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:var(--smoke);display:flex;align-items:center;justify-content:center;z-index:34;animation:fadein .12s ease-out">
+      <div style="width:420px;border-radius:8px;background:var(--bg-layer);border:1px solid var(--stroke-ctrl);box-shadow:var(--sh-dlg);padding:22px;text-align:center;animation:pop .14s ease-out">
+        <div style="width:52px;height:52px;margin:0 auto;border-radius:50%;background:var(--acc-tint);border:1px solid var(--acc-stroke);display:flex;align-items:center;justify-content:center">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--acc-txt)" stroke-width="1.5"><circle cx="8" cy="15" r="4"></circle><path d="M10.8 12.2L20 3M17 3h3v3"></path></svg>
+        </div>
+        <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:18px;font-weight:600;margin-top:14px">Touchez votre YubiKey</div>
+        <div style="font-size:13px;line-height:19px;color:var(--txt-2);margin-top:6px">Le coffre est verrouillé. La clé maître est dérivée par challenge-response HMAC-SHA1 ; les tokens JIRA et GitLab restent inaccessibles jusqu'au déverrouillage.</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px">
+          <span style="width:14px;height:14px;border:2px solid var(--acc-fill);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;display:inline-block"></span>
+          <span style="font-size:13px;color:var(--txt-3)">En attente de la clé…</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px">
+          <div onClick="{{ closeOverlay }}" style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:14px;cursor:pointer" style-hover="background:var(--bg-subtle)">Continuer sans coffre</div>
+          <div onClick="{{ closeOverlay }}" style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:var(--acc-fill);color:var(--acc-on);font-size:14px;font-weight:600;cursor:pointer" style-hover="background:var(--acc-fill-h)">Réessayer</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ovPurge }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:var(--smoke);display:flex;align-items:center;justify-content:center;z-index:34;animation:fadein .12s ease-out">
+      <div style="width:480px;border-radius:8px;background:var(--bg-layer);border:1px solid var(--stroke-ctrl);box-shadow:var(--sh-dlg);animation:pop .14s ease-out">
+        <div style="padding:20px 22px 0">
+          <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em">Purger les données locales ?</div>
+        </div>
+        <div style="padding:12px 22px 18px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:14px;line-height:20px;color:var(--txt-2)">Cette action est définitive et ne touche pas SAP.</div>
+          <div style="border:1px solid var(--err-stroke);border-left:3px solid var(--err);border-radius:4px;background:var(--err-bg);padding:10px 12px">
+            <div style="font-size:13px;font-weight:600;color:var(--err)">Seront supprimés</div>
+            <div style="font-size:13px;line-height:19px;color:var(--txt-2);margin-top:3px">41 208 événements d'activité · 128 blocs non soumis · 6 règles apprises</div>
+          </div>
+          <div style="border:1px solid var(--stroke);border-radius:4px;background:var(--bg-card-2);padding:10px 12px">
+            <div style="font-size:13px;font-weight:600">Seront conservés</div>
+            <div style="font-size:13px;line-height:19px;color:var(--txt-2);margin-top:3px">Les lignes déjà soumises et leur Counter SAP · les tokens du coffre · vos règles manuelles</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:14px 22px;border-top:1px solid var(--stroke);background:var(--bg-card-2);border-radius:0 0 8px 8px">
+          <span style="flex:1;font-size:12px;color:var(--txt-3)">Saisissez PURGER pour confirmer</span>
+          <div style="width:110px;height:32px;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);display:flex;align-items:center;padding:0 10px;font-size:13px;color:var(--txt-dis)">PURGER</div>
+          <div onClick="{{ closeOverlay }}" style="height:32px;padding:0 16px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:14px;cursor:pointer" style-hover="background:var(--bg-subtle)">Annuler</div>
+          <div onClick="{{ closeOverlay }}" style="height:32px;padding:0 16px;display:flex;align-items:center;border-radius:4px;background:var(--err);color:#FFFFFF;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap">Purger</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ovTray }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeOverlay }}" style="position:absolute;inset:0;z-index:34;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 12px 40px">
+      <div style="width:264px;border-radius:8px;background:var(--bg-layer);border:1px solid var(--stroke-ctrl);box-shadow:var(--sh-fly);padding:6px;animation:pop .12s ease-out">
+        <div style="padding:8px 10px 6px;display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none"></span>
+          <span style="font-size:13px;font-weight:600;flex:1">Capture active</span>
+          <span style="font-size:12px;color:var(--txt-3);font-variant-numeric:tabular-nums">7:30</span>
+        </div>
+        <div style="height:1px;background:var(--stroke);margin:4px 0"></div>
+        <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:4px;cursor:pointer;font-size:13px" style-hover="background:var(--bg-subtle)">Ouvrir la journée</div>
+        <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:4px;cursor:pointer;font-size:13px" style-hover="background:var(--bg-subtle)">Mettre la capture en pause</div>
+        <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:4px;cursor:pointer;font-size:13px" style-hover="background:var(--bg-subtle)">
+          <span style="flex:1">Rattrapage</span>
+          <span style="{{ badge3 }}">3</span>
+        </div>
+        <div style="height:1px;background:var(--stroke);margin:4px 0"></div>
+        <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:4px;cursor:pointer;font-size:13px" style-hover="background:var(--bg-subtle)">Paramètres</div>
+        <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:4px;cursor:pointer;font-size:13px" style-hover="background:var(--bg-subtle)">Quitter</div>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:32px;z-index:33;background:var(--bg-layer);border-top:1px solid var(--stroke);display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:0 16px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--acc-fill)" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5V12l3 2"></path></svg>
+      <span style="font-size:11px;color:var(--txt-3);font-variant-numeric:tabular-nums">14:36</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:var(--smoke);display:flex;align-items:center;justify-content:center;z-index:30;animation:fadein .12s ease-out">
+      <div style="width:560px;border-radius:8px;background:var(--bg-layer);border:1px solid var(--stroke-ctrl);box-shadow:var(--sh-dlg);animation:pop .14s ease-out">
+        <div style="padding:18px 20px 0">
+          <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em">{{ editTitle }}</div>
+          <div style="font-size:13px;color:var(--txt-3);margin-top:3px">{{ editSub }}</div>
+        </div>
+
+        <div style="padding:16px 20px 18px;display:flex;flex-direction:column;gap:14px">
+          <sc-if value="{{ hasRange }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="font-size:13px;color:var(--txt-2);margin-bottom:6px">Plage horaire</div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="display:flex;align-items:center;flex:none">
+                  <div onClick="{{ startMinus }}" style="width:30px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:4px 0 0 4px;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path></svg></div>
+                  <div style="width:66px;height:32px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--stroke-ctrl);border-bottom:1px solid var(--stroke-ctrl);background:var(--bg-card);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">{{ startLabel }}</div>
+                  <div onClick="{{ startPlus }}" style="width:30px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:0 4px 4px 0;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg></div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--txt-3)" stroke-width="1.6" style="flex:none"><path d="M5 12h14M14 7l5 5-5 5"></path></svg>
+                <div style="display:flex;align-items:center;flex:none">
+                  <div onClick="{{ endMinus }}" style="width:30px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:4px 0 0 4px;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path></svg></div>
+                  <div style="width:66px;height:32px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--stroke-ctrl);border-bottom:1px solid var(--stroke-ctrl);background:var(--bg-card);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">{{ endLabel }}</div>
+                  <div onClick="{{ endPlus }}" style="width:30px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:0 4px 4px 0;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg></div>
+                </div>
+                <span style="font-size:11px;color:var(--txt-3);white-space:nowrap;flex:none">{{ rangeHint }}</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ hasDuration }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-size:13px;color:var(--txt-2);margin-bottom:6px">Durée imputée</div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="display:flex;align-items:center;flex:none">
+                  <div onClick="{{ stepDown }}" style="width:34px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:4px 0 0 4px;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path></svg></div>
+                  <div style="width:92px;height:32px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--stroke-ctrl);border-bottom:1px solid var(--stroke-ctrl);background:var(--bg-card);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">{{ draftDur }}</div>
+                  <div onClick="{{ stepUp }}" style="width:34px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--stroke-ctrl);border-radius:0 4px 4px 0;background:var(--bg-card);cursor:pointer" style-hover="background:var(--bg-subtle)"><svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg></div>
+                </div>
+                <span style="font-size:12px;color:var(--txt-3)">pas de 0,25 h · envoyé à SAP en décimal ({{ draftDec }})</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="position:relative">
+            <div style="font-size:13px;color:var(--txt-2);margin-bottom:6px">Ticket JIRA</div>
+            <div style="{{ inputWrap }}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--txt-3)" stroke-width="1.5" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5L21 21"></path></svg>
+              <input value="{{ query }}" onInput="{{ onQuery }}" onFocus="{{ openList }}" placeholder="Rechercher parmi mes tickets assignés…" style="flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:14px;color:var(--txt);min-width:0" />
+            </div>
+            <sc-if value="{{ listOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;left:0;right:0;top:60px;z-index:5;border:1px solid var(--stroke-ctrl);border-radius:6px;background:var(--bg-layer);box-shadow:var(--sh-fly);max-height:216px;overflow-y:auto">
+                <sc-for list="{{ suggestions }}" as="t" hint-placeholder-count="4">
+                  <div onClick="{{ t.pick }}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--stroke)" style-hover="background:var(--bg-subtle)">
+                    <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;font-weight:600;color:var(--acc-txt);width:126px;flex:none">{{ t.key }}</span>
+                    <span style="flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.sum }}</span>
+                    <span style="{{ t.stStyle }}">{{ t.st }}</span>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ noMatch }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:10px 12px;font-size:13px;color:var(--txt-3)">Aucun ticket assigné ne correspond.</div>
+                </sc-if>
+              </div>
+            </sc-if>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+              <span style="font-size:13px;color:var(--txt-2);flex:1">Note (LONGTEXT_DATA)</span>
+              <span style="{{ counterStyle }}">{{ counter }}</span>
+            </div>
+            <textarea value="{{ draftNote }}" onInput="{{ onNote }}" rows="2" style="width:100%;box-sizing:border-box;resize:none;padding:8px 10px;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);color:var(--txt);font-family:inherit;font-size:14px;line-height:19px;outline:none"></textarea>
+          </div>
+
+          <div style="display:flex;gap:12px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;color:var(--txt-2);margin-bottom:6px">Élément d'OTP (POSID)</div>
+              <div style="{{ roField }}">
+                <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ draftPosid }}</span>
+                <span style="{{ draftVStyle }}">{{ draftVLabel }}</span>
+              </div>
+            </div>
+            <div style="width:150px;flex:none">
+              <div style="font-size:13px;color:var(--txt-2);margin-bottom:6px">Activité (ZWPID)</div>
+              <div style="{{ roField }}">
+                <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:13px;flex:1">{{ draftZwpid }}</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:12px;line-height:17px;color:var(--txt-3);margin-top:-6px">Codes issus du champ JIRA « Code imputation » (customfield_10045), en lecture seule.</div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid var(--stroke);background:var(--bg-card-2);border-radius:0 0 8px 8px">
+          <div onClick="{{ merge }}" style="height:32px;padding:0 10px;display:flex;align-items:center;gap:6px;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:13px;cursor:pointer;white-space:nowrap" style-hover="background:var(--bg-subtle)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="flex:none"><path d="M7 20V9a4 4 0 0 1 4-4h6"></path><path d="M14 2l3 3-3 3"></path><path d="M7 14h6"></path></svg>
+            Fusionner
+          </div>
+          <div onClick="{{ del }}" style="{{ dangerBtn }}" style-hover="background:var(--err-bg)">{{ delLabel }}</div>
+          <span style="flex:1"></span>
+          <div onClick="{{ closeEdit }}" style="height:32px;padding:0 16px;display:flex;align-items:center;border:1px solid var(--stroke-ctrl);border-radius:4px;background:var(--bg-card);font-size:14px;cursor:pointer" style-hover="background:var(--bg-subtle)">Annuler</div>
+          <div onClick="{{ save }}" style="height:32px;padding:0 18px;display:flex;align-items:center;border-radius:4px;background:var(--acc-fill);color:var(--acc-on);font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;white-space:nowrap" style-hover="background:var(--acc-fill-h)">{{ saveLabel }}</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1540,&quot;height&quot;:960},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;clair&quot;,&quot;sombre&quot;,&quot;monokai&quot;,&quot;dracula&quot;,&quot;arcenciel&quot;],&quot;default&quot;:&quot;arcenciel&quot;,&quot;tsType&quot;:&quot;'clair'|'sombre'|'monokai'|'dracula'|'arcenciel'&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;timeline&quot;,&quot;rattrapage&quot;,&quot;recap&quot;,&quot;params&quot;],&quot;default&quot;:&quot;timeline&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;normal&quot;,&quot;vide&quot;,&quot;vpn&quot;,&quot;echec&quot;],&quot;default&quot;:&quot;normal&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;États&quot;},&quot;overlay&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;aucun&quot;,&quot;edition&quot;,&quot;saplogon&quot;,&quot;yubikey&quot;,&quot;purge&quot;,&quot;tray&quot;],&quot;default&quot;:&quot;aucun&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;États&quot;},&quot;annotations&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;oui&quot;,&quot;non&quot;],&quot;default&quot;:&quot;oui&quot;,&quot;tsType&quot;:&quot;'oui'|'non'&quot;}}">
+class Component extends DCLogic {
+  state = {
+    theme: null, screen: null, tab: null, edit: null, overlay: null,
+    query: '', open: false, walk: -1, submit: 'idle', dayIdx: 0,
+    lines: null, recap: null
+  };
+
+  // ---------- données ----------
+  TICKETS = [
+    { key: 'ULISTROIS-3428', sum: "Refonte de l'import CSV des inscriptions", st: 'En cours', posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042', ok: true },
+    { key: 'ULISTROIS-3101', sum: 'Migration des worktrees IntelliJ vers Git 2.45', st: 'En cours', posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042', ok: true },
+    { key: 'ULISTROIS-3455', sum: "Correctif export SAP : encodage des accents", st: 'À faire', posid: 'P.ACSICAT01-02-P-0011', zwpid: 'ZS017', ok: false },
+    { key: 'ULISTROIS-3390', sum: "Revue de code : module d'authentification", st: 'En revue', posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042', ok: true },
+    { key: 'ULISTROIS-3512', sum: 'Documentation API interne', st: 'À faire', posid: 'P.ACSICAT01-03-P-0002', zwpid: 'ZS103', ok: true },
+    { key: 'ULISTROIS-2987', sum: 'Support N2 — tickets utilisateurs', st: 'En cours', posid: 'P.ACSICAT01-04-P-0001', zwpid: 'ZS210', ok: true }
+  ];
+
+  // [début, fin, processus, détail capturé, clé JIRA | null | 'idle']
+  BLOCKS = [
+    [485, 497, 'Chrome', 'Outlook Web · boîte de réception', null],
+    [497, 500, 'Teams', 'Fil #ulis-dev', null],
+    [500, 521, 'IntelliJ', 'ULISTROIS/3428 — ImportCsvService.java', 'ULISTROIS-3428'],
+    [521, 530, 'Terminal', 'gradle :import:test', 'ULISTROIS-3428'],
+    [530, 540, 'IntelliJ', 'ULISTROIS/3428 — ImportCsvService.java', 'ULISTROIS-3428'],
+    [540, 555, 'Teams', 'Daily ULIS', null],
+    [555, 570, 'Windows', 'Inactivité', 'idle'],
+    [570, 592, 'IntelliJ', 'ULISTROIS/3428 — CsvParser.java', 'ULISTROIS-3428'],
+    [592, 600, 'Chrome', 'stackoverflow.com · encodage CSV', 'ULISTROIS-3428'],
+    [600, 620, 'IntelliJ', 'ULISTROIS/3428 — CsvParserTest.java', 'ULISTROIS-3428'],
+    [620, 635, 'Terminal', 'git commit · git push (4 commits)', 'ULISTROIS-3428'],
+    [635, 680, 'Chrome', 'confluence.uliege.be · specs import', null],
+    [680, 700, 'IntelliJ', 'ULISTROIS/3101 — migration worktrees', 'ULISTROIS-3101'],
+    [700, 720, 'Terminal', 'git worktree list · git 2.45', 'ULISTROIS-3101'],
+    [720, 760, 'Windows', 'Inactivité — pause déjeuner', 'idle'],
+    [760, 780, 'Chrome', 'Explorateur · relevés', null],
+    [780, 840, 'Teams', 'Revue de sprint', 'ULISTROIS-3390'],
+    [840, 868, 'IntelliJ', 'ULISTROIS/3455 — SapExportEncoder', 'ULISTROIS-3455'],
+    [868, 878, 'Chrome', 'docs SAP · code page 1504', 'ULISTROIS-3455'],
+    [878, 910, 'IntelliJ', 'ULISTROIS/3455 — tests encodage', 'ULISTROIS-3455'],
+    [910, 925, 'Windows', 'Inactivité', 'idle'],
+    [925, 940, 'Chrome', 'Webmail · notes de frais', null],
+    [940, 950, 'Windows', 'Inactivité', 'idle'],
+    [950, 965, 'Teams', 'Fil #ulis-dev', null],
+    [965, 1000, 'IntelliJ', 'ULISTROIS/3428 — retours de revue', 'ULISTROIS-3428'],
+    [1000, 1035, 'Terminal', 'gradle build · git push', 'ULISTROIS-3428'],
+    [1035, 1050, 'Windows', 'Inactivité', 'idle'],
+    [1050, 1080, 'IntelliJ', 'ULISTROIS/3101 — migration worktrees', 'ULISTROIS-3101']
+  ];
+
+  // plages CATS : [début, fin, clé, id de ligne] — un regroupement de plusieurs segments captés
+  GROUPS = [
+    [500, 540, 'ULISTROIS-3428', 1],
+    [570, 635, 'ULISTROIS-3428', 1],
+    [680, 720, 'ULISTROIS-3101', 2],
+    [780, 840, 'ULISTROIS-3390', 4],
+    [840, 910, 'ULISTROIS-3455', 3],
+    [965, 1035, 'ULISTROIS-3428', 1],
+    [1050, 1080, 'ULISTROIS-3101', 2]
+  ];
+
+  MEETINGS = [[540, 555, 'Daily ULIS'], [780, 840, 'Revue de sprint']];
+
+  L0 = [
+    { id: 1, h: 3, key: 'ULISTROIS-3428', note: "ULISTROIS-3428 - Refonte de l'import CSV des inscriptions", posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042', ok: true, status: 'submitted', counter: '000000418' },
+    { id: 2, h: 1.25, key: 'ULISTROIS-3101', note: 'ULISTROIS-3101 - Migration des worktrees IntelliJ vers Git 2.45', posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042', ok: true, status: 'validated' },
+    { id: 3, h: 1.25, key: 'ULISTROIS-3455', note: 'ULISTROIS-3455 - Correctif export SAP : encodage des accents', posid: 'P.ACSICAT01-02-P-0011', zwpid: 'ZS017', ok: false, status: 'proposed' },
+    { id: 4, h: 1, key: 'ULISTROIS-3390', note: 'ULISTROIS-3390 - Revue de sprint', posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042', ok: true, status: 'edited' },
+    { id: 5, h: 1, key: null, note: '1:50 non corrélé sur 5 zones — ticket à renseigner', posid: '—', zwpid: '—', ok: false, status: 'proposed' }
+  ];
+
+  DAYS = [
+    { d: 'jeu. 6 août', long: 'jeudi 6 août 2026', prop: 3.25, exp: 7.6, st: 'incomplet', note: '4:21 d\u2019activité non corrélée' },
+    { d: 'ven. 7 août', long: 'vendredi 7 août 2026', prop: 7.6, exp: 7.6, st: 'ready', note: '3 lignes proposées, codes vérifiés' },
+    { d: 'lun. 10 août', long: 'lundi 10 août 2026', prop: 6.75, exp: 7.6, st: 'warn', note: '1 ligne sans ticket JIRA' },
+    { d: 'mar. 11 août', long: "mardi 11 août 2026 · aujourd\u2019hui", prop: 7.5, exp: 7.6, st: 'today', note: 'Journée en cours · 1 ligne déjà soumise' }
+  ];
+
+  R0 = [
+    { id: 11, date: '07/08', h: 3.5, key: 'ULISTROIS-3428', note: "ULISTROIS-3428 - Refonte de l'import CSV des inscriptions", posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042' },
+    { id: 12, date: '07/08', h: 2, key: 'ULISTROIS-3101', note: 'ULISTROIS-3101 - Migration des worktrees IntelliJ vers Git 2.45', posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042' },
+    { id: 13, date: '07/08', h: 2, key: 'ULISTROIS-3390', note: "ULISTROIS-3390 - Revue de code : module d'authentification", posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042' },
+    { id: 14, date: '10/08', h: 4, key: 'ULISTROIS-3455', note: 'ULISTROIS-3455 - Correctif export SAP : encodage des accents', posid: 'P.ACSICAT01-02-P-0011', zwpid: 'ZS017' },
+    { id: 15, date: '10/08', h: 2.75, key: 'ULISTROIS-2987', note: 'ULISTROIS-2987 - Support N2 — tickets utilisateurs', posid: 'P.ACSICAT01-04-P-0001', zwpid: 'ZS210' },
+    { id: 16, date: '11/08', h: 1.25, key: 'ULISTROIS-3101', note: 'ULISTROIS-3101 - Migration des worktrees IntelliJ vers Git 2.45', posid: 'P.ACSICAT01-01-P-0005', zwpid: 'ZS042' }
+  ];
+
+  RULES = [
+    { k: 'title_regex', v: 'ULISTROIS[-/](\\d+)', t: 'Clé JIRA détectée', p: 10, o: 'auto' },
+    { k: 'process', v: 'idea64.exe', t: 'Dernier ticket actif', p: 20, o: 'manuelle' },
+    { k: 'title_regex', v: 'Teams.*Revue de sprint', t: 'ULISTROIS-3390', p: 25, o: 'apprise' },
+    { k: 'url_regex', v: 'confluence\\.uliege\\.be', t: 'ULISTROIS-3512', p: 30, o: 'apprise' },
+    { k: 'process', v: 'OUTLOOK.EXE', t: 'Réunion — pas d\u2019imputation', p: 40, o: 'manuelle' },
+    { k: 'jira_project', v: 'ULISTROIS', t: 'POSID/ZWPID via customfield_10045', p: 50, o: 'auto' }
+  ];
+
+  STATUS = {
+    proposed: ['Proposé', 'acc'], edited: ['Modifié', 'warn'],
+    validated: ['Validé', 'ok'], submitted: ['Soumis', 'neu']
+  };
+
+  // ---------- utils ----------
+  fmt(h) { const m = Math.round(h * 60); return Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0'); }
+  clock(m) { return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+  get lines() { return this.state.lines || this.L0; }
+  get recapRows() { return this.state.recap || this.R0; }
+  get variant() { return this.props.variant || 'normal'; }
+  get theme() { return this.state.theme || this.props.theme || 'clair'; }
+  get screen() { return this.state.screen || this.props.screen || 'timeline'; }
+  get overlay() { const o = this.state.overlay || this.props.overlay; return (!o || o === 'aucun') ? null : o; }
+  set(p) { this.setState(p); }
+
+  hueOf(key) { const i = this.TICKETS.findIndex(t => t.key === key); return i < 0 ? 't4' : ['t1', 't2', 't3', 't4', 't2', 't3'][i]; }
+  ticket(key) { return this.TICKETS.find(t => t.key === key) || null; }
+  get grps() { return this.state.groups || this.GROUPS; }
+  q(h) { return Math.ceil(h * 4) / 4; }
+  lineH(l) {
+    if (l.hManual) return l.h;
+    const g = this.grps.filter(x => x[3] === l.id);
+    return g.length ? this.q(g.reduce((a, x) => a + (x[1] - x[0]) / 60, 0)) : l.h;
+  }
+  // plages non couvertes par un regroupement CATS, fusionnées
+  freeRanges() {
+    const cov = this.grps;
+    const out = [];
+    this.BLOCKS.forEach((b, i) => {
+      const key = ((this.state.blockOv || {})[i] || {}).key !== undefined ? (this.state.blockOv || {})[i].key : b[4];
+      if (key) return;
+      if (cov.some(g => b[0] < g[1] && b[1] > g[0])) return;
+      const last = out[out.length - 1];
+      if (last && last[1] === b[0]) last[1] = b[1]; else out.push([b[0], b[1]]);
+    });
+    return out;
+  }
+  openPlage(i) {
+    const [s, e, key] = this.grps[i];
+    const t = this.ticket(key);
+    this.setState({
+      edit: { kind: 'plage', id: i },
+      draft: { start: s, end: e, key, src: 'plage CATS regroupant les segments captés', note: t ? t.key + ' - ' + t.sum : '', posid: t ? t.posid : '—', zwpid: t ? t.zwpid : '—', ok: t ? t.ok : false },
+      query: key || '', open: false
+    });
+  }
+  openGap(r) {
+    this.setState({
+      edit: { kind: 'gap', id: r[0] },
+      draft: { start: r[0], end: r[1], key: null, src: 'activité non corrélée — aucun ticket détecté', note: '', posid: '—', zwpid: '—', ok: false },
+      query: '', open: true
+    });
+  }
+
+  blockDraft(i) {
+    const ov = (this.state.blockOv || {})[i] || {};
+    const [s0, e0, app, detail, key0] = this.BLOCKS[i];
+    const raw = ov.key !== undefined ? ov.key : key0;
+    const key = raw === 'idle' ? null : raw;
+    const t = this.ticket(key);
+    return {
+      h: ((ov.end || e0) - s0) / 60, key, start: s0, end: ov.end || e0,
+      src: app + ' · ' + detail, wasIdle: raw === 'idle',
+      note: t ? t.key + ' - ' + t.sum : '', posid: t ? t.posid : '—', zwpid: t ? t.zwpid : '—', ok: t ? t.ok : false
+    };
+  }
+
+  openBlock(i) {
+    const d = this.blockDraft(i);
+    this.setState({ edit: { kind: 'block', id: i }, draft: d, query: d.key || '', open: false });
+  }
+
+  openLine(l) {
+    this.setState({
+      edit: { kind: 'line', id: l.id },
+      draft: { h: this.lineH(l), key: l.key, note: l.note, posid: l.posid, zwpid: l.zwpid, ok: l.ok, src: null },
+      query: l.key || '', open: false
+    });
+  }
+
+  chip(tone) {
+    const c = { acc: ['--acc-txt', '--acc-tint', '--acc-stroke'], warn: ['--warn', '--warn-bg', '--warn-stroke'], ok: ['--ok', '--ok-bg', '--ok-stroke'], neu: ['--neu', '--neu-bg', '--neu-stroke'], err: ['--err', '--err-bg', '--err-stroke'] }[tone];
+    return `display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:3px;font-size:11px;font-weight:600;white-space:nowrap;color:var(${c[0]});background:var(${c[1]});border:1px solid var(${c[2]})`;
+  }
+
+  renderVals() {
+    const S = this.state, T = this.theme, variant = this.variant;
+    const empty = variant === 'vide';
+    const HP = 62, top = m => ((m - 480) / 60) * HP;
+
+    const scr = this.screen;
+    const navS = k => `position:relative;display:flex;align-items:center;gap:10px;height:36px;padding:0 8px 0 12px;margin-bottom:2px;border-radius:4px;cursor:pointer;font-size:14px;color:var(--txt);background:${scr === k ? 'var(--bg-subtle)' : 'transparent'};font-weight:${scr === k ? 600 : 400}`;
+    const railS = k => `position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:2px;background:${scr === k ? 'var(--acc-fill)' : 'transparent'}`;
+
+    const hours = [];
+    for (let h = 8; h <= 18; h++) hours.push({ label: h + ':00', style: `position:absolute;left:0;right:0;top:${top(h * 60)}px;height:0` });
+
+    const kindStyle = k => ({
+      t1: `background:var(--t1-bg);border:1px solid var(--t1)`,
+      t2: `background:var(--t2-bg);border:1px solid var(--t2)`,
+      t3: `background:var(--t3-bg);border:1px solid var(--t3)`,
+      t4: `background:var(--t4-bg);border:1px solid var(--t4)`,
+      i: `background:var(--tl-idle-bg);border:1px solid var(--tl-idle-st)`,
+      u: `background:var(--tl-hatch-bg);border:1px solid var(--tl-hatch);background-image:repeating-linear-gradient(135deg,transparent 0 5px,var(--tl-hatch) 5px 6px)`
+    }[k]);
+
+    const ov = S.blockOv || {};
+    const L1 = 46, W1 = 306, L2 = 362;
+    const blocks = empty ? [] : this.BLOCKS.map((b, i) => {
+      const o = ov[i] || {};
+      const [s, e0, app, sub, key0] = b;
+      const e = o.end || e0;
+      const key = o.key !== undefined ? o.key : key0;
+      const idle = key === 'idle';
+      const k = idle ? 'i' : key ? this.hueOf(key) : 'u';
+      const h = top(e) - top(s);
+      // un segment ne masque son libellé que sous une réunion assez haute pour porter le sien
+      const under = this.MEETINGS.some(m => s < m[1] && e > m[0] && top(m[1]) - top(m[0]) >= 22);
+      return {
+        style: { position: 'absolute', left: L1 + 'px', width: W1 + 'px', top: top(s) + 'px', height: Math.max(3, h - 1.5) + 'px', borderRadius: '3px', display: 'flex', alignItems: 'center', overflow: 'hidden', cursor: 'pointer', boxSizing: 'border-box', ...this.parse(kindStyle(k)) },
+        bar: { width: '3px', alignSelf: 'stretch', flex: 'none', background: k.charAt(0) === 't' ? `var(--${k})` : 'transparent', borderRadius: '2px 0 0 2px' },
+        title: app,
+        titleStyle: `font-size:${h >= 16 ? 11 : 10}px;line-height:12px;font-weight:600;color:${idle ? 'var(--txt-3)' : 'var(--txt)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none;padding-right:6px`,
+        durStyle: `font-size:${h >= 16 ? 11 : 10}px;line-height:12px;color:var(--txt-3);padding-right:6px;font-variant-numeric:tabular-nums;flex:none;display:${h >= 13 && !under ? 'block' : 'none'}`,
+        showTitle: h >= 11 && !under,
+        sub, showSub: h >= 11 && !under,
+        subStyle: `flex:1;min-width:0;font-size:${h >= 16 ? 11 : 10}px;line-height:12px;color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px`,
+        dur: this.clock(s),
+        onClick: () => this.openBlock(i)
+      };
+    });
+
+    const groups = empty ? [] : this.grps.map(([s, e, key, lineId], i) => {
+      const line = this.lines.find(l => l.id === lineId) || {};
+      const hue = this.hueOf(key);
+      const h = top(e) - top(s);
+      const tone = { proposed: 'acc', edited: 'warn', validated: 'ok', submitted: 'neu' }[line.status || 'proposed'];
+      const runs = this.grps.filter(g => g[3] === lineId).length;
+      return {
+        style: { position: 'absolute', left: L2 + 'px', right: '6px', top: (top(s) + 1) + 'px', height: (h - 3) + 'px', borderRadius: '3px', boxSizing: 'border-box', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 8px', background: `var(--${hue}-bg)`, border: `1px solid var(--${hue})`, borderLeftWidth: '3px' },
+        key, dur: this.fmt((e - s) / 60), time: this.clock(s) + '–' + this.clock(e),
+        keyStyle: `font-size:11px;line-height:13px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis`,
+        metaStyle: `font-size:10px;line-height:12px;color:var(--txt-3);white-space:nowrap;display:${h >= 28 ? 'block' : 'none'}`,
+        meta: this.clock(s) + '–' + this.clock(e) + (runs > 1 ? ' · plage ' + (this.grps.filter(g => g[3] === lineId).indexOf(this.grps[i]) + 1) + '/' + runs : ''),
+        dotStyle: `position:absolute;right:6px;top:6px;width:6px;height:6px;border-radius:50%;background:var(--${tone === 'acc' ? 'acc-fill' : tone === 'warn' ? 'warn' : tone === 'ok' ? 'ok' : 'neu'})`,
+        onClick: () => this.openPlage(i)
+      };
+    });
+
+    const gaps = empty ? [] : this.freeRanges().map(r => {
+      const h = top(r[1]) - top(r[0]);
+      return {
+        style: { position: 'absolute', left: L2 + 'px', right: '6px', top: (top(r[0]) + 1) + 'px', height: (h - 3) + 'px', borderRadius: '3px', boxSizing: 'border-box', cursor: 'pointer', border: '1px dashed var(--warn)', background: 'var(--warn-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', overflow: 'hidden' },
+        label: h >= 15 ? 'à imputer · ' + this.fmt((r[1] - r[0]) / 60) : '',
+        labelStyle: 'font-size:10px;line-height:12px;font-weight:600;color:var(--warn);white-space:nowrap',
+        onClick: () => this.openGap(r)
+      };
+    });
+
+    const meetings = empty ? [] : this.MEETINGS.map(([s, e, label]) => {
+      const h = top(e) - top(s);
+      return {
+        style: { position: 'absolute', left: (L1 + 14) + 'px', width: (W1 - 20) + 'px', top: (top(s) + 2) + 'px', height: (h - 5) + 'px', border: '1px dashed var(--acc)', borderRadius: '3px', background: h >= 22 ? 'var(--acc-tint)' : 'transparent', display: 'flex', alignItems: 'center', gap: '5px', padding: '0 6px', boxSizing: 'border-box', pointerEvents: 'none', zIndex: 3 },
+        label, time: this.clock(s) + '–' + this.clock(e), showLabel: h >= 22
+      };
+    });
+
+    const free = this.freeRanges(), freeTotal = free.reduce((a, r) => a + (r[1] - r[0]) / 60, 0);
+    const lines = empty ? [] : this.lines.map(l => {
+      const [label, tone] = this.STATUS[l.status];
+      const done = l.status === 'submitted' || l.status === 'validated';
+      return {
+        id: l.id, dur: this.fmt(this.lineH(l)), key: l.key || 'Aucun ticket',
+        note: l.id === 5 ? this.fmt(freeTotal) + ' non corrélé sur ' + free.length + ' zones — ticket à renseigner' : l.note,
+        posid: l.posid, zwpid: l.zwpid,
+        keyStyle: `font-size:12px;font-weight:600;white-space:nowrap;color:${l.key ? 'var(--acc-txt)' : 'var(--warn)'};font-family:Consolas,'Cascadia Mono',monospace`,
+        cardStyle: `border:1px solid ${l.status === 'proposed' ? 'var(--acc-stroke)' : l.status === 'edited' ? 'var(--warn-stroke)' : l.status === 'validated' ? 'var(--ok-stroke)' : 'var(--stroke)'};border-left:3px solid ${l.status === 'proposed' ? 'var(--acc-fill)' : l.status === 'edited' ? 'var(--warn)' : l.status === 'validated' ? 'var(--ok)' : 'var(--neu)'};border-radius:4px;padding:10px 12px;background:${l.status === 'submitted' ? 'var(--bg-card-2)' : 'var(--bg-card)'};opacity:${l.status === 'submitted' ? .85 : 1}`,
+        chipStyle: this.chip(tone), dotStyle: `width:6px;height:6px;border-radius:50%;background:currentColor`,
+        statusLabel: l.status === 'submitted' ? 'Soumis ✓' : label,
+        vStyle: this.chip(l.ok ? 'ok' : 'warn') + ';height:18px;padding:0 6px;font-weight:400',
+        vLabel: l.ok ? 'vérifié ✓' : 'non trouvé dans SAP ⚠',
+        actions: l.status !== 'submitted',
+        onEdit: () => this.openLine(l),
+        onValidate: () => this.set({ lines: this.lines.map(x => x.id === l.id ? { ...x, status: x.status === 'validated' ? 'proposed' : 'validated' } : x) }),
+        validLabel: l.status === 'validated' ? 'Validé ✓' : 'Valider',
+        validStyle: `height:28px;padding:0 12px;display:flex;align-items:center;white-space:nowrap;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;background:${l.status === 'validated' ? 'var(--ok-bg)' : 'var(--acc-fill)'};color:${l.status === 'validated' ? 'var(--ok)' : 'var(--acc-on)'};border-color:${l.status === 'validated' ? 'var(--ok-stroke)' : 'transparent'}`
+      };
+    });
+
+    const totalH = empty ? 0 : this.lines.reduce((a, l) => a + this.lineH(l), 0);
+    const pct = Math.min(100, Math.round((totalH / 7.6) * 100));
+
+    const pills = [
+      ['SAP', variant === 'vpn' ? 'off' : 'on', variant === 'vpn' ? 'Hors réseau ULiège' : 'Session ouverte 14:32'],
+      ['JIRA', 'on', 'Token valide · sync 14:28'],
+      ['GitLab', 'exp', 'Token expiré le 09/08'],
+      ['Outlook', 'on', 'Calendrier local lu 14:30'],
+      ['YubiKey', 'on', 'Coffre déverrouillé']
+    ].map(([label, st, title]) => ({
+      label, title,
+      dot: `width:8px;height:8px;border-radius:50%;flex:none;background:var(${st === 'on' ? '--ok' : st === 'exp' ? '--warn' : '--err'});box-shadow:0 0 0 2px var(${st === 'on' ? '--ok-bg' : st === 'exp' ? '--warn-bg' : '--err-bg'})`,
+      state: st === 'on' ? 'connecté' : st === 'exp' ? 'expiré' : 'déconnecté',
+      stateStyle: `font-size:12px;color:var(${st === 'on' ? '--ok' : st === 'exp' ? '--warn' : '--err'})`
+    }));
+
+    // ---------- rattrapage ----------
+    const walk = S.walk;
+    const days = this.DAYS.map((d, i) => {
+      const pct = Math.round((d.prop / d.exp) * 100);
+      const done = (S.validatedDays || []).indexOf(i) >= 0;
+      const st = done ? 'done' : d.st;
+      const tone = { incomplet: 'err', warn: 'warn', ready: 'acc', today: 'neu', done: 'ok' }[st];
+      const label = { incomplet: 'Incomplet', warn: 'À vérifier', ready: 'Prêt à valider', today: 'En cours', done: 'Validé' }[st];
+      const cur = walk === i;
+      return {
+        long: d.long, note: d.note, prop: this.fmt(d.prop), exp: this.fmt(d.exp), pct: pct + ' %',
+        cardStyle: `flex:none;border:1px solid ${cur ? 'var(--acc-fill)' : 'var(--stroke)'};box-shadow:${cur ? '0 0 0 2px var(--acc-tint-2)' : 'var(--sh-card)'};border-radius:6px;background:var(--bg-card);padding:12px 14px`,
+        pctStyle: `font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:${pct >= 100 ? 'var(--ok)' : pct >= 85 ? 'var(--warn)' : 'var(--err)'}`,
+        gauge: { height: '100%', width: Math.min(100, pct) + '%', borderRadius: '3px', background: pct >= 100 ? 'var(--ok)' : pct >= 85 ? 'var(--warn)' : 'var(--err)' },
+        chipStyle: this.chip(tone) + ';flex:none;white-space:nowrap',
+        stLabel: label,
+        open: () => this.set({ screen: 'timeline' }),
+        validate: () => this.set({ validatedDays: [...(S.validatedDays || []), i] }),
+        valLabel: done ? 'Validé ✓' : 'Valider ce jour',
+        valStyle: `height:30px;padding:0 12px;display:flex;align-items:center;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;border:1px solid ${done ? 'var(--ok-stroke)' : 'transparent'};background:${done ? 'var(--ok-bg)' : 'var(--acc-fill)'};color:${done ? 'var(--ok)' : 'var(--acc-on)'}`
+      };
+    });
+
+    // ---------- récapitulatif ----------
+    const fail = variant === 'echec';
+    const sent = S.submit === 'done' || (fail && S.submit === 'idle');
+    const sending = S.submit === 'sending';
+    const rowGrid = 'display:grid;grid-template-columns:58px 62px 142px minmax(0,1fr) 186px 74px 150px;gap:10px;align-items:center;padding:0 14px;height:36px;font-size:12px;font-weight:600;color:var(--txt-3);background:var(--bg-card-2);border-bottom:1px solid var(--stroke)';
+    const recapRows = this.recapRows.map((r, i) => {
+      const bad = fail && r.id === 14;
+      return {
+        date: r.date, dur: this.fmt(r.h), key: r.key, note: r.note, posid: r.posid, zwpid: r.zwpid,
+        rowStyle: `display:grid;grid-template-columns:58px 62px 142px minmax(0,1fr) 186px 74px 150px;gap:10px;align-items:center;padding:0 14px;height:42px;font-size:13px;border-bottom:1px solid var(--stroke);background:${sent && bad ? 'var(--err-bg)' : 'transparent'}`,
+        state: sent ? (bad ? 'échec ✗ POSID inconnu' : 'créée ✓ ' + (418 + i + 1).toString().padStart(9, '0').slice(0, 9)) : sending ? 'envoi…' : 'validée',
+        stateStyle: (sent ? this.chip(bad ? 'err' : 'ok') : this.chip('acc')) + ';overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:150px'
+      };
+    });
+    const recapTotalH = this.recapRows.reduce((a, r) => a + r.h, 0);
+
+    const gateTone = sent ? (fail ? 'warn' : 'ok') : 'err';
+    const gc = { err: '--err', ok: '--ok', warn: '--warn' }[gateTone];
+
+    // ---------- paramètres ----------
+    const tab = S.tab || (this.overlay === 'purge' ? 'donnees' : 'connexions');
+    const tabS = k => `height:34px;padding:0 14px;display:flex;align-items:center;font-size:14px;cursor:pointer;border-bottom:2px solid ${tab === k ? 'var(--acc-fill)' : 'transparent'};color:${tab === k ? 'var(--txt)' : 'var(--txt-2)'};font-weight:${tab === k ? 600 : 400}`;
+    const segS = on => `height:32px;padding:0 14px;display:flex;align-items:center;font-size:13px;cursor:pointer;border-right:1px solid var(--stroke-ctrl);background:${on ? 'var(--acc-tint-2)' : 'var(--bg-card)'};color:${on ? 'var(--acc-txt)' : 'var(--txt-2)'};font-weight:${on ? 600 : 400}`;
+    const sw = on => `width:40px;height:20px;border-radius:10px;flex:none;cursor:pointer;position:relative;background:${on ? 'var(--acc-fill)' : 'var(--bg-subtle-2)'};border:1px solid ${on ? 'transparent' : 'var(--stroke-strong)'};transition:background .12s`;
+    const knob = on => `position:absolute;top:3px;left:${on ? '22px' : '4px'};width:12px;height:12px;border-radius:50%;background:${on ? 'var(--acc-on)' : 'var(--txt-2)'};transition:left .12s`;
+    const minB = S.minB || 15, ret = S.ret || 90;
+
+    // ---------- édition (bloc ou ligne) ----------
+    const forced = this.overlay === 'edition';
+    const ed = S.edit || (forced ? { kind: 'block', id: 3 } : null);
+    const D = S.draft || (forced ? this.blockDraft(3) : {});
+    const q = (S.query || '').toLowerCase();
+    const sug = this.TICKETS.filter(t => !q || t.key.toLowerCase().indexOf(q) >= 0 || t.sum.toLowerCase().indexOf(q) >= 0);
+    const noteLen = (D.note || '').length;
+    const pick = t => () => this.setState({
+      draft: { ...D, key: t.key, note: t.key + ' - ' + t.sum, posid: t.posid, zwpid: t.zwpid, ok: t.ok },
+      query: t.key, open: false
+    });
+    const kind = ed ? ed.kind : null;
+    const hasRange = kind === 'block' || kind === 'plage' || kind === 'gap';
+    const dh = hasRange ? (D.end - D.start) / 60 : (D.h || 0);
+    const lineFor = key => {
+      const l = this.lines.find(x => x.key === key && x.status !== 'submitted');
+      return l ? l.id : null;
+    };
+    const saveEdit = () => {
+      if (!ed) return;
+      if (kind === 'line') {
+        this.setState({
+          lines: this.lines.map(x => x.id === ed.id ? { ...x, h: D.h, hManual: true, key: D.key, note: D.note, posid: D.posid, zwpid: D.zwpid, ok: D.ok, status: 'edited' } : x),
+          edit: null
+        });
+        return;
+      }
+      if (kind === 'block') {
+        this.setState({ blockOv: { ...(S.blockOv || {}), [ed.id]: { key: D.key, end: D.end } }, edit: null });
+        return;
+      }
+      // plage ou zone « à imputer » : on écrit dans les regroupements CATS
+      const gs = this.grps.map(g => g.slice());
+      let ls = this.lines.slice();
+      let lid = D.key ? lineFor(D.key) : null;
+      if (D.key && !lid) {
+        lid = Date.now();
+        ls = [...ls, { id: lid, h: 0, key: D.key, note: D.note, posid: D.posid, zwpid: D.zwpid, ok: D.ok, status: 'edited' }];
+      }
+      if (kind === 'plage') {
+        if (!D.key) gs.splice(ed.id, 1);
+        else gs[ed.id] = [D.start, D.end, D.key, lid];
+      } else if (D.key) {
+        gs.push([D.start, D.end, D.key, lid]);
+      }
+      this.setState({ groups: gs, lines: ls, edit: null });
+    };
+    const setD = p => this.setState({ draft: { ...D, ...p } });
+
+    // ---------- encodage rapide ----------
+    const qk = S.qKey ? this.ticket(S.qKey) : null;
+    const qh = S.qh || 0.5;
+    const qsug = this.TICKETS.filter(t => { const s = (S.qQuery || '').toLowerCase(); return !s || t.key.toLowerCase().indexOf(s) >= 0 || t.sum.toLowerCase().indexOf(s) >= 0; });
+
+    return {
+      quickOpen: !!S.quick,
+      toggleQuick: () => this.set({ quick: !S.quick, qOpen: false }),
+      qDur: this.fmt(qh),
+      qMinus: () => this.set({ qh: Math.max(0.25, qh - 0.25) }),
+      qPlus: () => this.set({ qh: Math.min(12, qh + 0.25) }),
+      qQuery: S.qQuery || '',
+      qOnQuery: e => this.set({ qQuery: e.target.value, qOpen: true, qKey: null }),
+      qOpenList: () => this.set({ qOpen: true }),
+      qListOpen: !!S.qOpen && qsug.length > 0,
+      qSuggestions: qsug.map(t => ({
+        key: t.key, sum: t.sum, st: t.st, stStyle: this.chip(t.st === 'En cours' ? 'acc' : t.st === 'En revue' ? 'warn' : 'neu') + ';font-weight:400;flex:none',
+        pick: () => this.set({ qKey: t.key, qQuery: t.key, qOpen: false, qNote: t.key + ' - ' + t.sum })
+      })),
+      qNote: S.qNote || '',
+      qOnNote: e => this.set({ qNote: e.target.value }),
+      qKeyLabel: qk ? qk.key : 'aucun ticket',
+      qCodes: qk ? qk.posid + ' · ' + qk.zwpid : 'codes indisponibles sans ticket',
+      qCanAdd: !!qk,
+      qAddStyle: `height:30px;padding:0 14px;display:flex;align-items:center;border-radius:4px;font-size:13px;font-weight:600;white-space:nowrap;border:1px solid transparent;cursor:${qk ? 'pointer' : 'not-allowed'};background:${qk ? 'var(--acc-fill)' : 'var(--bg-subtle-2)'};color:${qk ? 'var(--acc-on)' : 'var(--txt-dis)'}`,
+      qAdd: () => {
+        if (!qk) return;
+        this.set({
+          lines: [...this.lines, { id: Date.now(), h: qh, key: qk.key, note: S.qNote || (qk.key + ' - ' + qk.sum), posid: qk.posid, zwpid: qk.zwpid, ok: qk.ok, status: 'edited' }],
+          quick: false, qKey: null, qQuery: '', qNote: '', qh: 0.5, qOpen: false
+        });
+      },
+
+      editing: !!ed, hasRange, hasDuration: kind === 'line',
+      editTitle: { block: 'Modifier l\u2019activité capturée', plage: 'Modifier la plage CATS', gap: 'Imputer cette plage', line: 'Modifier la ligne CATS' }[kind || 'line'],
+      editSub: hasRange
+        ? 'mar. 11 août 2026 · ' + this.clock(D.start) + '–' + this.clock(D.end) + ' · ' + (D.src || '')
+        : 'mar. 11 août 2026 · durée agrégée des plages du corrélateur',
+      startLabel: this.clock(D.start || 480), endLabel: this.clock(D.end || 480),
+      startMinus: () => setD({ start: Math.max(420, D.start - 15) }),
+      startPlus: () => setD({ start: Math.min(D.end - 15, D.start + 15) }),
+      endMinus: () => setD({ end: Math.max(D.start + 15, D.end - 15) }),
+      endPlus: () => setD({ end: Math.min(1200, D.end + 15) }),
+      rangeHint: hasRange ? this.fmt(dh) + ' · pas de 15 min · ' + dh.toFixed(2).replace('.', ',') + ' h vers SAP' : '',
+      saveLabel: kind === 'gap' ? 'Créer la plage CATS' : 'Enregistrer',
+      draftDur: this.fmt(dh), draftDec: String(dh.toFixed(2)).replace('.', ','),
+      draftKey: D.key || '', draftNote: D.note || '', draftPosid: D.posid || '—', draftZwpid: D.zwpid || '—',
+      draftVStyle: this.chip(!D.key ? 'neu' : D.ok ? 'ok' : 'warn') + ';height:20px;flex:none;white-space:nowrap',
+      draftVLabel: !D.key ? 'aucun ticket' : D.ok ? 'vérifié ✓' : 'non trouvé dans SAP ⚠',
+      inputWrap: 'display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border:1px solid var(--stroke-ctrl);border-bottom:2px solid var(--acc-fill);border-radius:4px;background:var(--bg-card)',
+      keyPill: this.chip('acc') + ";font-family:Consolas,'Cascadia Mono',monospace;flex:none",
+      query: S.query || '',
+      onQuery: e => this.setState({ query: e.target.value, open: true }),
+      openList: () => this.set({ open: true }),
+      listOpen: !!S.open,
+      noMatch: !!S.open && sug.length === 0,
+      suggestions: sug.map(t => ({
+        key: t.key, sum: t.sum, st: t.st,
+        stStyle: this.chip(t.st === 'En cours' ? 'acc' : t.st === 'En revue' ? 'warn' : 'neu') + ';font-weight:400;flex:none',
+        pick: pick(t)
+      })),
+      counter: noteLen + ' / 80',
+      counterStyle: `font-size:12px;white-space:nowrap;flex:none;font-variant-numeric:tabular-nums;color:${noteLen > 80 ? 'var(--err)' : noteLen > 70 ? 'var(--warn)' : 'var(--txt-3)'}`,
+      onNote: e => this.setState({ draft: { ...D, note: e.target.value } }),
+      stepUp: () => this.setState({ draft: { ...D, h: Math.min(12, (D.h || 0) + 0.25) } }),
+      stepDown: () => this.setState({ draft: { ...D, h: Math.max(0.25, (D.h || 0) - 0.25) } }),
+      roField: 'display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border:1px solid var(--stroke);border-radius:4px;background:var(--bg-card-2)',
+      save: saveEdit,
+      closeEdit: () => this.set({ edit: null }),
+      merge: () => this.set({ edit: null }),
+      del: () => {
+        if (kind === 'line') this.setState({ lines: this.lines.filter(x => x.id !== ed.id), edit: null });
+        else if (kind === 'plage') this.setState({ groups: this.grps.filter((g, i) => i !== ed.id), edit: null });
+        else if (kind === 'block') this.setState({ blockOv: { ...(S.blockOv || {}), [ed.id]: { key: 'idle' } }, edit: null });
+        else this.set({ edit: null });
+      },
+      delLabel: { block: 'Marquer non facturable', plage: 'Supprimer la plage', gap: 'Non facturable', line: 'Supprimer' }[kind || 'line'],
+      ovSap: this.overlay === 'saplogon', ovYubi: this.overlay === 'yubikey',
+      ovPurge: this.overlay === 'purge', ovTray: this.overlay === 'tray',
+      days, walking: walk >= 0 && walk < 3,
+      walkLabel: 'Journée ' + Math.min(walk + 1, 3) + ' sur 3',
+      walkDay: (this.DAYS[Math.max(0, walk)] || {}).long,
+      startWalk: () => this.set({ walk: 0 }),
+      walkValidate: () => this.set({ validatedDays: [...(S.validatedDays || []), walk], walk: walk + 1 }),
+      walkSkip: () => this.set({ walk: walk + 1 }),
+      recapRows, rowGrid, recapTotal: this.fmt(recapTotalH),
+      recapFoot: sent ? (fail ? '5 lignes créées · 1 échec' : '6 lignes créées dans SAP') : 'Pernr récupéré au runtime · WORKDATE au format /Date(ms)/',
+      gateStyle: `flex:none;display:flex;gap:10px;margin-top:12px;padding:12px 14px;border-radius:4px;border:1px solid var(${gc === '--err' ? '--err-stroke' : gc === '--ok' ? '--ok-stroke' : '--warn-stroke'});border-left:3px solid var(${gc});background:var(${gc === '--err' ? '--err-bg' : gc === '--ok' ? '--ok-bg' : '--warn-bg'})`,
+      gateIconStyle: `color:var(${gc});flex:none;margin-top:1px`,
+      gateColor: `var(${gc})`,
+      gateTitle: sent ? (fail ? '5 lignes créées, 1 échec' : 'Envoi terminé — 6 lignes créées dans SAP') : 'Cette action crée des entrées réelles dans SAP.',
+      gateBody: sent
+        ? (fail ? 'La ligne du 10/08 a été refusée : POSID P.ACSICAT01-02-P-0011 absent de ValueHelpList pour la période. Corrigez le code dans JIRA (customfield_10045) puis renvoyez cette ligne seule.' : 'Chaque ligne a reçu un Counter SAP, conservé localement comme trace. Statut SAP : envoyé pour approbation.')
+        : "Les lignes ci-dessous seront écrites dans la feuille de temps CATS via un POST $batch. Vérifiez les durées, les tickets et les codes avant d'envoyer : l'annulation se fait ensuite dans SAP.",
+      sending, sent,
+      sendLabel: sending ? 'Envoi en cours…' : sent ? 'Envoyé' : 'Envoyer vers CATS',
+      sendStyle: `height:34px;padding:0 18px;display:flex;align-items:center;gap:8px;border-radius:4px;font-size:14px;font-weight:600;white-space:nowrap;cursor:${sent ? 'default' : 'pointer'};border:1px solid transparent;background:${sent ? 'var(--bg-subtle-2)' : 'var(--acc-fill)'};color:${sent ? 'var(--txt-3)' : 'var(--acc-on)'}`,
+      send: () => { if (S.submit !== 'idle') return; this.set({ submit: 'sending' }); setTimeout(() => this.set({ submit: 'done' }), 1400); },
+      tabCoStyle: tabS('connexions'), tabCaStyle: tabS('capture'), tabDoStyle: tabS('donnees'), tabRuStyle: tabS('regles'),
+      tabIsCo: tab === 'connexions', tabIsCa: tab === 'capture', tabIsDo: tab === 'donnees', tabIsRu: tab === 'regles',
+      tabCo: () => this.set({ tab: 'connexions' }), tabCa: () => this.set({ tab: 'capture' }),
+      tabDo: () => this.set({ tab: 'donnees' }), tabRu: () => this.set({ tab: 'regles' }),
+      chipOk: this.chip('ok') + ';white-space:nowrap', chipWarn: this.chip('warn') + ';white-space:nowrap',
+      idle: String(S.idle || 5),
+      idleMinus: () => this.set({ idle: Math.max(1, (S.idle || 5) - 1) }),
+      idlePlus: () => this.set({ idle: Math.min(60, (S.idle || 5) + 1) }),
+      minB10Style: segS(minB === 10), minB15Style: segS(minB === 15), minB30Style: segS(minB === 30) + ';border-right:none',
+      minB10: () => this.set({ minB: 10 }), minB15: () => this.set({ minB: 15 }), minB30: () => this.set({ minB: 30 }),
+      ret30Style: segS(ret === 30), ret90Style: segS(ret === 90), ret180Style: segS(ret === 180) + ';border-right:none',
+      ret30: () => this.set({ ret: 30 }), ret90: () => this.set({ ret: 90 }), ret180: () => this.set({ ret: 180 }),
+      swAuto: sw(S.autostart !== false), swAutoKnob: knob(S.autostart !== false),
+      toggleAutostart: () => this.set({ autostart: S.autostart === false }),
+      swPause: sw(!!S.pause), swPauseKnob: knob(!!S.pause),
+      togglePause: () => this.set({ pause: !S.pause }),
+      dangerBtn: 'height:30px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--err-stroke);border-radius:4px;font-size:13px;color:var(--err);cursor:pointer;background:var(--bg-card);white-space:nowrap',
+      ruleHead: 'display:grid;grid-template-columns:112px 210px minmax(0,1fr) 70px 92px;gap:10px;align-items:center;padding:0 14px;height:36px;font-size:12px;font-weight:600;color:var(--txt-3);background:var(--bg-card-2);border-bottom:1px solid var(--stroke)',
+      rules: this.RULES.map(r => ({
+        k: r.k, v: r.v, t: r.t, p: String(r.p), o: r.o,
+        rowStyle: 'display:grid;grid-template-columns:112px 210px minmax(0,1fr) 70px 92px;gap:10px;align-items:center;padding:0 14px;height:40px;font-size:13px;border-bottom:1px solid var(--stroke)',
+        oStyle: this.chip(r.o === 'auto' ? 'neu' : r.o === 'apprise' ? 'acc' : 'ok') + ';font-weight:400'
+      })),
+      openSapLogon: () => this.set({ overlay: 'saplogon' }),
+      openYubi: () => this.set({ overlay: 'yubikey' }),
+      openPurge: () => this.set({ overlay: 'purge' }),
+      closeOverlay: () => this.set({ overlay: 'aucun' }),
+      theme: T, showAnn: this.props.annotations !== 'non' && this.props.annotations !== false,
+      isDark: T !== 'clair', isLight: T === 'clair',
+      navTL: navS('timeline'), navRA: navS('rattrapage'), navRC: navS('recap'),
+      railTL: railS('timeline'), railRA: railS('rattrapage'), railRC: railS('recap'),
+      badge3: this.chip('warn') + ';height:18px;padding:0 6px',
+      badgeRC: this.chip('neu') + ';height:18px;padding:0 6px;font-weight:400',
+      hours, blocks, groups, gaps, meetings, lines, pills,
+      rawHeader: empty ? 'Activité capturée' : this.BLOCKS.length + ' segments captés',
+      groupHeader: empty ? 'Regroupement CATS' : this.GROUPS.length + ' plages CATS',
+      tlHeight: (top(1080) + 8) + 'px',
+      isTimeline: scr === 'timeline', isRattrapage: scr === 'rattrapage',
+      isRecap: scr === 'recap', isParams: scr === 'params',
+      emptyDay: empty, offline: variant === 'vpn', dayLabel: 'mar. 11 août 2026',
+      totalProposed: this.fmt(totalH), expected: this.fmt(7.6),
+      gaugeStyle: { height: '100%', width: pct + '%', background: 'var(--acc-fill)', borderRadius: '2px' },
+      recapCount: String(this.recapRows.length),
+      statusRight: 'Rétention 90 jours · dernière capture il y a 2 min',
+      themeLabel: { clair: 'Thème sombre', sombre: 'Thème Monokai', monokai: 'Thème Dracula', dracula: 'Thème arc-en-ciel', arcenciel: 'Thème clair' }[T],
+      themeIcon: T === 'sombre'
+        ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>'
+        : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>',
+      toggleTheme: () => this.set({ theme: { clair: 'sombre', sombre: 'monokai', monokai: 'dracula', dracula: 'arcenciel', arcenciel: 'clair' }[T] }),
+      goParams: () => this.set({ screen: 'params' }),
+      goTimeline: () => this.set({ screen: 'timeline' }),
+      goRattrapage: () => this.set({ screen: 'rattrapage' }),
+      goRecap: () => this.set({ screen: 'recap' }),
+      prevDay: () => this.set({ screen: 'timeline' }), nextDay: () => this.set({ screen: 'timeline' }),
+      validateAll: () => this.set({ lines: this.lines.map(x => x.status === 'submitted' ? x : { ...x, status: 'validated' }) })
+    };
+  }
+
+  parse(css) {
+    const o = {};
+    css.split(';').filter(Boolean).forEach(r => {
+      const i = r.indexOf(':'); const k = r.slice(0, i).trim(); const v = r.slice(i + 1).trim();
+      o[k.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = v;
+    });
+    return o;
+  }
+}
+</script>
+</body>
+</html>

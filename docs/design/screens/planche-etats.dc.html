@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#E4E4E6;font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#3D5A79;text-decoration:none}a:hover{text-decoration:underline}
+.catsapp{min-height:0 !important}
+</style>
+</helmet>
+<div style="padding:40px 44px 64px;background:#E4E4E6;color:#1A1A1A;font-family:'Segoe UI Variable Text','Segoe UI',system-ui,sans-serif">
+  <div style="display:flex;align-items:flex-end;gap:16px;max-width:1180px">
+    <div style="flex:1">
+      <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:28px;line-height:34px;font-weight:600;letter-spacing:-.02em">États annexes</div>
+      <div style="font-size:14px;line-height:20px;color:#5D5D5D;margin-top:4px">Les sept situations que les cinq écrans ne montrent pas : fenêtres système, journées vides, pannes réseau, échecs d'envoi, actions destructrices.</div>
+    </div>
+    <div style="font-size:12px;color:#767676;text-align:right;line-height:17px">Échelle 42 %<br>1280 × 840 px</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:538px 538px;gap:26px 22px;margin-top:28px">
+
+    <div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+        <span style="font-size:15px;font-weight:600;white-space:nowrap;flex:none">Logon SAP</span>
+        <span style="font-size:12px;color:#767676">fenêtre WebView2 · thème clair</span>
+      </div>
+      <div style="width:538px;height:353px;overflow:hidden;border:1px solid #C9C9CC;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.10)">
+        <div style="width:1540px;height:952px;transform:scale(.42) translate(-120px,-56px);transform-origin:top left">
+          <dc-import name="CATS Assistant" theme="clair" screen="params" overlay="saplogon" annotations="non" hint-size="1540px,952px"></dc-import>
+        </div>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#5D5D5D;margin-top:7px">Aucun identifiant stocké : la fenêtre est fermée dès l'obtention des cookies de session, puis le jeton CSRF est demandé. Rouverte automatiquement sur 401 ou redirection de logon.</div>
+    </div>
+
+    <div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+        <span style="font-size:15px;font-weight:600;white-space:nowrap;flex:none">Invite YubiKey</span>
+        <span style="font-size:12px;color:#767676">au démarrage · thème sombre</span>
+      </div>
+      <div style="width:538px;height:353px;overflow:hidden;border:1px solid #C9C9CC;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.10)">
+        <div style="width:1540px;height:952px;transform:scale(.42) translate(-120px,-56px);transform-origin:top left">
+          <dc-import name="CATS Assistant" theme="sombre" screen="timeline" overlay="yubikey" annotations="non" hint-size="1540px,952px"></dc-import>
+        </div>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#5D5D5D;margin-top:7px">Sans clé, la capture fonctionne mais les connecteurs JIRA et GitLab restent hors service : les blocs s'accumulent en « non corrélé ».</div>
+    </div>
+
+    <div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+        <span style="font-size:15px;font-weight:600;white-space:nowrap;flex:none">Zone de notification</span>
+        <span style="font-size:12px;color:#767676">icône + menu contextuel</span>
+      </div>
+      <div style="width:538px;height:353px;overflow:hidden;border:1px solid #C9C9CC;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.10)">
+        <div style="width:1540px;height:952px;transform:scale(.42) translate(-120px,-56px);transform-origin:top left">
+          <dc-import name="CATS Assistant" theme="clair" screen="timeline" overlay="tray" annotations="non" hint-size="1540px,952px"></dc-import>
+        </div>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#5D5D5D;margin-top:7px">Le cumul du jour reste visible sans ouvrir la fenêtre. La pastille du menu reprend le retard de rattrapage.</div>
+    </div>
+
+    <div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+        <span style="font-size:15px;font-weight:600;white-space:nowrap;flex:none">Journée vide</span>
+        <span style="font-size:12px;color:#767676">aucune activité capturée</span>
+      </div>
+      <div style="width:538px;height:353px;overflow:hidden;border:1px solid #C9C9CC;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.10)">
+        <div style="width:1540px;height:952px;transform:scale(.42) translate(-120px,-56px);transform-origin:top left">
+          <dc-import name="CATS Assistant" theme="clair" screen="timeline" variant="vide" annotations="non" hint-size="1540px,952px"></dc-import>
+        </div>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#5D5D5D;margin-top:7px">Poste éteint, congé ou capture en pause : la timeline reste vide et l'encodage manuel prend le relais. Aucune ligne n'est inventée.</div>
+    </div>
+
+    <div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+        <span style="font-size:15px;font-weight:600;white-space:nowrap;flex:none">Hors réseau ULiège</span>
+        <span style="font-size:12px;color:#767676">SAP inaccessible</span>
+      </div>
+      <div style="width:538px;height:353px;overflow:hidden;border:1px solid #C9C9CC;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.10)">
+        <div style="width:1540px;height:952px;transform:scale(.42) translate(-120px,-56px);transform-origin:top left">
+          <dc-import name="CATS Assistant" theme="sombre" screen="timeline" variant="vpn" annotations="non" hint-size="1540px,952px"></dc-import>
+        </div>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#5D5D5D;margin-top:7px">Capture et corrélation continuent en local ; seul l'envoi est bloqué. La pastille SAP passe au rouge dans la barre d'état.</div>
+    </div>
+
+    <div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+        <span style="font-size:15px;font-weight:600;white-space:nowrap;flex:none">Envoi partiellement échoué</span>
+        <span style="font-size:12px;color:#767676">5 créées · 1 refusée</span>
+      </div>
+      <div style="width:538px;height:353px;overflow:hidden;border:1px solid #C9C9CC;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.10)">
+        <div style="width:1540px;height:952px;transform:scale(.42) translate(-120px,-56px);transform-origin:top left">
+          <dc-import name="CATS Assistant" theme="clair" screen="recap" variant="echec" annotations="non" hint-size="1540px,952px"></dc-import>
+        </div>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#5D5D5D;margin-top:7px">État par ligne, jamais un message global : les lignes créées gardent leur Counter, la ligne refusée reste renvoyable seule.</div>
+    </div>
+
+    <div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+        <span style="font-size:15px;font-weight:600;white-space:nowrap;flex:none">Purge des données</span>
+        <span style="font-size:12px;color:#767676">confirmation explicite</span>
+      </div>
+      <div style="width:538px;height:353px;overflow:hidden;border:1px solid #C9C9CC;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.10)">
+        <div style="width:1540px;height:952px;transform:scale(.42) translate(-120px,-56px);transform-origin:top left">
+          <dc-import name="CATS Assistant" theme="sombre" screen="params" overlay="purge" annotations="non" hint-size="1540px,952px"></dc-import>
+        </div>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#5D5D5D;margin-top:7px">Ce qui part et ce qui reste sont énumérés séparément ; le mot PURGER doit être saisi. N'affecte jamais SAP.</div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:32px;max-width:1098px;padding-top:16px;border-top:1px solid #C9C9CC;font-size:12px;line-height:18px;color:#5D5D5D">Écran interactif : <a href="cats-assistant.dc.html">CATS Assistant</a> · <a href="planches-clair-sombre.dc.html">Planches clair et sombre</a> · <a href="../tokens/design-tokens.dc.html">Design tokens</a></div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:1720}}"></script>
+</body>
+</html>

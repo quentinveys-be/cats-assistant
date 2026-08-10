@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../_runtime/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#FAFAFA;font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#3D5A79;text-decoration:none}a:hover{color:#4B6E92;text-decoration:underline}
+</style>
+</helmet>
+<div style="padding:44px 48px 72px;min-width:1184px;box-sizing:content-box;background:#FAFAFA;color:#1A1A1A;font-family:'Segoe UI Variable Text','Segoe UI',system-ui,sans-serif;font-size:14px;line-height:20px">
+
+  <div style="display:flex;align-items:flex-end;gap:20px;max-width:1184px;padding-bottom:18px;border-bottom:2px solid #1A1A1A">
+    <div style="flex:1">
+      <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:32px;line-height:38px;font-weight:600;letter-spacing:-.02em">Design tokens — CATS Assistant</div>
+      <div style="font-size:14px;line-height:20px;color:#5D5D5D;margin-top:5px;max-width:780px">Fluent Design Windows 11, accent système acier #5980A6. Chaque jeton porte son nom dans la maquette et la clé de ressource WPF à créer. Cinq thèmes partagent la même structure — clair, sombre, Monokai, Dracula, arc-en-ciel : seules les valeurs changent.</div>
+    </div>
+    <div style="font-size:12px;color:#767676;text-align:right;line-height:17px">Segoe UI Variable<br>Fenêtre 1280 × 840 px<br>Août 2026</div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:14px;font-size:12px;color:#767676">
+    <span>Voir aussi</span><span>·</span>
+    <a href="../screens/cats-assistant.dc.html">application interactive</a><span>·</span>
+    <a href="../screens/planches-clair-sombre.dc.html">planches clair / sombre</a><span>·</span>
+    <a href="../screens/planche-etats.dc.html">états annexes</a>
+  </div>
+
+  <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:22px;font-weight:600;letter-spacing:-.01em;margin:34px 0 3px">Palette</div>
+  <div style="font-size:13px;color:#5D5D5D;margin-bottom:14px;max-width:780px">En WPF : un ResourceDictionary par thème sous ThemeDictionaries, une entrée SolidColorBrush par ligne, référencée en DynamicResource pour que la bascule soit immédiate. Les trois variantes sombres (plus bas) reprennent exactement les mêmes clés.</div>
+
+  <div style="max-width:1184px;border:1px solid #E0E0E0;border-radius:6px;background:#FFFFFF;overflow:hidden">
+    <div style="{{ headStyle }}">
+      <span>Jeton (maquette)</span><span>Clé de ressource WPF</span><span>Clair</span><span>Sombre</span><span>Usage</span>
+    </div>
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="34">
+      <div style="{{ r.rowStyle }}">
+        <span style="{{ r.cssStyle }}">{{ r.css }}</span>
+        <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:#5D5D5D;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.xaml }}</span>
+        <span style="display:flex;align-items:center;gap:7px;min-width:0">
+          <span style="{{ r.swL }}"></span>
+          <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:#5D5D5D;white-space:nowrap">{{ r.light }}</span>
+        </span>
+        <span style="display:flex;align-items:center;gap:7px;min-width:0">
+          <span style="{{ r.swD }}"></span>
+          <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:#5D5D5D;white-space:nowrap">{{ r.dark }}</span>
+        </span>
+        <span style="font-size:13px;color:#5D5D5D;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.use }}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:22px;font-weight:600;letter-spacing:-.01em;margin:38px 0 14px">Les quatre statuts d'une ligne CATS</div>
+  <div style="display:flex;gap:14px;max-width:1184px">
+    <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="4">
+      <div style="flex:1;min-width:0;border:1px solid #E0E0E0;border-radius:6px;background:#FFFFFF;overflow:hidden">
+        <div style="{{ s.demoL }}">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">1:15</span>
+            <span style="flex:1"></span>
+            <span style="{{ s.chipL }}">{{ s.label }}</span>
+          </div>
+          <div style="font-size:12px;color:#5D5D5D;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">ULISTROIS-3428 - Refonte…</div>
+        </div>
+        <div style="{{ s.demoD }}">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:#FFFFFF">1:15</span>
+            <span style="flex:1"></span>
+            <span style="{{ s.chipD }}">{{ s.label }}</span>
+          </div>
+          <div style="font-size:12px;color:#CFCFCF;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">ULISTROIS-3428 - Refonte…</div>
+        </div>
+        <div style="padding:10px 12px;border-top:1px solid #E0E0E0">
+          <div style="font-family:Consolas,'Cascadia Mono',monospace;font-size:11px;color:#1A1A1A;line-height:16px">{{ s.code }}</div>
+          <div style="font-size:12px;line-height:17px;color:#5D5D5D;margin-top:5px">{{ s.rule }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:22px;font-weight:600;letter-spacing:-.01em;margin:38px 0 3px">Pastilles de connexion</div>
+  <div style="font-size:13px;color:#5D5D5D;margin-bottom:14px;max-width:780px">Cercle de 8 px, halo de 2 px dans la teinte de fond. Cinq services, trois états : « expiré » n'est jamais rouge — le service répond, le jeton non.</div>
+  <div style="display:flex;gap:14px;max-width:1184px">
+    <div style="flex:1;border:1px solid #E0E0E0;border-radius:6px;background:#FFFFFF;overflow:hidden">
+      <sc-for list="{{ pillStates }}" as="p" hint-placeholder-count="3">
+        <div style="{{ p.rowStyle }}">
+          <span style="{{ p.dot }}"></span>
+          <span style="font-size:14px;font-weight:600;width:104px;flex:none">{{ p.label }}</span>
+          <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:#5D5D5D;width:150px;flex:none">{{ p.hexL }}</span>
+          <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:#5D5D5D;width:150px;flex:none">{{ p.hexD }}</span>
+          <span style="font-size:13px;color:#5D5D5D;flex:1;min-width:0">{{ p.use }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="width:330px;flex:none;border:1px solid #E0E0E0;border-radius:6px;background:#FFFFFF;padding:14px">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#767676;margin-bottom:10px">Barre d'état · 28 px</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px 14px">
+        <sc-for list="{{ services }}" as="s" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="{{ s.dot }}"></span>
+            <span style="font-size:12px;color:#5D5D5D">{{ s.label }}</span>
+            <span style="{{ s.stStyle }}">{{ s.state }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#767676;margin-top:14px;padding-top:12px;border-top:1px solid #E0E0E0">SAP est le seul service dont la panne bloque une action : l'envoi. Les autres dégradent la corrélation sans empêcher la saisie.</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;max-width:1184px;margin-top:38px">
+    <div style="flex:1;min-width:0">
+      <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:22px;font-weight:600;letter-spacing:-.01em;margin-bottom:14px">Échelle typographique</div>
+      <div style="border:1px solid #E0E0E0;border-radius:6px;background:#FFFFFF;overflow:hidden">
+        <sc-for list="{{ type }}" as="t" hint-placeholder-count="7">
+          <div style="{{ t.rowStyle }}">
+            <div style="width:112px;flex:none">
+              <div style="font-size:13px;font-weight:600">{{ t.name }}</div>
+              <div style="font-family:Consolas,'Cascadia Mono',monospace;font-size:11px;color:#767676">{{ t.spec }}</div>
+            </div>
+            <div style="flex:1;min-width:0;overflow:hidden">
+              <div style="{{ t.sampleStyle }}">{{ t.sample }}</div>
+            </div>
+            <div style="width:150px;flex:none;font-size:12px;color:#767676;line-height:16px">{{ t.use }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#767676;margin-top:10px">Segoe UI Variable Display pour les titres et les durées (optique large, chasse serrée), Segoe UI Variable Text pour le reste. Chiffres en tabular-nums partout où des durées s'alignent. Les codes SAP et les clés JIRA sont en Cascadia Mono / Consolas.</div>
+    </div>
+    <div style="width:400px;flex:none">
+      <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:22px;font-weight:600;letter-spacing:-.01em;margin-bottom:14px">Espacements, rayons, élévations</div>
+      <div style="border:1px solid #E0E0E0;border-radius:6px;background:#FFFFFF;padding:14px">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#767676">Espacements</div>
+        <div style="display:flex;align-items:flex-end;gap:8px;margin-top:10px">
+          <sc-for list="{{ spaces }}" as="s" hint-placeholder-count="7">
+            <div style="text-align:center">
+              <div style="{{ s.barStyle }}"></div>
+              <div style="font-family:Consolas,'Cascadia Mono',monospace;font-size:11px;color:#5D5D5D;margin-top:4px">{{ s.v }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:12px;line-height:17px;color:#767676;margin-top:8px">Grille de 4 px. 20 px = marge de contenu, 16 px = gouttière entre panneaux, 10 px = respiration interne d'une carte.</div>
+
+        <div style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#767676;margin-top:18px;padding-top:14px;border-top:1px solid #E0E0E0">Rayons</div>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <sc-for list="{{ radii }}" as="r" hint-placeholder-count="4">
+            <div style="flex:1">
+              <div style="{{ r.boxStyle }}"></div>
+              <div style="font-family:Consolas,'Cascadia Mono',monospace;font-size:11px;color:#5D5D5D;margin-top:5px">{{ r.v }}</div>
+              <div style="font-size:11px;line-height:15px;color:#767676">{{ r.use }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#767676;margin-top:18px;padding-top:14px;border-top:1px solid #E0E0E0">Élévations</div>
+        <div style="display:flex;gap:12px;margin-top:12px">
+          <sc-for list="{{ elevs }}" as="e" hint-placeholder-count="3">
+            <div style="flex:1">
+              <div style="{{ e.boxStyle }}"></div>
+              <div style="font-size:11px;font-weight:600;margin-top:8px">{{ e.name }}</div>
+              <div style="font-size:11px;line-height:15px;color:#767676">{{ e.use }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:22px;font-weight:600;letter-spacing:-.01em;margin:38px 0 14px">Couleurs de ticket dans la timeline</div>
+  <div style="display:flex;gap:14px;max-width:1184px;align-items:stretch">
+    <div style="flex:1;border:1px solid #E0E0E0;border-radius:6px;background:#FFFFFF;overflow:hidden">
+      <sc-for list="{{ hues }}" as="h" hint-placeholder-count="4">
+        <div style="{{ h.rowStyle }}">
+          <span style="{{ h.chipL }}">{{ h.demo }}</span>
+          <span style="{{ h.chipD }}">{{ h.demo }}</span>
+          <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:#5D5D5D;width:150px;flex:none">{{ h.hexL }}</span>
+          <span style="font-family:Consolas,'Cascadia Mono',monospace;font-size:12px;color:#5D5D5D;width:150px;flex:none">{{ h.hexD }}</span>
+          <span style="font-size:13px;color:#5D5D5D;flex:1;min-width:0">{{ h.use }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="width:330px;flex:none;border:1px solid #E0E0E0;border-radius:6px;background:#FFFFFF;padding:14px">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#767676;margin-bottom:10px">Les trois textures</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:56px;height:26px;flex:none;border-radius:3px;background:#E7EEF5;border:1px solid #4B6E92;border-left-width:3px"></span>
+          <span style="font-size:12px;line-height:16px;color:#5D5D5D">Corrélé — teinte du ticket, liseré 3 px</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:56px;height:26px;flex:none;border-radius:3px;background:#F2F2F2;border:1px solid #BDBDBD;background-image:repeating-linear-gradient(135deg,transparent 0 5px,#BDBDBD 5px 6px)"></span>
+          <span style="font-size:12px;line-height:16px;color:#5D5D5D">Non corrélé — hachures 135°, pas de 6 px</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:56px;height:26px;flex:none;border-radius:3px;background:#EDEDED;border:1px solid #E0E0E0"></span>
+          <span style="font-size:12px;line-height:16px;color:#5D5D5D">Inactivité — gris plein, sans liseré</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:56px;height:26px;flex:none;border-radius:3px;background:#ECF1F6;border:1px dashed #5980A6"></span>
+          <span style="font-size:12px;line-height:16px;color:#5D5D5D">Réunion Outlook — trait discontinu, en surimpression</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:56px;height:26px;flex:none;border-radius:3px;background:#FBF0DC;border:1px dashed #E5C58F"></span>
+          <span style="font-size:12px;line-height:16px;color:#5D5D5D">Plage CATS manquante — « à imputer »</span>
+        </div>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#767676;margin-top:14px;padding-top:12px;border-top:1px solid #E0E0E0">Quatre teintes suffisent : elles ne codent pas un ticket précis mais distinguent les tickets voisins dans la journée. Au-delà de quatre, la roue reprend au début.</div>
+    </div>
+  </div>
+
+  <sc-for list="{{ alts }}" as="a" hint-placeholder-count="3">
+    <div style="max-width:1184px">
+      <div style="font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:22px;font-weight:600;letter-spacing:-.01em;margin:38px 0 3px">{{ a.name }}</div>
+      <div style="font-size:13px;color:#5D5D5D;margin-bottom:14px;max-width:840px">{{ a.note }}</div>
+      <div style="{{ a.cardStyle }}">
+        <div style="padding:16px 14px 14px">
+          <div style="display:flex;gap:10px">
+            <sc-for list="{{ a.statuses }}" as="s" hint-placeholder-count="4">
+              <div style="{{ s.cardStyle }}">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="{{ s.durStyle }}">1:15</span>
+                  <span style="flex:1"></span>
+                  <span style="{{ s.chip }}">{{ s.label }}</span>
+                </div>
+                <div style="{{ s.keyStyle }}">ULISTROIS-3428</div>
+                <div style="{{ s.codeStyle }}">P.ACSICAT01-01-P-0005 · ZS042</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <sc-for list="{{ a.hues }}" as="h" hint-placeholder-count="4">
+              <div style="{{ h.style }}">{{ h.label }}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
+            <div style="{{ a.btnP }}">Envoyer vers CATS</div>
+            <div style="{{ a.btnS }}">Retour</div>
+            <div style="{{ a.btnD }}">Purger</div>
+            <span style="flex:1"></span>
+            <sc-for list="{{ a.pills }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:6px;flex:none">
+                <span style="{{ p.dot }}"></span>
+                <span style="{{ p.style }}">{{ p.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="{{ a.headStyle }}"><span>Jeton (maquette)</span><span>Valeur</span><span>Usage</span></div>
+        <sc-for list="{{ a.rows }}" as="r" hint-placeholder-count="30">
+          <div style="{{ r.rowStyle }}">
+            <span style="{{ r.cssStyle }}">{{ r.css }}</span>
+            <span style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="{{ r.sw }}"></span>
+              <span style="{{ r.hexStyle }}">{{ r.hex }}</span>
+            </span>
+            <span style="{{ r.useStyle }}">{{ r.use }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size:12px;line-height:17px;color:#767676;margin-top:10px">{{ a.foot }} Typographie, espacements et rayons sont inchangés — la variante ne touche que la couleur.</div>
+    </div>
+  </sc-for>
+
+  <div style="max-width:1184px;margin-top:38px;padding-top:16px;border-top:1px solid #E0E0E0;font-size:12px;line-height:18px;color:#767676">Contrastes vérifiés sur les deux thèmes : texte principal ≥ 12:1, texte secondaire ≥ 4,6:1, accent sur fond clair 5,6:1 (accent #5980A6 assombri en #4B6E92 pour le remplissage clair, éclairci en #8CA9C4 pour le remplissage sombre, selon la règle Fluent Light1/Dark1). Le focus clavier est un contour accent de 2 px avec 2 px de décalage, jamais l'anneau bleu par défaut.</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:2600}}">
+class Component extends DCLogic {
+  PAL = [
+    ['Fonds', 0],
+    ['--bg-base', 'WindowBackgroundBrush', '#F3F3F3', '#202020', 'Fond de fenêtre (Mica en WPF)'],
+    ['--bg-layer', 'LayerBackgroundBrush', '#FBFBFB', '#272727', 'Volet de navigation, barres de titre et d\u2019état'],
+    ['--bg-card', 'CardBackgroundBrush', '#FFFFFF', '#2B2B2B', 'Cartes, lignes CATS, champs'],
+    ['--bg-card-2', 'CardBackgroundSecondaryBrush', '#F6F6F6', '#232323', 'En-têtes de carte et de tableau, pieds de panneau'],
+    ['--bg-subtle', 'SubtleFillSecondaryBrush', '#F0F0F0', '#2F2F2F', 'Survol des éléments de liste et boutons discrets'],
+    ['--bg-subtle-2', 'SubtleFillTertiaryBrush', '#E6E6E6', '#383838', 'État pressé, rails de jauge'],
+    ['--smoke', 'SmokeFillBrush', 'rgba(0,0,0,.30)', 'rgba(0,0,0,.45)', 'Voile derrière une modale'],
+    ['Traits', 0],
+    ['--stroke', 'DividerStrokeBrush', '#E5E5E5', '#333333', 'Séparateurs, bordures de carte'],
+    ['--stroke-ctrl', 'ControlStrokeBrush', '#D8D8D8', '#3D3D3D', 'Contour des contrôles (champ, bouton secondaire)'],
+    ['--stroke-strong', 'ControlStrokeStrongBrush', '#C6C6C6', '#4A4A4A', 'Contour d\u2019un interrupteur inactif'],
+    ['Texte', 0],
+    ['--txt', 'TextFillPrimaryBrush', '#1A1A1A', '#FFFFFF', 'Texte principal'],
+    ['--txt-2', 'TextFillSecondaryBrush', '#5D5D5D', '#CFCFCF', 'Libellés, notes, corps secondaire'],
+    ['--txt-3', 'TextFillTertiaryBrush', '#767676', '#9E9E9E', 'Métadonnées, heures, codes'],
+    ['--txt-dis', 'TextFillDisabledBrush', '#A0A0A0', '#6E6E6E', 'Contrôle désactivé'],
+    ['Accent', 0],
+    ['--acc', 'SystemAccentColor', '#5980A6', '#5980A6', 'Couleur système — identique aux deux thèmes'],
+    ['--acc-fill', 'AccentFillBrush', '#4B6E92', '#8CA9C4', 'Bouton principal, rail de navigation, jauge'],
+    ['--acc-fill-h', 'AccentFillHoverBrush', '#41628A', '#9DB6CD', 'Survol du bouton principal'],
+    ['--acc-fill-p', 'AccentFillPressedBrush', '#37546F', '#7C9CBA', 'État pressé'],
+    ['--acc-on', 'TextOnAccentBrush', '#FFFFFF', '#1A1A1A', 'Texte posé sur l\u2019accent'],
+    ['--acc-txt', 'AccentTextBrush', '#3D5A79', '#A9C0D6', 'Clé JIRA, lien, titre de colonne CATS'],
+    ['--acc-tint', 'AccentTintBrush', '#ECF1F6', '#26313B', 'Fond d\u2019une pastille ou d\u2019un encart accent'],
+    ['--acc-stroke', 'AccentStrokeBrush', '#B9CBDC', '#3E505F', 'Contour d\u2019un encart accent'],
+    ['Sémantique', 0],
+    ['--ok / bg / stroke', 'SuccessBrush…', '#0F7B0F · #E6F4E6', '#6CCB5F · #1B2A18', 'Validé, service connecté, ligne créée'],
+    ['--warn / bg / stroke', 'CautionBrush…', '#8A5300 · #FBF0DC', '#E5A34D · #2E2418', 'Modifié, jeton expiré, plage à imputer'],
+    ['--err / bg / stroke', 'CriticalBrush…', '#B02A1B · #FDECEA', '#FF99A4 · #2E1B1D', 'Échec d\u2019envoi, hors réseau, purge'],
+    ['--neu / bg / stroke', 'NeutralChipBrush…', '#616161 · #EFEFEF', '#A8A8A8 · #2C2C2C', 'Soumis, règle automatique']
+  ];
+
+  MONO = [
+    ['Fonds', 0],
+    ['--bg-base', '#272822', 'Le gris-olive Monokai — fond de fenêtre'],
+    ['--bg-layer', '#2D2E27', 'Volet de navigation, barres de titre et d\u2019état'],
+    ['--bg-card', '#32332B', 'Cartes et champs : un cran plus clair, jamais un noir pur'],
+    ['--bg-card-2', '#2B2C24', 'En-têtes de tableau, pieds de panneau'],
+    ['--bg-subtle', '#3A3B32', 'Survol'],
+    ['--bg-subtle-2', '#45463B', 'Pressé, rails de jauge'],
+    ['Traits et texte', 0],
+    ['--stroke', '#3E3F35', 'Séparateurs, bordures de carte'],
+    ['--stroke-ctrl', '#4A4B3F', 'Contour des contrôles'],
+    ['--txt', '#F8F8F2', 'Texte principal — le blanc cassé Monokai'],
+    ['--txt-2', '#D7D8CB', 'Libellés, notes'],
+    ['--txt-3', '#9C9A88', 'Métadonnées (le gris commentaire éclairci pour rester lisible)'],
+    ['--txt-dis', '#75715E', 'Désactivé — le gris commentaire d\u2019origine'],
+    ['Accent — cyan', 0],
+    ['--acc / --acc-fill', '#66D9EF', 'Bouton principal, rail de navigation, jauge'],
+    ['--acc-fill-h', '#7FE1F3', 'Survol'],
+    ['--acc-fill-p', '#4FC4DA', 'Pressé'],
+    ['--acc-on', '#23241D', 'Texte posé sur le cyan — sombre, comme dans l\u2019éditeur'],
+    ['--acc-txt', '#8DE6F7', 'Clé JIRA, lien, titre de colonne'],
+    ['--acc-tint', '#23343A', 'Fond d\u2019encart accent'],
+    ['--acc-stroke', '#3A5A63', 'Contour d\u2019encart accent'],
+    ['Sémantique', 0],
+    ['--ok', '#A6E22E', 'Validé, service connecté — le vert des chaînes'],
+    ['--warn', '#FD971F', 'Modifié, jeton expiré — l\u2019orange des nombres'],
+    ['--err', '#F92672', 'Échec, hors réseau, purge — le rose des mots-clés'],
+    ['--neu', '#9C9A88', 'Soumis, règle automatique'],
+    ['Teintes de ticket', 0],
+    ['--t1', '#66D9EF', '1er ticket — cyan'],
+    ['--t2', '#AE81FF', '2e ticket — violet des constantes'],
+    ['--t3', '#A6E22E', '3e ticket — vert'],
+    ['--t4', '#E6DB74', '4e ticket — jaune des chaînes']
+  ];
+
+  DRAC = [
+    ['Fonds', 0],
+    ['--bg-base', '#282A36', 'Le bleu-nuit Dracula — fond de fenêtre'],
+    ['--bg-layer', '#2D2F3B', 'Volet de navigation, barres de titre et d\u2019état'],
+    ['--bg-card', '#343746', 'Cartes et champs'],
+    ['--bg-card-2', '#2B2D39', 'En-têtes de tableau, pieds de panneau'],
+    ['--bg-subtle', '#3C3F52', 'Survol'],
+    ['--bg-subtle-2', '#44475A', 'Pressé, rails de jauge — la « ligne courante » de l\u2019éditeur'],
+    ['Traits et texte', 0],
+    ['--stroke', '#3B3E4F', 'Séparateurs, bordures de carte'],
+    ['--stroke-ctrl', '#474B5F', 'Contour des contrôles'],
+    ['--txt', '#F8F8F2', 'Texte principal'],
+    ['--txt-2', '#D9DBE8', 'Libellés, notes'],
+    ['--txt-3', '#9AA0C0', 'Métadonnées (le bleu commentaire éclairci pour rester lisible)'],
+    ['--txt-dis', '#6272A4', 'Désactivé — le bleu commentaire d\u2019origine'],
+    ['Accent — violet', 0],
+    ['--acc / --acc-fill', '#BD93F9', 'Bouton principal, rail de navigation, jauge'],
+    ['--acc-fill-h', '#CBA9FB', 'Survol'],
+    ['--acc-fill-p', '#A87BEB', 'Pressé'],
+    ['--acc-on', '#21222C', 'Texte posé sur le violet'],
+    ['--acc-txt', '#D0B3FC', 'Clé JIRA, lien, titre de colonne'],
+    ['--acc-tint', '#322C46', 'Fond d\u2019encart accent'],
+    ['--acc-stroke', '#4E4470', 'Contour d\u2019encart accent'],
+    ['Sémantique', 0],
+    ['--ok', '#50FA7B', 'Validé, service connecté'],
+    ['--warn', '#FFB86C', 'Modifié, jeton expiré'],
+    ['--err', '#FF5555', 'Échec, hors réseau, purge'],
+    ['--neu', '#9AA0C0', 'Soumis, règle automatique'],
+    ['Teintes de ticket', 0],
+    ['--t1', '#BD93F9', '1er ticket — violet'],
+    ['--t2', '#8BE9FD', '2e ticket — cyan'],
+    ['--t3', '#50FA7B', '3e ticket — vert'],
+    ['--t4', '#FF79C6', '4e ticket — rose']
+  ];
+
+  RAIN = [
+    ['Fonds', 0],
+    ['--bg-base', '#0A0A0B', 'Noir — presque pur, un point de gris pour que les ombres existent'],
+    ['--bg-layer', '#121214', 'Volet de navigation, barres de titre et d\u2019état'],
+    ['--bg-card', '#17171A', 'Cartes et champs'],
+    ['--bg-card-2', '#101012', 'En-têtes de tableau, pieds de panneau'],
+    ['--bg-subtle', '#1F1F23', 'Survol'],
+    ['--bg-subtle-2', '#2A2A30', 'Pressé, rails de jauge'],
+    ['Traits et texte', 0],
+    ['--stroke', '#232329', 'Séparateurs, bordures de carte'],
+    ['--stroke-ctrl', '#33333B', 'Contour des contrôles'],
+    ['--txt', '#FFFFFF', 'Texte principal — blanc pur, le fond le supporte'],
+    ['--txt-2', '#D6D6DE', 'Libellés, notes'],
+    ['--txt-3', '#9A9AA6', 'Métadonnées'],
+    ['--txt-dis', '#6A6A76', 'Désactivé'],
+    ['Accent — nuancier jaune', 0],
+    ['--acc / --acc-fill', '#FFCC33', 'Bouton principal, rail de navigation, jauge'],
+    ['--acc-fill-h', '#FFD866', 'Survol — jaune éclairci'],
+    ['--acc-fill-p', '#E6B21F', 'Pressé — jaune assombri'],
+    ['--acc-on', '#0A0A0B', 'Texte posé sur le jaune — noir obligatoire (contraste 12:1)'],
+    ['--acc-txt', '#FFDE7A', 'Clé JIRA, lien, titre de colonne'],
+    ['--acc-tint', '#2A2106', 'Fond d\u2019encart accent'],
+    ['--acc-stroke', '#5C4A12', 'Contour d\u2019encart accent'],
+    ['Sémantique', 0],
+    ['--ok', '#3DF08B', 'Validé, service connecté'],
+    ['--warn', '#FF9F2E', 'Modifié, jeton expiré — décalé vers l\u2019orange pour ne pas se confondre avec l\u2019accent'],
+    ['--err', '#FF5E5E', 'Échec, hors réseau, purge'],
+    ['--neu', '#9A9AA6', 'Soumis, règle automatique'],
+    ['Teintes de ticket — le spectre', 0],
+    ['--t1', '#4CC2FF', '1er ticket — azur'],
+    ['--t2', '#B57BFF', '2e ticket — violet'],
+    ['--t3', '#3DF08B', '3e ticket — vert'],
+    ['--t4', '#FF6FB5', '4e ticket — rose']
+  ];
+
+  ALTS = [
+    {
+      name: 'Variante Monokai', rows: 'MONO',
+      note: "Troisième thème, sombre uniquement : mêmes rôles, mêmes clés XAML, valeurs de l'éditeur. La correspondance est naturelle — le cyan est déjà la couleur de ce qui est « actif » dans Monokai, l'orange celle des nombres (donc des durées modifiées), le vert celle des chaînes (validé), le rose celle des mots-clés (danger). Aucun noir pur : le fond reste le gris-olive #272822 et le texte le blanc cassé #F8F8F2.",
+      bg: '#272822', head: '#23241D', card: '#32332B', stroke: '#3E3F35', rule: '#33342B', sect: '#2B2C24',
+      txt: '#F8F8F2', txt2: '#D7D8CB', txt3: '#9C9A88',
+      acc: '#66D9EF', accTxt: '#8DE6F7', accTint: '#23343A', accStroke: '#3A5A63', accOn: '#23241D',
+      ok: '#A6E22E', okBg: '#262E1B', okStroke: '#3E5323',
+      warn: '#FD971F', warnBg: '#322317', warnStroke: '#56391C',
+      err: '#F92672', errBg: '#351B24', errStroke: '#5A2438',
+      neu: '#9C9A88', neuBg: '#2E2F26', neuStroke: '#43443A',
+      hues: [['#66D9EF', '#23343A', 'ULISTROIS-3428'], ['#AE81FF', '#2D2739', 'ULISTROIS-3101'], ['#A6E22E', '#262E1B', 'ULISTROIS-3455'], ['#E6DB74', '#333019', 'ULISTROIS-3390']],
+      foot: "Les élévations passent de l'ombre grise à une ombre noire plus dense (0,35 / 0,50 / 0,62 d'opacité) : sur un fond olive, une ombre grise se voit à peine."
+    },
+    {
+      name: 'Variante Dracula', rows: 'DRAC',
+      note: "Quatrième thème, sombre également : le violet #BD93F9 porte l'interaction (la couleur des fonctions dans l'éditeur), le vert #50FA7B la validation, l'orange #FFB86C la modification, le rouge #FF5555 le danger. Le fond #282A36 est plus froid et plus bleu que Monokai ; la « ligne courante » #44475A sert d'état pressé et de rail de jauge.",
+      bg: '#282A36', head: '#21222C', card: '#343746', stroke: '#3B3E4F', rule: '#34374A', sect: '#2B2D39',
+      txt: '#F8F8F2', txt2: '#D9DBE8', txt3: '#9AA0C0',
+      acc: '#BD93F9', accTxt: '#D0B3FC', accTint: '#322C46', accStroke: '#4E4470', accOn: '#21222C',
+      ok: '#50FA7B', okBg: '#1E3226', okStroke: '#2E5238',
+      warn: '#FFB86C', warnBg: '#37291B', warnStroke: '#5A4227',
+      err: '#FF5555', errBg: '#35222A', errStroke: '#5E2E35',
+      neu: '#9AA0C0', neuBg: '#2F3242', neuStroke: '#444862',
+      hues: [['#BD93F9', '#322C46', 'ULISTROIS-3428'], ['#8BE9FD', '#1F3540', 'ULISTROIS-3101'], ['#50FA7B', '#1E3226', 'ULISTROIS-3455'], ['#FF79C6', '#3A2436', 'ULISTROIS-3390']],
+      foot: "Le rouge d'erreur et le rose de teinte t4 sont proches : le rouge n'apparaît jamais dans la timeline, et le rose jamais dans un message d'état."
+    },
+    {
+      name: 'Variante arc-en-ciel sur fond noir', rows: 'RAIN',
+      note: "Cinquième thème : fond noir #0A0A0B et le spectre réparti sur les rôles. L'accent est un nuancier jaune — #FFCC33 en base, éclairci au survol, assombri au clic — réservé à l'interaction (bouton principal, rail, ligne proposée) et absent des teintes de ticket. Sur du jaune le texte passe obligatoirement en noir. Le statut « modifié » glisse vers l'orange #FF9F2E pour rester distinct de l'accent, et les quatre teintes de ticket prennent azur, violet, vert et rose. Le vert sert aussi de statut « validé » : c'est la position qui désambiguïse — jamais deux rôles au même endroit.",
+      bg: '#0A0A0B', head: '#000000', card: '#17171A', stroke: '#232329', rule: '#1B1B20', sect: '#101012',
+      txt: '#FFFFFF', txt2: '#D6D6DE', txt3: '#9A9AA6',
+      acc: '#FFCC33', accTxt: '#FFDE7A', accTint: '#2A2106', accStroke: '#5C4A12', accOn: '#0A0A0B',
+      ok: '#3DF08B', okBg: '#062514', okStroke: '#10502D',
+      warn: '#FF9F2E', warnBg: '#2A1A06', warnStroke: '#5A3610',
+      err: '#FF5E5E', errBg: '#2A0D0D', errStroke: '#5C1F1F',
+      neu: '#9A9AA6', neuBg: '#1A1A1E', neuStroke: '#2C2C34',
+      hues: [['#4CC2FF', '#07222E', 'ULISTROIS-3428'], ['#B57BFF', '#1B0F2E', 'ULISTROIS-3101'], ['#3DF08B', '#062514', 'ULISTROIS-3455'], ['#FF6FB5', '#2C0F1F', 'ULISTROIS-3390']],
+      foot: "Sur un fond noir les ombres portent peu : elles montent à 0,60 / 0,70 / 0,80 d'opacité, et l'élévation se lit surtout au changement de fond de la carte. Les teintes sont volontairement claires (luminosité ≥ 70 %) pour tenir le contraste sur du noir."
+    }
+  ];
+
+  renderVals() {
+    const mono = "font-family:Consolas,'Cascadia Mono',monospace";
+    const grid = 'display:grid;grid-template-columns:190px 234px 186px 186px minmax(0,1fr);gap:12px;align-items:center;padding:0 14px';
+    const sw = c => `width:22px;height:22px;flex:none;border-radius:3px;border:1px solid rgba(0,0,0,.16);background:${c.indexOf('·') > 0 ? c.split(' · ')[0] : c}`;
+
+    const rows = this.PAL.map(r => {
+      if (r.length === 2) return {
+        css: r[0], xaml: '', light: '', dark: '', use: '',
+        rowStyle: 'padding:9px 14px;background:#F4F6F8;border-top:1px solid #E0E0E0;border-bottom:1px solid #E0E0E0;display:block',
+        cssStyle: 'font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#3D5A79',
+        swL: 'display:none', swD: 'display:none'
+      };
+      return {
+        css: r[0], xaml: r[1], light: r[2], dark: r[3], use: r[4],
+        rowStyle: grid + ';height:38px;border-bottom:1px solid #EFEFEF',
+        cssStyle: mono + ';font-size:12px;color:#1A1A1A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap',
+        swL: sw(r[2]), swD: sw(r[3])
+      };
+    });
+
+    const chip = (c, bg, st) => `display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:3px;font-size:11px;font-weight:600;white-space:nowrap;color:${c};background:${bg};border:1px solid ${st}`;
+
+    const statuses = [
+      ['Proposé', '#3D5A79', '#ECF1F6', '#B9CBDC', '#A9C0D6', '#26313B', '#3E505F', '#4B6E92', '#8CA9C4', 'accent', 'Sortie du corrélateur, jamais touchée par l\u2019utilisateur.'],
+      ['Modifié', '#8A5300', '#FBF0DC', '#E5C58F', '#E5A34D', '#2E2418', '#4C3A22', '#8A5300', '#E5A34D', 'caution', 'Durée, ticket ou note changés à la main. L\u2019orange survit à la validation.'],
+      ['Validé', '#0F7B0F', '#E6F4E6', '#B6DDB6', '#6CCB5F', '#1B2A18', '#31492C', '#0F7B0F', '#6CCB5F', 'success', 'Prêt pour le récapitulatif. Réversible tant que rien n\u2019est envoyé.'],
+      ['Soumis ✓', '#616161', '#EFEFEF', '#DCDCDC', '#A8A8A8', '#2C2C2C', '#3A3A3A', '#616161', '#A8A8A8', 'neutral', 'Écrit dans SAP avec son Counter. Lecture seule, carte à 85 % d\u2019opacité.']
+    ].map(s => ({
+      label: s[0],
+      chipL: chip(s[1], s[2], s[3]),
+      chipD: chip(s[4], s[5], s[6]),
+      demoL: `padding:12px;background:#FFFFFF;border-left:3px solid ${s[7]};border-bottom:1px solid #E0E0E0`,
+      demoD: `padding:12px;background:#2B2B2B;border-left:3px solid ${s[8]}`,
+      code: s[9] + ' · liseré 3 px',
+      rule: s[10]
+    }));
+
+    const dot = (c, bg) => `width:8px;height:8px;border-radius:50%;flex:none;background:${c};box-shadow:0 0 0 2px ${bg}`;
+
+    const pillStates = [
+      ['connecté', '#0F7B0F · #E6F4E6', '#6CCB5F · #1B2A18', 'Jeton valide, dernière synchro affichée en info-bulle'],
+      ['expiré', '#8A5300 · #FBF0DC', '#E5A34D · #2E2418', 'Le service répond mais le jeton doit être remplacé'],
+      ['déconnecté', '#B02A1B · #FDECEA', '#FF99A4 · #2E1B1D', 'Injoignable : hors VPN, session SAP tombée, clé retirée']
+    ].map((p, i) => ({
+      label: p[0], hexL: p[1], hexD: p[2], use: p[3],
+      dot: dot(p[1].split(' · ')[0], p[1].split(' · ')[1]),
+      rowStyle: 'display:flex;align-items:center;gap:12px;padding:0 14px;height:46px;' + (i < 2 ? 'border-bottom:1px solid #EFEFEF' : '')
+    }));
+
+    const services = [
+      ['SAP', 'connecté', '#0F7B0F', '#E6F4E6'], ['JIRA', 'connecté', '#0F7B0F', '#E6F4E6'],
+      ['GitLab', 'expiré', '#8A5300', '#FBF0DC'], ['Outlook', 'connecté', '#0F7B0F', '#E6F4E6'],
+      ['YubiKey', 'connecté', '#0F7B0F', '#E6F4E6']
+    ].map(s => ({ label: s[0], state: s[1], dot: dot(s[2], s[3]), stStyle: `font-size:12px;color:${s[2]}` }));
+
+    const type = [
+      ['Title', '28 / 34 · 600', 'Récapitulatif avant envoi', "font-family:'Segoe UI Variable Display','Segoe UI';font-size:28px;line-height:34px;font-weight:600;letter-spacing:-.02em", 'Titre de page'],
+      ['Subtitle', '20 / 26 · 600', 'Rattrapage', "font-family:'Segoe UI Variable Display','Segoe UI';font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em", 'Titre d\u2019écran, titre de modale'],
+      ['Duration', '18 / 24 · 600', '1:15', "font-family:'Segoe UI Variable Display','Segoe UI';font-size:18px;line-height:24px;font-weight:600;font-variant-numeric:tabular-nums", 'Durée d\u2019une ligne CATS'],
+      ['Body Strong', '14 / 20 · 600', 'Lignes CATS proposées', 'font-size:14px;line-height:20px;font-weight:600', 'Titres de carte, en-têtes, boutons'],
+      ['Body', '14 / 20 · 400', "Cette action crée des entrées réelles dans SAP.", 'font-size:14px;line-height:20px', 'Texte courant, valeurs de champ'],
+      ['Body Small', '13 / 17 · 400', 'ULISTROIS-3428 - Refonte de l\u2019import CSV', 'font-size:13px;line-height:17px;color:#5D5D5D', 'Notes, libellés de champ, lignes de tableau'],
+      ['Caption', '12 / 16 · 400', 'Rétention 90 jours · dernière capture il y a 2 min', 'font-size:12px;line-height:16px;color:#767676', 'Barre d\u2019état, métadonnées, légendes'],
+      ['Mono', '12 / 16 · 400', 'P.ACSICAT01-01-P-0005 · ZS042', mono + ';font-size:12px;line-height:16px;color:#5D5D5D', 'Codes SAP, clés JIRA, regex'],
+      ['Micro', '10-11 / 12 · 600', 'IntelliJ · ULISTROIS/3428', 'font-size:11px;line-height:12px;font-weight:600', 'Segments de la timeline uniquement']
+    ].map((t, i) => ({
+      name: t[0], spec: t[1], sample: t[2], use: t[4],
+      sampleStyle: t[3] + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis',
+      rowStyle: 'display:flex;align-items:center;gap:14px;padding:0 14px;height:52px;' + (i < 8 ? 'border-bottom:1px solid #EFEFEF' : '')
+    }));
+
+    const spaces = [4, 6, 8, 10, 12, 14, 16, 20].map(v => ({
+      v: String(v),
+      barStyle: `width:${v}px;height:${v * 2 + 6}px;background:#4B6E92;border-radius:1px`
+    }));
+
+    const radii = [
+      ['3 px', 'Segment de timeline'], ['4 px', 'Boutons, champs, cartes'],
+      ['6 px', 'Panneaux, tableaux'], ['8 px', 'Fenêtre, modale']
+    ].map(r => ({
+      v: r[0], use: r[1],
+      boxStyle: `height:34px;background:#ECF1F6;border:1px solid #B9CBDC;border-radius:${parseInt(r[0], 10)}px`
+    }));
+
+    const elevs = [
+      ['Carte', '0 1px 3px rgba(0,0,0,.07)', 'Panneaux et cartes'],
+      ['Flyout', '0 8px 16px rgba(0,0,0,.14)', 'Autocomplétion, menu tray'],
+      ['Modale', '0 32px 64px rgba(0,0,0,.19)', 'Édition, purge, logon SAP']
+    ].map(e => ({
+      name: e[0], use: e[2],
+      boxStyle: `height:40px;background:#FFFFFF;border:1px solid #E5E5E5;border-radius:4px;box-shadow:${e[1]}`
+    }));
+
+    const hues = [
+      ['t1', '#4B6E92 · #E7EEF5', '#8CA9C4 · #28323C', '1er ticket de la journée', 'ULISTROIS-3428'],
+      ['t2', '#6F5691 · #EFEAF4', '#B49BD1 · #302A3A', '2e ticket', 'ULISTROIS-3101'],
+      ['t3', '#1F7A6B · #E4F1EE', '#63C4B0 · #1E2E2B', '3e ticket', 'ULISTROIS-3455'],
+      ['t4', '#8A6234 · #F4EDE3', '#D0A971 · #302A21', '4e ticket, puis la roue reprend', 'ULISTROIS-3390']
+    ].map((h, i) => ({
+      demo: h[4],
+      hexL: h[1], hexD: h[2], use: h[3],
+      chipL: `display:inline-flex;align-items:center;height:26px;padding:0 8px;width:150px;flex:none;border-radius:3px;font-size:11px;font-weight:600;color:#1A1A1A;background:${h[1].split(' · ')[1]};border:1px solid ${h[1].split(' · ')[0]};border-left-width:3px`,
+      chipD: `display:inline-flex;align-items:center;height:26px;padding:0 8px;width:150px;flex:none;border-radius:3px;font-size:11px;font-weight:600;color:#FFFFFF;background:${h[2].split(' · ')[1]};border:1px solid ${h[2].split(' · ')[0]};border-left-width:3px`,
+      rowStyle: 'display:flex;align-items:center;gap:12px;padding:0 14px;height:52px;' + (i < 3 ? 'border-bottom:1px solid #EFEFEF' : '')
+    }));
+
+    const mgrid = 'display:grid;grid-template-columns:210px 200px minmax(0,1fr);gap:12px;align-items:center;padding:0 14px';
+    const alts = this.ALTS.map(a => ({
+      name: a.name, note: a.note, foot: a.foot,
+      cardStyle: `min-width:1156px;border:1px solid ${a.stroke};border-radius:6px;background:${a.bg};overflow:hidden`,
+      headStyle: mgrid + `;height:38px;background:${a.head};border-bottom:1px solid ${a.stroke};font-size:12px;font-weight:600;color:${a.txt3}`,
+      btnP: `height:32px;padding:0 16px;display:flex;align-items:center;border-radius:4px;background:${a.acc};color:${a.accOn};font-size:14px;font-weight:600;white-space:nowrap;flex:none`,
+      btnS: `height:32px;padding:0 16px;display:flex;align-items:center;border:1px solid ${a.stroke};border-radius:4px;background:${a.card};color:${a.txt};font-size:14px;white-space:nowrap;flex:none`,
+      btnD: `height:32px;padding:0 14px;display:flex;align-items:center;border:1px solid ${a.errStroke};border-radius:4px;background:${a.card};color:${a.err};font-size:14px;white-space:nowrap;flex:none`,
+      pills: [['connecté', a.ok, a.okBg], ['expiré', a.warn, a.warnBg], ['déconnecté', a.err, a.errBg]].map(p => ({
+        label: p[0], dot: dot(p[1], p[2]), style: `font-size:12px;color:${p[1]};white-space:nowrap`
+      })),
+      statuses: [
+        ['Proposé', a.accTxt, a.accTint, a.accStroke, a.acc],
+        ['Modifié', a.warn, a.warnBg, a.warnStroke, a.warn],
+        ['Validé', a.ok, a.okBg, a.okStroke, a.ok],
+        ['Soumis ✓', a.neu, a.neuBg, a.neuStroke, a.neu]
+      ].map(s => ({
+        label: s[0], chip: chip(s[1], s[2], s[3]),
+        cardStyle: `flex:1;min-width:0;padding:11px 12px;background:${a.card};border:1px solid ${s[3]};border-left:3px solid ${s[4]};border-radius:4px`,
+        durStyle: `font-family:'Segoe UI Variable Display','Segoe UI',system-ui;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:${a.txt}`,
+        keyStyle: mono + `;font-size:11px;color:${a.accTxt};margin-top:6px`,
+        codeStyle: `font-size:12px;color:${a.txt3};margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap`
+      })),
+      hues: a.hues.map(h => ({
+        label: h[2],
+        style: `flex:1;min-width:0;height:34px;display:flex;align-items:center;padding:0 8px;background:${h[1]};border:1px solid ${h[0]};border-left-width:3px;border-radius:3px;font-size:11px;font-weight:600;color:${a.txt};white-space:nowrap;overflow:hidden;text-overflow:ellipsis`
+      })),
+      rows: this[a.rows].map(r => {
+        if (r.length === 2) return {
+          css: r[0], hex: '', use: '',
+          rowStyle: `padding:9px 14px;background:${a.sect};border-top:1px solid ${a.stroke};border-bottom:1px solid ${a.stroke};display:block`,
+          cssStyle: `font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:${a.accTxt}`,
+          sw: 'display:none', useStyle: 'display:none'
+        };
+        return {
+          css: r[0], hex: r[1], use: r[2],
+          rowStyle: mgrid + `;height:38px;border-bottom:1px solid ${a.rule}`,
+          cssStyle: mono + `;font-size:12px;color:${a.txt};overflow:hidden;text-overflow:ellipsis;white-space:nowrap`,
+          sw: `width:22px;height:22px;flex:none;border-radius:3px;border:1px solid rgba(248,248,242,.18);background:${r[1]}`,
+          hexStyle: mono + `;font-size:12px;color:${a.txt2}`,
+          useStyle: `font-size:13px;color:${a.txt2};overflow:hidden;text-overflow:ellipsis;white-space:nowrap`
+        };
+      })
+    }));
+
+    return {
+      rows, statuses, pillStates, services, type, spaces, radii, elevs, hues, alts,
+      headStyle: grid + ';height:38px;background:#F0F0F0;border-bottom:1px solid #E0E0E0;font-size:12px;font-weight:600;color:#5D5D5D'
+    };
+  }
+}
+</script>
+</body>
+</html>
