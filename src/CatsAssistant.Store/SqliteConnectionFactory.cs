@@ -33,6 +33,14 @@ public sealed class SqliteConnectionFactory
         return Path.Combine(dataDirectory, "cats-assistant.db");
     }
 
+    public static string GetDefaultActivityDatabasePath()
+    {
+        var dataDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "CatsAssistant");
+        return Path.Combine(dataDirectory, "activity.db");
+    }
+
     public SqliteConnection OpenConnection()
     {
         var connection = new SqliteConnection(_connectionString);

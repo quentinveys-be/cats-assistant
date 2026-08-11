@@ -2,6 +2,13 @@
 
 Rétention par défaut : 90 jours (purge automatique + purge manuelle).
 
+Depuis la Phase 2 (décision #10), le schéma v1 ci-dessous est réparti sur **deux fichiers SQLCipher** dans `%LOCALAPPDATA%\CatsAssistant\` :
+
+- `activity.db` — `activity_events`, `settings`. Clé aléatoire protégée par DPAPI (`ProtectedData`, portée `CurrentUser`), stockée à part dans `activity.key`. S'ouvre toujours, sans YubiKey.
+- `business.db` — `jira_tickets`, `vcs_commits`, `calendar_events`, `time_blocks`, `rules`. Clé dérivée du challenge-response YubiKey (`step-2.5`).
+
+L'ancienne base en clair `cats-assistant.db` (Phase 1) est migrée one-shot vers `activity.db` par `step-2.2` puis renommée `cats-assistant.db.migrated` (jamais supprimée).
+
 | Table           | Colonnes clés                                                                                                                                           |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | activity_events | id, ts, kind (foreground/idle_start/idle_end/title_change), process, window_title, url NULL                                                             |

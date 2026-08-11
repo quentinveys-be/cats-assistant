@@ -29,10 +29,14 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        var databasePath = SqliteConnectionFactory.GetDefaultDatabasePath();
-        _dataDirectory = Path.GetDirectoryName(databasePath)!;
+        var legacyDatabasePath = SqliteConnectionFactory.GetDefaultDatabasePath();
+        var activityDatabasePath = SqliteConnectionFactory.GetDefaultActivityDatabasePath();
+        _dataDirectory = Path.GetDirectoryName(activityDatabasePath)!;
 
-        var connectionFactory = new SqliteConnectionFactory(databasePath);
+        var activityKey = new DpapiActivityKeyStore(DpapiActivityKeyStore.GetDefaultKeyFilePath()).GetOrCreateKey();
+        new ActivityDatabaseMigration(legacyDatabasePath, activityDatabasePath, activityKey).Run();
+
+        var connectionFactory = new SqliteConnectionFactory(activityDatabasePath, activityKey);
         _connection = connectionFactory.OpenConnection();
 
         _repository = new SqliteActivityEventRepository(_connection);
