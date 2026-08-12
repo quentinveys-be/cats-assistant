@@ -16,7 +16,10 @@ public sealed class OutlookComAppointmentSource : IOutlookAppointmentSource
     private const int OlFolderCalendar = 9;
     private const int OlAppointmentItemClass = 26;
 
-    public IReadOnlyList<OutlookAppointmentSnapshot> GetAppointments(DateTime fromLocal, DateTime toLocal)
+    public IReadOnlyList<OutlookAppointmentSnapshot> GetAppointments(DateTime fromLocal, DateTime toLocal) =>
+        StaThreadRunner.Run(() => GetAppointmentsOnStaThread(fromLocal, toLocal));
+
+    private static IReadOnlyList<OutlookAppointmentSnapshot> GetAppointmentsOnStaThread(DateTime fromLocal, DateTime toLocal)
     {
         object? outlookApplication = null;
         object? outlookNamespace = null;
@@ -39,7 +42,7 @@ public sealed class OutlookComAppointmentSource : IOutlookAppointmentSource
             OutlookComInterop.SetProperty(items, "IncludeRecurrences", true);
             OutlookComInterop.InvokeMethod(items, "Sort", "[Start]");
 
-            var filter = $"[Start] >= '{fromLocal:g}' AND [Start] < '{toLocal:g}'";
+            var filter = OutlookRestrictFilterBuilder.BuildStartDateRangeFilter(fromLocal, toLocal);
             restrictedItems = OutlookComInterop.InvokeMethod(items, "Restrict", filter)
                 ?? throw new OutlookUnavailableException("Le filtrage du calendrier Outlook a échoué.");
 
@@ -47,7 +50,8 @@ public sealed class OutlookComAppointmentSource : IOutlookAppointmentSource
         }
         catch (COMException ex)
         {
-            throw new OutlookUnavailableException("Outlook local est indisponible ou n'a pas de profil configuré.", ex);
+            throw new OutlookUnavailableException(
+                $"Outlook local est indisponible ou n'a pas de profil configuré ({ex.Message}, HRESULT 0x{ex.HResult:X8}).", ex);
         }
         finally
         {
