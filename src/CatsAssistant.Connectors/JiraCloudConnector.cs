@@ -29,23 +29,66 @@ public sealed class JiraCloudConnector : IJiraConnector
         var basicCredentials = await BuildBasicCredentialsAsync(cancellationToken).ConfigureAwait(false);
 
         var tickets = new List<JiraTicket>();
+        var seenPageTokens = new HashSet<string>(StringComparer.Ordinal);
         string? nextPageToken = null;
 
         do
         {
             using var request = BuildRequest(nextPageToken, basicCredentials);
             using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessAsync(response, cancellationToken).ConfigureAwait(false);
 
             using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
             using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             tickets.AddRange(ParseIssues(document.RootElement));
             nextPageToken = ReadNextPageToken(document.RootElement);
+
+            if (!string.IsNullOrEmpty(nextPageToken) && !seenPageTokens.Add(nextPageToken))
+            {
+                throw new InvalidOperationException(
+                    $"Pagination JIRA interrompue : nextPageToken '{nextPageToken}' deja recu, arret pour eviter une boucle infinie.");
+            }
         }
         while (!string.IsNullOrEmpty(nextPageToken));
 
         return tickets;
+    }
+
+    private static async Task EnsureSuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        var detail = ExtractErrorMessages(body) ?? body;
+        throw new HttpRequestException(
+            $"Appel JIRA en echec ({(int)response.StatusCode} {response.StatusCode}) : {detail}",
+            inner: null,
+            statusCode: response.StatusCode);
+    }
+
+    private static string? ExtractErrorMessages(string body)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(body);
+            if (document.RootElement.TryGetProperty("errorMessages", out var messages) && messages.ValueKind == JsonValueKind.Array)
+            {
+                var joined = string.Join("; ", messages.EnumerateArray()
+                    .Where(m => m.ValueKind == JsonValueKind.String)
+                    .Select(m => m.GetString()));
+                return string.IsNullOrEmpty(joined) ? null : joined;
+            }
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+
+        return null;
     }
 
     private async Task<string> BuildBasicCredentialsAsync(CancellationToken cancellationToken)
