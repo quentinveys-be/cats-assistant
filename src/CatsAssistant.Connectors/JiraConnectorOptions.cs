@@ -4,11 +4,38 @@ namespace CatsAssistant.Connectors;
 /// L'API Cloud v3 exige une authentification Basic (email + token API) ; l'e-mail du compte n'est pas
 /// un secret et n'a donc pas sa place dans le coffre — seul le token transite par <see cref="IJiraTokenProvider"/>.
 /// </summary>
-/// <param name="BaseUrl">Doit se terminer par '/' (ex. https://ulis-uliege.atlassian.net/) pour que la
-/// résolution relative de l'endpoint de recherche fonctionne.</param>
-public sealed record JiraConnectorOptions(Uri BaseUrl, string AccountEmail)
+public sealed record JiraConnectorOptions
 {
+    public JiraConnectorOptions(Uri baseUrl, string accountEmail)
+    {
+        if (baseUrl is null || !baseUrl.OriginalString.EndsWith('/'))
+        {
+            throw new ArgumentException("BaseUrl doit etre non nul et se terminer par '/' (ex. https://ulis-uliege.atlassian.net/).", nameof(baseUrl));
+        }
+
+        BaseUrl = baseUrl;
+        AccountEmail = accountEmail;
+    }
+
+    public Uri BaseUrl { get; init; }
+
+    public string AccountEmail { get; init; }
+
     public string Jql { get; init; } = "assignee=currentUser()";
 
-    public int MaxResultsPerPage { get; init; } = 100;
+    private readonly int _maxResultsPerPage = 100;
+
+    public int MaxResultsPerPage
+    {
+        get => _maxResultsPerPage;
+        init
+        {
+            if (value <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), value, "MaxResultsPerPage doit etre strictement positif.");
+            }
+
+            _maxResultsPerPage = value;
+        }
+    }
 }
