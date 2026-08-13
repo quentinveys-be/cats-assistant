@@ -10,7 +10,10 @@ public sealed class SqliteMigrator
         (2, "0002_activity_events_ts_index.sql"),
     ];
 
-    public static readonly IReadOnlyList<(int Version, string FileName)> BusinessMigrations = [];
+    public static readonly IReadOnlyList<(int Version, string FileName)> BusinessMigrations =
+    [
+        (1, "0001_business_initial_schema.sql"),
+    ];
 
     private readonly IReadOnlyList<(int Version, string FileName)> _migrations;
 

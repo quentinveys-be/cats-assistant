@@ -124,7 +124,7 @@ public class SqliteConnectionFactoryTests
                 .OpenConnection();
 
             Assert.Equal(2, GetSchemaVersion(activityConnection));
-            Assert.Equal(0, GetSchemaVersion(businessConnection));
+            Assert.Equal(1, GetSchemaVersion(businessConnection));
         }
         finally
         {
