@@ -8,18 +8,45 @@ public sealed record JiraConnectorOptions
 {
     public JiraConnectorOptions(Uri baseUrl, string accountEmail)
     {
-        if (baseUrl is null || !baseUrl.OriginalString.EndsWith('/'))
-        {
-            throw new ArgumentException("BaseUrl doit etre non nul et se terminer par '/' (ex. https://ulis-uliege.atlassian.net/).", nameof(baseUrl));
-        }
-
         BaseUrl = baseUrl;
         AccountEmail = accountEmail;
     }
 
-    public Uri BaseUrl { get; init; }
+    private readonly Uri _baseUrl = null!;
 
-    public string AccountEmail { get; init; }
+    public Uri BaseUrl
+    {
+        get => _baseUrl;
+        init
+        {
+            if (value is null
+                || !value.IsAbsoluteUri
+                || !string.Equals(value.Scheme, Uri.UriSchemeHttps, StringComparison.Ordinal)
+                || !value.OriginalString.EndsWith('/'))
+            {
+                throw new ArgumentException(
+                    "BaseUrl doit etre une URI HTTPS absolue et se terminer par '/' (ex. https://ulis-uliege.atlassian.net/).", nameof(value));
+            }
+
+            _baseUrl = value;
+        }
+    }
+
+    private readonly string _accountEmail = null!;
+
+    public string AccountEmail
+    {
+        get => _accountEmail;
+        init
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("AccountEmail ne peut pas etre vide.", nameof(value));
+            }
+
+            _accountEmail = value;
+        }
+    }
 
     public string Jql { get; init; } = "assignee=currentUser()";
 
