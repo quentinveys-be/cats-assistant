@@ -40,6 +40,10 @@ Préalable bloquant, à trancher avant que des données métier (tickets, commit
 - **2.5 — Repositories et contraintes** : repositories `jira_tickets`, `vcs_commits`, `calendar_events` ; migration ajoutant les contraintes NOT NULL différées depuis la Phase 1 (reconstruction des tables — dette actée lors de la revue de Phase 1).
 - **2.6 — Synchronisation et vérification** : déclenchement des syncs (manuel via le menu tray au minimum, périodique optionnel), gestion d'erreur réseau avec backoff, puis vérification du critère de done de la phase : tickets + codes + commits + réunions visibles en base, regex 10045 couverte par tests.
 
+## État Phase 2
+
+- ✅ **2.1 — Coffre de secrets (ADR D6)** livré : projet `CatsAssistant.Secrets`, `DpapiYubiKeySecretVault` (`ISecretVault` : store/read/delete réservé à `JiraApiToken`/`GitLabPersonalToken`), clé dérivée par challenge-response HMAC-SHA1 YubiKey (HKDF-SHA256) + protection DPAPI `CurrentUser` en couche complémentaire (AES-GCM). `IYubiKeyChallengeResponseClient` isole l'interop matérielle Yubico.YubiKey pour rester testable sans clé physique. Comportement YubiKey absente tranché et documenté dans D6 : mode dégradé sans sync (`YubiKeyNotPresentException`), jamais de blocage de l'app. Aucun log de contenu du coffre. _Reste à faire, hors périmètre 2.1 : enrôlement réel du slot HMAC-SHA1 sur la YubiKey (action humaine), et branchement de l'UI de reconnexion en 2.6._
+
 ## Points ouverts
 
 | ID  | Question                      | Résolution prévue                                 |
