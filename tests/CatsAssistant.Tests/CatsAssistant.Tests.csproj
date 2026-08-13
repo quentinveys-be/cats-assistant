@@ -27,6 +27,7 @@
     <ProjectReference Include="..\..\src\CatsAssistant.Connectors\CatsAssistant.Connectors.csproj" />
     <ProjectReference Include="..\..\src\CatsAssistant.Filler\CatsAssistant.Filler.csproj" />
     <ProjectReference Include="..\..\src\CatsAssistant.App\CatsAssistant.App.csproj" />
+    <ProjectReference Include="..\..\src\CatsAssistant.Secrets\CatsAssistant.Secrets.csproj" />
   </ItemGroup>
 
 </Project>
