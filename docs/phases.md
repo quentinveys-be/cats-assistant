@@ -43,6 +43,7 @@ Préalable bloquant, à trancher avant que des données métier (tickets, commit
 ## État Phase 2
 
 - ✅ **2.1 — Coffre de secrets (ADR D6)** livré : projet `CatsAssistant.Secrets`, `DpapiYubiKeySecretVault` (`ISecretVault` : store/read/delete réservé à `JiraApiToken`/`GitLabPersonalToken`), clé dérivée par challenge-response HMAC-SHA1 YubiKey (HKDF-SHA256) + protection DPAPI `CurrentUser` en couche complémentaire (AES-GCM). `IYubiKeyChallengeResponseClient` isole l'interop matérielle Yubico.YubiKey pour rester testable sans clé physique. Comportement YubiKey absente tranché et documenté dans D6 : mode dégradé sans sync (`YubiKeyNotPresentException`), jamais de blocage de l'app. Aucun log de contenu du coffre. _Reste à faire, hors périmètre 2.1 : enrôlement réel du slot HMAC-SHA1 sur la YubiKey (action humaine), et branchement de l'UI de reconnexion en 2.6._
+- ✅ **Câblage coffre → connecteurs 2.2/2.3** : `VaultJiraTokenProvider` et `VaultGitLabTokenProvider` (`CatsAssistant.Connectors`) implémentent `IJiraTokenProvider`/`IGitLabTokenProvider` sur `ISecretVault`, dégradent en `null` sur `YubiKeyNotPresentException`, propagent `SecretVaultException` (coffre corrompu). _Reste hors périmètre : instanciation dans la composition root de `CatsAssistant.App`, qui n'a pas encore de point d'entrée sync — prévue avec 2.6._
 
 ## Points ouverts
 
