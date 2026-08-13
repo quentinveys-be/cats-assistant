@@ -52,5 +52,6 @@ public class JiraConnectorOptionsTests
     public void Constructor_ZeroOrNegativeMaxResultsPerPage_Throws()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new JiraConnectorOptions(ValidBaseUrl, ValidEmail) { MaxResultsPerPage = 0 });
+        Assert.Throws<ArgumentOutOfRangeException>(() => new JiraConnectorOptions(ValidBaseUrl, ValidEmail) { MaxResultsPerPage = -1 });
     }
 }
