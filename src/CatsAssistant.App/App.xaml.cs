@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using CatsAssistant.Collector;
+using CatsAssistant.Secrets;
 using CatsAssistant.Store;
 using Microsoft.Data.Sqlite;
 using Application = System.Windows.Application;
@@ -18,6 +19,8 @@ public partial class App : Application
     private readonly StartupRegistration _startupRegistration = new();
 
     private SqliteConnection? _connection;
+    private SqliteConnection? _businessConnection;
+    private bool _businessVaultLocked;
     private IActivityEventRepository? _repository;
     private ActivityCollector? _collector;
     private NotifyIcon? _trayIcon;
@@ -48,7 +51,38 @@ public partial class App : Application
         _collector = new ActivityCollector(_repository);
         _collector.Start();
 
+        OpenBusinessDatabase();
+
         _trayIcon = BuildTrayIcon();
+    }
+
+    // Mode dégradé (docs/adr/D6) : sans YubiKey (absente ou refusée), la base métier reste fermée mais la
+    // capture d'activité (activity.db, DPAPI) continue normalement — jamais de crash ni de blocage.
+    private void OpenBusinessDatabase()
+    {
+        var keyProvider = new BusinessMasterKeyProvider(
+            BusinessMasterKeyProvider.GetDefaultChallengeFilePath(),
+            new YubiKeyChallengeResponseClient());
+        var businessKey = keyProvider.TryGetOrDeriveKey();
+
+        if (businessKey is null)
+        {
+            _businessVaultLocked = true;
+            return;
+        }
+
+        try
+        {
+            var businessDatabasePath = SqliteConnectionFactory.GetDefaultBusinessDatabasePath();
+            var businessMigrator = new SqliteMigrator(SqliteMigrator.BusinessMigrations);
+            _businessConnection = new SqliteConnectionFactory(businessDatabasePath, businessKey, businessMigrator).OpenConnection();
+        }
+        catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
+        {
+            // Clé dérivable mais base illisible (challenge régénéré/perdu après création, fichier corrompu) :
+            // mode dégradé plutôt que crash au démarrage (docs/adr/D6).
+            _businessVaultLocked = true;
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -63,6 +97,7 @@ public partial class App : Application
         }
 
         _connection?.Dispose();
+        _businessConnection?.Dispose();
 
         base.OnExit(e);
     }
@@ -89,6 +124,12 @@ public partial class App : Application
         contextMenu.Items.Add(openDataFolderItem);
         contextMenu.Items.Add(showTodayEventsItem);
         contextMenu.Items.Add(startWithWindowsItem);
+
+        if (_businessVaultLocked)
+        {
+            contextMenu.Items.Add(new ToolStripMenuItem("Coffre métier verrouillé") { Enabled = false });
+        }
+
         contextMenu.Items.Add(new ToolStripSeparator());
         contextMenu.Items.Add(exitItem);
 
