@@ -22,9 +22,8 @@ public sealed class SqliteVcsCommitRepository : IVcsCommitRepository
             command.CommandText = """
                 INSERT INTO vcs_commits (sha, ts, repo, branch, message, jira_key)
                 VALUES ($sha, $ts, $repo, $branch, $message, $jiraKey)
-                ON CONFLICT(sha) DO UPDATE SET
+                ON CONFLICT(sha, repo) DO UPDATE SET
                     ts = excluded.ts,
-                    repo = excluded.repo,
                     branch = excluded.branch,
                     message = excluded.message,
                     jira_key = excluded.jira_key;

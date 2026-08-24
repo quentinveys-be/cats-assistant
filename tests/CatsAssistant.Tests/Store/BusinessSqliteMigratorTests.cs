@@ -62,12 +62,21 @@ public class BusinessSqliteMigratorTests
     }
 
     [Fact]
-    public void Migrate_VcsCommits_RejectsDuplicateSha()
+    public void Migrate_VcsCommits_RejectsDuplicateShaWithinSameRepo()
     {
         using var connection = OpenMigratedConnection();
-        InsertCommit(connection, "abc123");
+        InsertCommit(connection, "abc123", "repo");
 
-        Assert.Throws<SqliteException>(() => InsertCommit(connection, "abc123"));
+        Assert.Throws<SqliteException>(() => InsertCommit(connection, "abc123", "repo"));
+    }
+
+    [Fact]
+    public void Migrate_VcsCommits_AllowsSameShaAcrossDifferentRepos()
+    {
+        using var connection = OpenMigratedConnection();
+        InsertCommit(connection, "abc123", "repo-a");
+
+        InsertCommit(connection, "abc123", "repo-b");
     }
 
     [Fact]
@@ -140,11 +149,12 @@ public class BusinessSqliteMigratorTests
         Assert.Throws<SqliteException>(() => command.ExecuteNonQuery());
     }
 
-    private static void InsertCommit(SqliteConnection connection, string sha)
+    private static void InsertCommit(SqliteConnection connection, string sha, string repo)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = "INSERT INTO vcs_commits (sha, ts, repo, branch, message) VALUES ($sha, '2026-08-13T00:00:00Z', 'repo', 'main', 'msg');";
+        command.CommandText = "INSERT INTO vcs_commits (sha, ts, repo, branch, message) VALUES ($sha, '2026-08-13T00:00:00Z', $repo, 'main', 'msg');";
         command.Parameters.AddWithValue("$sha", sha);
+        command.Parameters.AddWithValue("$repo", repo);
         command.ExecuteNonQuery();
     }
 

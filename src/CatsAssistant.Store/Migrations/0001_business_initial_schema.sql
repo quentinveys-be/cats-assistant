@@ -12,12 +12,13 @@ CREATE TABLE jira_tickets (
 
 CREATE TABLE vcs_commits (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    sha TEXT NOT NULL UNIQUE,
+    sha TEXT NOT NULL,
     ts TEXT NOT NULL,
     repo TEXT NOT NULL,
     branch TEXT NOT NULL,
     message TEXT NOT NULL,
-    jira_key TEXT
+    jira_key TEXT,
+    UNIQUE (sha, repo)
 );
 
 CREATE TABLE calendar_events (

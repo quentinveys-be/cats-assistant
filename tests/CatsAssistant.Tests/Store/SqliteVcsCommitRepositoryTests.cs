@@ -60,6 +60,23 @@ public class SqliteVcsCommitRepositoryTests
     }
 
     [Fact]
+    public void Upsert_SameShaDifferentRepo_CreatesSeparateRows()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteVcsCommitRepository(connection);
+        var timestamp = new DateTimeOffset(2026, 8, 13, 9, 0, 0, TimeSpan.Zero);
+
+        repository.Upsert(new VcsCommit("abc123", timestamp, "repo-a", "main", "message repo-a", null));
+        repository.Upsert(new VcsCommit("abc123", timestamp, "repo-b", "main", "message repo-b", null));
+
+        var commits = repository.GetByDateRange(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+
+        Assert.Equal(2, commits.Count);
+        Assert.Contains(commits, c => c.Repo == "repo-a" && c.Message == "message repo-a");
+        Assert.Contains(commits, c => c.Repo == "repo-b" && c.Message == "message repo-b");
+    }
+
+    [Fact]
     public void Upsert_NullJiraKey_PersistsAsNull()
     {
         using var connection = OpenMigratedConnection();
