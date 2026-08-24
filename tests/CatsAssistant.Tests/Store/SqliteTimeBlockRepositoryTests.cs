@@ -42,6 +42,15 @@ public class SqliteTimeBlockRepositoryTests
     }
 
     [Fact]
+    public void Update_UnknownId_Throws()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteTimeBlockRepository(connection);
+
+        Assert.Throws<KeyNotFoundException>(() => repository.Update(999, SampleTimeBlock));
+    }
+
+    [Fact]
     public void Update_OverwritesFieldsAndStatus()
     {
         using var connection = OpenMigratedConnection();

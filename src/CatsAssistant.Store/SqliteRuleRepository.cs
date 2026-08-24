@@ -40,7 +40,10 @@ public sealed class SqliteRuleRepository : IRuleRepository
                 """;
             BindParameters(command, rule);
             command.Parameters.AddWithValue("$id", id);
-            command.ExecuteNonQuery();
+            if (command.ExecuteNonQuery() == 0)
+            {
+                throw new KeyNotFoundException($"rules.id={id} introuvable");
+            }
         }
     }
 
@@ -51,7 +54,10 @@ public sealed class SqliteRuleRepository : IRuleRepository
             using var command = _connection.CreateCommand();
             command.CommandText = "DELETE FROM rules WHERE id = $id;";
             command.Parameters.AddWithValue("$id", id);
-            command.ExecuteNonQuery();
+            if (command.ExecuteNonQuery() == 0)
+            {
+                throw new KeyNotFoundException($"rules.id={id} introuvable");
+            }
         }
     }
 

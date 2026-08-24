@@ -42,7 +42,10 @@ public sealed class SqliteTimeBlockRepository : ITimeBlockRepository
                 """;
             BindParameters(command, timeBlock);
             command.Parameters.AddWithValue("$id", id);
-            command.ExecuteNonQuery();
+            if (command.ExecuteNonQuery() == 0)
+            {
+                throw new KeyNotFoundException($"time_blocks.id={id} introuvable");
+            }
         }
     }
 

@@ -55,6 +55,24 @@ public class SqliteRuleRepositoryTests
     }
 
     [Fact]
+    public void Update_UnknownId_Throws()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteRuleRepository(connection);
+
+        Assert.Throws<KeyNotFoundException>(() => repository.Update(999, SampleRule));
+    }
+
+    [Fact]
+    public void Delete_UnknownId_Throws()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteRuleRepository(connection);
+
+        Assert.Throws<KeyNotFoundException>(() => repository.Delete(999));
+    }
+
+    [Fact]
     public void Delete_RemovesRule()
     {
         using var connection = OpenMigratedConnection();
