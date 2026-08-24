@@ -61,6 +61,47 @@ public class SqliteMigratorTests
         Assert.Equal(LatestSchemaVersion, GetCurrentSchemaVersion(connection));
     }
 
+    private static readonly string[] ExpectedBusinessTables =
+    {
+        "calendar_events",
+        "vcs_commits",
+        "jira_tickets",
+        "time_blocks",
+        "rules",
+    };
+
+    [Fact]
+    public void Migrate_BusinessMigrations_CreatesBusinessTablesOnly()
+    {
+        using var connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
+
+        new SqliteMigrator(SqliteMigrator.BusinessMigrations).Migrate(connection);
+
+        Assert.Equal(1, GetCurrentSchemaVersion(connection));
+
+        foreach (var table in ExpectedBusinessTables)
+        {
+            Assert.True(TableExists(connection, table), $"table manquante : {table}");
+        }
+
+        Assert.False(TableExists(connection, "activity_events"));
+        Assert.False(TableExists(connection, "settings"));
+    }
+
+    [Fact]
+    public void Migrate_BusinessMigrations_IsIdempotent()
+    {
+        using var connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
+
+        var migrator = new SqliteMigrator(SqliteMigrator.BusinessMigrations);
+        migrator.Migrate(connection);
+        migrator.Migrate(connection);
+
+        Assert.Equal(1, GetCurrentSchemaVersion(connection));
+    }
+
     private static int GetCurrentSchemaVersion(SqliteConnection connection)
     {
         using var command = connection.CreateCommand();

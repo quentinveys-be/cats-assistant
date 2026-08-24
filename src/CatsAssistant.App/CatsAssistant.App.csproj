@@ -6,6 +6,7 @@
     <ProjectReference Include="..\CatsAssistant.Correlator\CatsAssistant.Correlator.csproj" />
     <ProjectReference Include="..\CatsAssistant.Connectors\CatsAssistant.Connectors.csproj" />
     <ProjectReference Include="..\CatsAssistant.Filler\CatsAssistant.Filler.csproj" />
+    <ProjectReference Include="..\CatsAssistant.Secrets\CatsAssistant.Secrets.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
