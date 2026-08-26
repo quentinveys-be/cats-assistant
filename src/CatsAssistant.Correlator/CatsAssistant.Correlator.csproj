@@ -1,9 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CatsAssistant.Store\CatsAssistant.Store.csproj" />
+    <ProjectReference Include="..\CatsAssistant.Connectors\CatsAssistant.Connectors.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -1,0 +1,231 @@
+using CatsAssistant.Connectors;
+using CatsAssistant.Correlator;
+using CatsAssistant.Store;
+
+namespace CatsAssistant.Tests.Correlator;
+
+public class CorrelationEngineTests
+{
+    private static readonly DateTime Day = new(2026, 8, 10, 9, 0, 0, DateTimeKind.Utc);
+
+    private readonly CorrelationEngine _engine = new();
+
+    [Fact]
+    public void Correlate_EmptyInput_ReturnsEmptyResult()
+    {
+        var result = _engine.Correlate(
+            Array.Empty<ActivityEvent>(),
+            Array.Empty<VcsCommit>(),
+            Array.Empty<CalendarEventData>());
+
+        Assert.Empty(result.Blocks);
+        Assert.Empty(result.IdlePeriods);
+    }
+
+    [Fact]
+    public void Correlate_SegmentAboveMinDuration_ProducesSingleBlock()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101 - IntelliJ IDEA", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "idea64.exe", "ULISTROIS-3101 - IntelliJ IDEA", null),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>());
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Equal(Day, block.StartUtc);
+        Assert.Equal(Day.AddMinutes(20), block.EndUtc);
+        Assert.Equal("ULISTROIS-3101", block.JiraKey);
+    }
+
+    [Fact]
+    public void Correlate_ShortTrailingSegment_MergesIntoContiguousPreviousBlock()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.Foreground, "chrome.exe", "sans ticket", null),
+            new ActivityEvent(3, Day.AddMinutes(25), ActivityEventKind.IdleStart, null, null, null),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>(), minBlockDurationMinutes: 15);
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Equal(Day, block.StartUtc);
+        Assert.Equal(Day.AddMinutes(25), block.EndUtc);
+        Assert.Equal("ULISTROIS-3101", block.JiraKey);
+    }
+
+    [Fact]
+    public void Correlate_ShortSegmentIsolatedByIdleOnBothSides_StaysStandalone()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.IdleStart, null, null, null),
+            new ActivityEvent(3, Day.AddMinutes(30), ActivityEventKind.IdleEnd, null, null, null),
+            new ActivityEvent(4, Day.AddMinutes(30), ActivityEventKind.Foreground, "chrome.exe", "sans ticket", null),
+            new ActivityEvent(5, Day.AddMinutes(35), ActivityEventKind.IdleStart, null, null, null),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>());
+
+        Assert.Equal(2, result.Blocks.Count);
+        Assert.Equal("ULISTROIS-3101", result.Blocks[0].JiraKey);
+        Assert.Null(result.Blocks[1].JiraKey);
+        Assert.Equal(Day.AddMinutes(30), result.Blocks[1].StartUtc);
+        Assert.Equal(Day.AddMinutes(35), result.Blocks[1].EndUtc);
+    }
+
+    [Fact]
+    public void Correlate_NoJiraKeyDetectable_MarksBlockUncorrelated()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "chrome.exe", "Gmail", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "chrome.exe", "Gmail", null),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>());
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Null(block.JiraKey);
+    }
+
+    [Fact]
+    public void Correlate_JiraKeyFromCommit_UsedWhenWindowTitleHasNone()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "sans ticket", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "idea64.exe", "sans ticket", null),
+        };
+        var commits = new[]
+        {
+            new VcsCommit("abc123", new DateTimeOffset(Day.AddMinutes(10)), "repo", "ULISTROIS/3101", "wip", "ULISTROIS-3101"),
+        };
+
+        var result = _engine.Correlate(events, commits, Array.Empty<CalendarEventData>());
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Equal("ULISTROIS-3101", block.JiraKey);
+    }
+
+    [Fact]
+    public void Correlate_CommitOutsideBlockRange_IsIgnored()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "sans ticket", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "idea64.exe", "sans ticket", null),
+        };
+        var commits = new[]
+        {
+            new VcsCommit("abc123", new DateTimeOffset(Day.AddHours(5)), "repo", "ULISTROIS/3101", "wip", "ULISTROIS-3101"),
+        };
+
+        var result = _engine.Correlate(events, commits, Array.Empty<CalendarEventData>());
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Null(block.JiraKey);
+    }
+
+    [Fact]
+    public void Correlate_OverlappingMeeting_AttachesSubjectToBlock()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "teams.exe", "sans ticket", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "teams.exe", "sans ticket", null),
+        };
+        var meetings = new[]
+        {
+            new CalendarEventData(Day.AddMinutes(5), Day.AddMinutes(15), "Daily standup", "chef@example.com"),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), meetings);
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Equal("Daily standup", block.MeetingSubject);
+    }
+
+    [Fact]
+    public void Correlate_NonOverlappingMeeting_DoesNotAttachSubject()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "teams.exe", "sans ticket", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "teams.exe", "sans ticket", null),
+        };
+        var meetings = new[]
+        {
+            new CalendarEventData(Day.AddHours(3), Day.AddHours(4), "Autre réunion", null),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), meetings);
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Null(block.MeetingSubject);
+    }
+
+    [Fact]
+    public void Correlate_ExtractsIdlePeriods_SeparatelyFromBlocks()
+    {
+        var idleStart = Day.AddMinutes(20);
+        var idleEnd = Day.AddMinutes(35);
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101", null),
+            new ActivityEvent(2, idleStart, ActivityEventKind.IdleStart, null, null, null),
+            new ActivityEvent(3, idleEnd, ActivityEventKind.IdleEnd, null, null, null),
+            new ActivityEvent(4, idleEnd, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101", null),
+            new ActivityEvent(5, idleEnd.AddMinutes(20), ActivityEventKind.TitleChange, "idea64.exe", "ULISTROIS-3101", null),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>());
+
+        var idlePeriod = Assert.Single(result.IdlePeriods);
+        Assert.Equal(new IdlePeriod(idleStart, idleEnd), idlePeriod);
+        Assert.Equal(2, result.Blocks.Count);
+        Assert.DoesNotContain(result.Blocks, b => b.StartUtc <= idleStart && b.EndUtc >= idleEnd);
+    }
+
+    [Fact]
+    public void Correlate_UnmatchedIdleStart_IsIgnored()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.IdleStart, null, null, null),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>());
+
+        Assert.Empty(result.IdlePeriods);
+    }
+
+    [Fact]
+    public void Correlate_ConfigurableMinBlockDuration_RespectsCustomThreshold()
+    {
+        // Deux segments contigus de 20 min chacun (bascule de titre à t+20).
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3102", null),
+            new ActivityEvent(3, Day.AddMinutes(40), ActivityEventKind.TitleChange, "idea64.exe", "ULISTROIS-3102", null),
+        };
+
+        // Seuil 15 min : chaque segment de 20 min dépasse déjà le seuil -> 2 blocs distincts.
+        var resultWith15MinThreshold = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>(), minBlockDurationMinutes: 15);
+        Assert.Equal(2, resultWith15MinThreshold.Blocks.Count);
+        Assert.Equal("ULISTROIS-3101", resultWith15MinThreshold.Blocks[0].JiraKey);
+        Assert.Equal("ULISTROIS-3102", resultWith15MinThreshold.Blocks[1].JiraKey);
+
+        // Seuil 30 min : un segment seul (20 min) n'atteint pas le seuil -> fusion avec le voisin contigu -> 1 bloc.
+        var resultWith30MinThreshold = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>(), minBlockDurationMinutes: 30);
+        var block = Assert.Single(resultWith30MinThreshold.Blocks);
+        Assert.Equal(Day, block.StartUtc);
+        Assert.Equal(Day.AddMinutes(40), block.EndUtc);
+    }
+}
