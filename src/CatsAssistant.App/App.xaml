@@ -6,7 +6,11 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!-- Index 0 : dictionnaire de thème (clair par défaut), remplacé à l'exécution par
+                     ThemeService pour la bascule clair/sombre (issue #16). -->
                 <ResourceDictionary Source="Themes/LightTheme.xaml" />
+                <ResourceDictionary Source="Themes/Typography.xaml" />
+                <ResourceDictionary Source="Themes/ControlStyles.xaml" />
                 <ResourceDictionary Source="Themes/ShellStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

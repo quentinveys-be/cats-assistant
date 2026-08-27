@@ -1,0 +1,90 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Échelle typographique — docs/design/tokens/design-tokens.dc.html (issue #16). Segoe UI Variable
+         Display pour les titres et les durées, Segoe UI Variable Text pour le reste, Consolas pour les
+         codes SAP / clés JIRA. -->
+
+    <FontFamily x:Key="DisplayFontFamily">Segoe UI Variable Display, Segoe UI</FontFamily>
+    <FontFamily x:Key="TextFontFamily">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="MonoFontFamily">Consolas, Cascadia Mono</FontFamily>
+
+    <Style x:Key="TitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource DisplayFontFamily}" />
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="LineHeight" Value="34" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="SubtitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource DisplayFontFamily}" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="LineHeight" Value="26" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="DurationTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource DisplayFontFamily}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="LineHeight" Value="24" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="BodyStrongTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource TextFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="BodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource TextFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="BodySmallTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource TextFontFamily}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="LineHeight" Value="17" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillSecondaryBrush}" />
+    </Style>
+
+    <Style x:Key="CaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource TextFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillTertiaryBrush}" />
+    </Style>
+
+    <Style x:Key="MonoTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillSecondaryBrush}" />
+    </Style>
+
+    <Style x:Key="MicroTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource TextFontFamily}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="LineHeight" Value="12" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+    </Style>
+
+</ResourceDictionary>

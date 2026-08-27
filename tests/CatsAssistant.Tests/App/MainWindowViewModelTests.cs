@@ -1,4 +1,5 @@
 using CatsAssistant.App.ViewModels;
+using CatsAssistant.Store;
 
 namespace CatsAssistant.Tests.App;
 
@@ -61,5 +62,38 @@ public class MainWindowViewModelTests
         var exception = Record.Exception(viewModel.Dispose);
 
         Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Constructor_WithPersistedDarkTheme_StartsInDarkTheme()
+    {
+        var settings = new FakeSettingsRepository();
+        settings.Set("ui.theme", "dark");
+
+        using var viewModel = new MainWindowViewModel(syncService: null, settings);
+
+        Assert.True(viewModel.IsDarkTheme);
+    }
+
+    [Fact]
+    public void ToggleThemeCommand_PersistsChoice()
+    {
+        var settings = new FakeSettingsRepository();
+        using var viewModel = new MainWindowViewModel(syncService: null, settings);
+
+        viewModel.ToggleThemeCommand.Execute(null);
+        Assert.Equal("dark", settings.Get("ui.theme"));
+
+        viewModel.ToggleThemeCommand.Execute(null);
+        Assert.Equal("light", settings.Get("ui.theme"));
+    }
+
+    private sealed class FakeSettingsRepository : ISettingsRepository
+    {
+        private readonly Dictionary<string, string> _values = [];
+
+        public string? Get(string key) => _values.GetValueOrDefault(key);
+
+        public void Set(string key, string value) => _values[key] = value;
     }
 }
