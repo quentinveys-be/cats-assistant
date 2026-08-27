@@ -228,4 +228,129 @@ public class CorrelationEngineTests
         Assert.Equal(Day, block.StartUtc);
         Assert.Equal(Day.AddMinutes(40), block.EndUtc);
     }
+
+    [Fact]
+    public void Correlate_TitleRegexRule_ReclassifiesUncorrelatedBlock()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "teams.exe", "Teams - Revue de sprint", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "teams.exe", "Teams - Revue de sprint", null),
+        };
+        var rules = new[]
+        {
+            new RuleRow(1, new Rule(RuleMatcherKind.TitleRegex, "Teams.*Revue de sprint", "ULISTROIS-3390", 25, RuleOrigin.Learned)),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>(), rules: rules);
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Equal("ULISTROIS-3390", block.JiraKey);
+    }
+
+    [Fact]
+    public void Correlate_InvalidRegexRule_IgnoredWithoutCrashing_AndReportedAsWarning()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "chrome.exe", "Gmail", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "chrome.exe", "Gmail", null),
+        };
+        var rules = new[]
+        {
+            new RuleRow(1, new Rule(RuleMatcherKind.TitleRegex, "(unclosed[", "ULISTROIS-9999", 10, RuleOrigin.Manual)),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>(), rules: rules);
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Null(block.JiraKey);
+        Assert.Single(result.RuleWarnings);
+    }
+
+    [Fact]
+    public void Correlate_ConflictingRules_LowestPriorityValueWinsFirst()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "sans ticket", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "idea64.exe", "sans ticket", null),
+        };
+        var rules = new[]
+        {
+            new RuleRow(1, new Rule(RuleMatcherKind.Process, "idea64.exe", "ULISTROIS-1111", 50, RuleOrigin.Manual)),
+            new RuleRow(2, new Rule(RuleMatcherKind.Process, "idea64.exe", "ULISTROIS-2222", 20, RuleOrigin.Learned)),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>(), rules: rules);
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Equal("ULISTROIS-2222", block.JiraKey);
+    }
+
+    [Fact]
+    public void Correlate_DirectDetectionSucceeds_RulesAreNotConsulted()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "chrome.exe", "sans ticket", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "chrome.exe", "sans ticket", null),
+        };
+        var rules = new[]
+        {
+            new RuleRow(1, new Rule(RuleMatcherKind.Process, "chrome.exe", "(unparsable[", 10, RuleOrigin.Manual)),
+        };
+        var commits = new[]
+        {
+            new VcsCommit("abc123", new DateTimeOffset(Day.AddMinutes(10)), "repo", "ULISTROIS/3101", "wip", "ULISTROIS-3101"),
+        };
+
+        var result = _engine.Correlate(events, commits, Array.Empty<CalendarEventData>(), rules: rules);
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Equal("ULISTROIS-3101", block.JiraKey);
+        Assert.Empty(result.RuleWarnings);
+    }
+
+    [Fact]
+    public void Correlate_LastActiveTicketTarget_UsesPreviousCorrelatedBlockKey()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.IdleStart, null, null, null),
+            new ActivityEvent(3, Day.AddMinutes(30), ActivityEventKind.IdleEnd, null, null, null),
+            new ActivityEvent(4, Day.AddMinutes(30), ActivityEventKind.Foreground, "outlook.exe", "sans ticket", null),
+            new ActivityEvent(5, Day.AddMinutes(50), ActivityEventKind.TitleChange, "outlook.exe", "sans ticket", null),
+        };
+        var rules = new[]
+        {
+            new RuleRow(1, new Rule(RuleMatcherKind.Process, "outlook.exe", RuleTargets.LastActiveTicket, 20, RuleOrigin.Manual)),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>(), rules: rules);
+
+        Assert.Equal(2, result.Blocks.Count);
+        Assert.Equal("ULISTROIS-3101", result.Blocks[1].JiraKey);
+    }
+
+    [Fact]
+    public void Correlate_NoAttributionTarget_MarksBlockNonBillableWithoutJiraKey()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "outlook.exe", "sans ticket", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.TitleChange, "outlook.exe", "sans ticket", null),
+        };
+        var rules = new[]
+        {
+            new RuleRow(1, new Rule(RuleMatcherKind.Process, "outlook.exe", RuleTargets.NoAttribution, 40, RuleOrigin.Manual)),
+        };
+
+        var result = _engine.Correlate(events, Array.Empty<VcsCommit>(), Array.Empty<CalendarEventData>(), rules: rules);
+
+        var block = Assert.Single(result.Blocks);
+        Assert.Null(block.JiraKey);
+        Assert.True(block.NoAttribution);
+    }
 }

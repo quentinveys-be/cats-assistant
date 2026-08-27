@@ -9,15 +9,31 @@ public sealed class CorrelationEngine : ICorrelationEngine
         IReadOnlyList<ActivityEvent> activityEvents,
         IReadOnlyList<VcsCommit> commits,
         IReadOnlyList<CalendarEventData> meetings,
-        int minBlockDurationMinutes = 15)
+        int minBlockDurationMinutes = 15,
+        IReadOnlyList<RuleRow>? rules = null)
     {
+        var effectiveRules = rules ?? Array.Empty<RuleRow>();
         var minDuration = TimeSpan.FromMinutes(minBlockDurationMinutes);
         var idlePeriods = ExtractIdlePeriods(activityEvents);
         var segments = ActivityEventAggregator.Aggregate(activityEvents);
         var groups = GroupIntoBlocks(segments, minDuration);
-        var blocks = groups.Select(g => BuildBlock(g, commits, meetings)).ToList();
 
-        return new CorrelationResult(blocks, idlePeriods);
+        var blocks = new List<CorrelatedBlock>();
+        var ruleWarnings = new List<string>();
+        string? lastActiveJiraKey = null;
+
+        foreach (var group in groups)
+        {
+            var block = BuildBlock(group, commits, meetings, activityEvents, effectiveRules, ruleWarnings, lastActiveJiraKey);
+            blocks.Add(block);
+
+            if (block.JiraKey is not null)
+            {
+                lastActiveJiraKey = block.JiraKey;
+            }
+        }
+
+        return new CorrelationResult(blocks, idlePeriods, ruleWarnings);
     }
 
     private static List<List<ActivitySegment>> GroupIntoBlocks(IReadOnlyList<ActivitySegment> segments, TimeSpan minDuration)
@@ -69,14 +85,49 @@ public sealed class CorrelationEngine : ICorrelationEngine
     private static CorrelatedBlock BuildBlock(
         List<ActivitySegment> segments,
         IReadOnlyList<VcsCommit> commits,
-        IReadOnlyList<CalendarEventData> meetings)
+        IReadOnlyList<CalendarEventData> meetings,
+        IReadOnlyList<ActivityEvent> activityEvents,
+        IReadOnlyList<RuleRow> rules,
+        List<string> ruleWarnings,
+        string? lastActiveJiraKey)
     {
         var start = segments[0].StartUtc;
         var end = segments[^1].EndUtc;
         var jiraKey = DetectJiraKey(segments, commits, start, end);
+        var noAttribution = false;
+
+        if (jiraKey is null && rules.Count > 0)
+        {
+            var commitsInRange = commits
+                .Where(c => c.TimestampUtc.UtcDateTime >= start && c.TimestampUtc.UtcDateTime < end)
+                .ToList();
+            var urls = activityEvents
+                .Where(e => e.Url is not null && e.TimestampUtc >= start && e.TimestampUtc < end)
+                .Select(e => e.Url!)
+                .ToList();
+
+            var evaluation = RuleEvaluator.Evaluate(segments, urls, commitsInRange, rules);
+            ruleWarnings.AddRange(evaluation.InvalidRuleWarnings);
+
+            switch (evaluation.Target)
+            {
+                case null:
+                    break;
+                case RuleTargets.LastActiveTicket:
+                    jiraKey = lastActiveJiraKey;
+                    break;
+                case RuleTargets.NoAttribution:
+                    noAttribution = true;
+                    break;
+                default:
+                    jiraKey = evaluation.Target;
+                    break;
+            }
+        }
+
         var meetingSubject = FindMeetingSubject(meetings, start, end);
 
-        return new CorrelatedBlock(start, end, jiraKey, meetingSubject);
+        return new CorrelatedBlock(start, end, jiraKey, meetingSubject, noAttribution);
     }
 
     private static string? DetectJiraKey(
