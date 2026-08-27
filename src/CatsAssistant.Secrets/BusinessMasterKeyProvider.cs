@@ -36,6 +36,10 @@ public sealed class BusinessMasterKeyProvider
         return Path.Combine(dataDirectory, "business.challenge");
     }
 
+    /// <summary>Vérification matérielle sans toucher la clé (pas de dérivation) : à utiliser par l'UI pour
+    /// décider d'afficher le dialogue « Touchez votre YubiKey » ou de dégrader silencieusement.</summary>
+    public bool IsYubiKeyPresent => _yubiKeyClient.IsPresent();
+
     /// <summary>
     /// Retourne la clé maître (Base64), ou null si la YubiKey est absente ou refuse la dérivation :
     /// l'appelant doit alors ouvrir l'app en mode dégradé sans accès métier (docs/adr/D6).

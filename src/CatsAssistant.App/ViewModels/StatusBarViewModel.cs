@@ -4,9 +4,10 @@ using CatsAssistant.App.Mvvm;
 namespace CatsAssistant.App.ViewModels;
 
 /// <summary>
-/// Barre d'état (issue #15) : pastilles SAP/JIRA/GitLab/Outlook/YubiKey + période. SAP et YubiKey n'ont
-/// pas encore de service temps réel équivalent à <see cref="SyncService"/> — restent en "Unavailable"
-/// statique (hors périmètre de ce shell).
+/// Barre d'état (issue #15) : pastilles SAP/JIRA/GitLab/Outlook/YubiKey + période. SAP n'a pas encore de
+/// service temps réel équivalent à <see cref="SyncService"/> — reste en "Unavailable" statique (hors
+/// périmètre de ce shell). La pastille YubiKey reflète <see cref="YubiKeyVaultCoordinator"/> (issue #26) ;
+/// si aucun coordinateur n'est fourni (tests, écrans hors app réelle), elle reste "Unavailable" par défaut.
 /// </summary>
 public sealed class StatusBarViewModel : ObservableObject, IDisposable
 {
@@ -18,11 +19,13 @@ public sealed class StatusBarViewModel : ObservableObject, IDisposable
     ];
 
     private readonly SyncService? _syncService;
+    private readonly YubiKeyVaultCoordinator? _vaultCoordinator;
     private readonly Dispatcher _dispatcher;
 
-    public StatusBarViewModel(SyncService? syncService)
+    public StatusBarViewModel(SyncService? syncService, YubiKeyVaultCoordinator? vaultCoordinator = null)
     {
         _syncService = syncService;
+        _vaultCoordinator = vaultCoordinator;
         _dispatcher = Dispatcher.CurrentDispatcher;
 
         var sap = new ConnectorPillViewModel("SAP");
@@ -33,10 +36,16 @@ public sealed class StatusBarViewModel : ObservableObject, IDisposable
         Pills = [sap, jira, gitLab, outlook, yubiKey];
 
         RefreshSyncPills();
+        RefreshYubiKeyPill();
 
         if (_syncService is not null)
         {
             _syncService.StateChanged += OnSyncServiceStateChanged;
+        }
+
+        if (_vaultCoordinator is not null)
+        {
+            _vaultCoordinator.StateChanged += OnVaultStateChanged;
         }
     }
 
@@ -46,6 +55,26 @@ public sealed class StatusBarViewModel : ObservableObject, IDisposable
 
     private void OnSyncServiceStateChanged(object? sender, EventArgs e) =>
         _dispatcher.BeginInvoke(RefreshSyncPills);
+
+    private void OnVaultStateChanged(object? sender, EventArgs e) =>
+        _dispatcher.BeginInvoke(RefreshYubiKeyPill);
+
+    private void RefreshYubiKeyPill()
+    {
+        if (_vaultCoordinator is null)
+        {
+            return;
+        }
+
+        var (status, tooltip) = _vaultCoordinator.State switch
+        {
+            YubiKeyVaultState.Unlocked => (SyncStatus.Success, "YubiKey : coffre déverrouillé"),
+            YubiKeyVaultState.Degraded => (SyncStatus.Unavailable, "YubiKey : mode dégradé (sans coffre)"),
+            _ => (SyncStatus.Error, "YubiKey : coffre verrouillé"),
+        };
+
+        Pills.Single(p => p.Name == "YubiKey").Update(status, null, null, tooltip);
+    }
 
     private void RefreshSyncPills()
     {
@@ -74,6 +103,11 @@ public sealed class StatusBarViewModel : ObservableObject, IDisposable
         if (_syncService is not null)
         {
             _syncService.StateChanged -= OnSyncServiceStateChanged;
+        }
+
+        if (_vaultCoordinator is not null)
+        {
+            _vaultCoordinator.StateChanged -= OnVaultStateChanged;
         }
     }
 }

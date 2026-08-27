@@ -1,7 +1,9 @@
 using System.Windows.Threading;
 using CatsAssistant.App;
 using CatsAssistant.App.ViewModels;
+using CatsAssistant.Secrets;
 using CatsAssistant.Store;
+using CatsAssistant.Tests.Secrets;
 using Microsoft.Data.Sqlite;
 
 namespace CatsAssistant.Tests.App;
@@ -91,6 +93,73 @@ public class StatusBarViewModelTests
         PumpPendingDispatcherOperations();
 
         Assert.Equal(SyncStatus.Idle, viewModel.Pills.Single(p => p.Name == "JIRA").Status);
+    }
+
+    [Fact]
+    public void Constructor_NoVaultCoordinator_YubiKeyPillStaysUnavailable()
+    {
+        var viewModel = new StatusBarViewModel(syncService: null, vaultCoordinator: null);
+
+        Assert.Equal(SyncStatus.Unavailable, viewModel.Pills.Single(p => p.Name == "YubiKey").Status);
+    }
+
+    [Fact]
+    public void Constructor_WithLockedVaultCoordinator_YubiKeyPillIsError()
+    {
+        var coordinator = NewCoordinator();
+
+        var viewModel = new StatusBarViewModel(syncService: null, coordinator);
+
+        var pill = viewModel.Pills.Single(p => p.Name == "YubiKey");
+        Assert.Equal(SyncStatus.Error, pill.Status);
+        Assert.Equal("YubiKey : coffre verrouillé", pill.Tooltip);
+    }
+
+    [Fact]
+    public void VaultStateChanged_ToUnlocked_RefreshesYubiKeyPillOnUiThread()
+    {
+        var coordinator = NewCoordinator();
+        var viewModel = new StatusBarViewModel(syncService: null, coordinator);
+
+        coordinator.TryUnlock();
+        PumpPendingDispatcherOperations();
+
+        var pill = viewModel.Pills.Single(p => p.Name == "YubiKey");
+        Assert.Equal(SyncStatus.Success, pill.Status);
+        Assert.Equal("YubiKey : coffre déverrouillé", pill.Tooltip);
+    }
+
+    [Fact]
+    public void VaultStateChanged_ToDegraded_RefreshesYubiKeyPillOnUiThread()
+    {
+        var coordinator = NewCoordinator();
+        var viewModel = new StatusBarViewModel(syncService: null, coordinator);
+
+        coordinator.ContinueWithoutVault();
+        PumpPendingDispatcherOperations();
+
+        var pill = viewModel.Pills.Single(p => p.Name == "YubiKey");
+        Assert.Equal(SyncStatus.Unavailable, pill.Status);
+        Assert.Equal("YubiKey : mode dégradé (sans coffre)", pill.Tooltip);
+    }
+
+    [Fact]
+    public void Dispose_UnsubscribesFromVaultCoordinator()
+    {
+        var coordinator = NewCoordinator();
+        var viewModel = new StatusBarViewModel(syncService: null, coordinator);
+        viewModel.Dispose();
+
+        coordinator.TryUnlock();
+        PumpPendingDispatcherOperations();
+
+        Assert.Equal(SyncStatus.Error, viewModel.Pills.Single(p => p.Name == "YubiKey").Status);
+    }
+
+    private static YubiKeyVaultCoordinator NewCoordinator()
+    {
+        var challengeFilePath = Path.Combine(Path.GetTempPath(), $"cats-assistant-statusbar-tests-{Guid.NewGuid():N}.challenge");
+        return new YubiKeyVaultCoordinator(new BusinessMasterKeyProvider(challengeFilePath, new FakeYubiKeyChallengeResponseClient()));
     }
 
     private static void PumpPendingDispatcherOperations()
