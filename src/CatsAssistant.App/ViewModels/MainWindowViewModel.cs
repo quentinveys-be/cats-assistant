@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CatsAssistant.App.Mvvm;
+using CatsAssistant.Store;
 
 namespace CatsAssistant.App.ViewModels;
 
@@ -9,11 +10,17 @@ namespace CatsAssistant.App.ViewModels;
 /// </summary>
 public sealed class MainWindowViewModel : ObservableObject, IDisposable
 {
+    private const string ThemeSettingKey = "ui.theme";
+    private const string DarkThemeSettingValue = "dark";
+
+    private readonly ISettingsRepository? _settingsRepository;
     private ScreenViewModelBase _currentScreen;
     private bool _isDarkTheme;
 
-    public MainWindowViewModel(SyncService? syncService)
+    public MainWindowViewModel(SyncService? syncService, ISettingsRepository? settingsRepository = null)
     {
+        _settingsRepository = settingsRepository;
+
         var day = new NavigationItemViewModel("Journée", new DayViewModel(), Select);
         var catchUp = new NavigationItemViewModel("Rattrapage", new CatchUpViewModel(), Select);
         var summary = new NavigationItemViewModel("Récapitulatif", new SummaryViewModel(), Select);
@@ -23,9 +30,12 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
 
         StatusBar = new StatusBarViewModel(syncService);
 
-        // ponytail: pas de thème sombre livré à cette étape (un seul ShellStyles/LightTheme.xaml) —
-        // le bouton bascule l'état mais rien ne consomme IsDarkTheme pour l'instant.
-        ToggleThemeCommand = new RelayCommand(() => IsDarkTheme = !IsDarkTheme);
+        _isDarkTheme = _settingsRepository?.Get(ThemeSettingKey) == DarkThemeSettingValue;
+        ToggleThemeCommand = new RelayCommand(() =>
+        {
+            IsDarkTheme = !IsDarkTheme;
+            _settingsRepository?.Set(ThemeSettingKey, IsDarkTheme ? DarkThemeSettingValue : "light");
+        });
 
         _currentScreen = day.Screen;
         day.IsSelected = true;

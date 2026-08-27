@@ -10,7 +10,7 @@
         <Setter Property="Control.Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Rectangle Margin="1" Stroke="{StaticResource AccentFillBrush}" StrokeThickness="2" SnapsToDevicePixels="True" />
+                    <Rectangle Margin="1" Stroke="{DynamicResource AccentFillBrush}" StrokeThickness="2" SnapsToDevicePixels="True" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -21,7 +21,7 @@
         <Setter Property="Width" Value="46" />
         <Setter Property="Height" Value="32" />
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{StaticResource TextFillPrimaryBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisualStyle}" />
@@ -33,7 +33,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SubtleFillSecondaryBrush}" />
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillSecondaryBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -50,8 +50,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource CloseButtonHoverBrush}" />
-                            <Setter Property="Foreground" Value="{StaticResource TextOnAccentBrush}" />
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource CloseButtonHoverBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -65,7 +65,7 @@
         <Setter Property="Padding" Value="12,0,8,0" />
         <Setter Property="Margin" Value="0,0,0,2" />
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{StaticResource TextFillSecondaryBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillSecondaryBrush}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -79,7 +79,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SubtleFillSecondaryBrush}" />
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillSecondaryBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -109,24 +109,24 @@
                             <DockPanel Margin="8,0,8,0">
                                 <Border x:Name="Badge" DockPanel.Dock="Right" VerticalAlignment="Center"
                                         Height="18" Padding="6,0" CornerRadius="3"
-                                        Background="{StaticResource NeutralBgBrush}"
-                                        BorderBrush="{StaticResource NeutralStrokeBrush}" BorderThickness="1"
+                                        Background="{DynamicResource NeutralBgBrush}"
+                                        BorderBrush="{DynamicResource NeutralStrokeBrush}" BorderThickness="1"
                                         Visibility="{Binding BadgeCount, Converter={StaticResource NullableToVisibilityConverter}}">
                                     <TextBlock Text="{Binding BadgeCount}" FontSize="11" FontWeight="SemiBold"
-                                               Foreground="{StaticResource NeutralChipBrush}" VerticalAlignment="Center" />
+                                               Foreground="{DynamicResource NeutralChipBrush}" VerticalAlignment="Center" />
                                 </Border>
                                 <TextBlock x:Name="Label" Text="{Binding Label}" FontSize="14" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextFillPrimaryBrush}" />
+                                           Foreground="{DynamicResource TextFillPrimaryBrush}" />
                             </DockPanel>
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SubtleFillSecondaryBrush}" />
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillSecondaryBrush}" />
                         </Trigger>
                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                            <Setter TargetName="Rail" Property="Background" Value="{StaticResource AccentFillBrush}" />
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SubtleFillSecondaryBrush}" />
+                            <Setter TargetName="Rail" Property="Background" Value="{DynamicResource AccentFillBrush}" />
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillSecondaryBrush}" />
                             <Setter TargetName="Label" Property="FontWeight" Value="SemiBold" />
                         </DataTrigger>
                     </ControlTemplate.Triggers>
@@ -140,24 +140,24 @@
         <StackPanel Orientation="Horizontal" Margin="0,0,14,0" ToolTip="{Binding Tooltip}"
                     AutomationProperties.Name="{Binding Tooltip}">
             <Grid Width="12" Height="12" VerticalAlignment="Center">
-                <Ellipse x:Name="Halo" Width="12" Height="12" Fill="{StaticResource NeutralBgBrush}" />
-                <Ellipse x:Name="Dot" Width="8" Height="8" Fill="{StaticResource NeutralChipBrush}" />
+                <Ellipse x:Name="Halo" Width="12" Height="12" Fill="{DynamicResource NeutralBgBrush}" />
+                <Ellipse x:Name="Dot" Width="8" Height="8" Fill="{DynamicResource NeutralChipBrush}" />
             </Grid>
             <TextBlock Text="{Binding Name}" FontSize="12" Margin="6,0,0,0" VerticalAlignment="Center"
-                       Foreground="{StaticResource TextFillSecondaryBrush}" />
+                       Foreground="{DynamicResource TextFillSecondaryBrush}" />
         </StackPanel>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding Status}" Value="Success">
-                <Setter TargetName="Halo" Property="Fill" Value="{StaticResource SuccessBgBrush}" />
-                <Setter TargetName="Dot" Property="Fill" Value="{StaticResource SuccessBrush}" />
+                <Setter TargetName="Halo" Property="Fill" Value="{DynamicResource SuccessBgBrush}" />
+                <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource SuccessBrush}" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Status}" Value="Error">
-                <Setter TargetName="Halo" Property="Fill" Value="{StaticResource CriticalBgBrush}" />
-                <Setter TargetName="Dot" Property="Fill" Value="{StaticResource CriticalBrush}" />
+                <Setter TargetName="Halo" Property="Fill" Value="{DynamicResource CriticalBgBrush}" />
+                <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource CriticalBrush}" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Status}" Value="Running">
-                <Setter TargetName="Halo" Property="Fill" Value="{StaticResource AccentTintBrush}" />
-                <Setter TargetName="Dot" Property="Fill" Value="{StaticResource AccentFillBrush}" />
+                <Setter TargetName="Halo" Property="Fill" Value="{DynamicResource AccentTintBrush}" />
+                <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource AccentFillBrush}" />
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>

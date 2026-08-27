@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Forms;
+using CatsAssistant.App.Themes;
 using CatsAssistant.App.ViewModels;
 using CatsAssistant.App.Views;
 using CatsAssistant.Collector;
@@ -26,6 +27,7 @@ public partial class App : Application
     private SqliteConnection? _businessConnection;
     private bool _businessVaultLocked;
     private IActivityEventRepository? _repository;
+    private ISettingsRepository? _settingsRepository;
     private ActivityCollector? _collector;
     private SyncService? _syncService;
     private HttpClient? _jiraHttpClient;
@@ -51,6 +53,8 @@ public partial class App : Application
         _connection = connectionFactory.OpenConnection();
 
         _repository = new SqliteActivityEventRepository(_connection);
+        _settingsRepository = new SqliteSettingsRepository(_connection);
+        ThemeService.Apply(_settingsRepository.Get("ui.theme") == "dark");
 
         // Retention is 90 days (docs/data-model.md, ADR D3); startup is the only moment the app is
         // guaranteed to reach in a user-mode, no-scheduler deployment.
@@ -295,7 +299,7 @@ public partial class App : Application
             return;
         }
 
-        _mainWindow = new MainWindow(new MainWindowViewModel(_syncService));
+        _mainWindow = new MainWindow(new MainWindowViewModel(_syncService, _settingsRepository));
         _mainWindow.Closed += (_, _) => _mainWindow = null;
         _mainWindow.Show();
     }

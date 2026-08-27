@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.Windows;
+using CatsAssistant.App.Themes;
 using CatsAssistant.App.ViewModels;
 
 namespace CatsAssistant.App.Views;
@@ -14,6 +16,17 @@ public partial class MainWindow : Window
         DataContext = viewModel;
         StateChanged += OnStateChanged;
         Closed += (_, _) => _viewModel.Dispose();
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+    }
+
+    // La fenêtre reste seule consommatrice du service de thème WPF (ResourceDictionary) : le VM ne
+    // touche jamais Application.Current, ce qui le garde testable hors contexte WPF.
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainWindowViewModel.IsDarkTheme))
+        {
+            ThemeService.Apply(_viewModel.IsDarkTheme);
+        }
     }
 
     private void OnMinimizeClick(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
