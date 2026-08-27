@@ -24,6 +24,7 @@ Les 5 tables métier (`jira_tickets`, `vcs_commits`, `calendar_events`, `time_bl
 Notes :
 
 - jira_key normalisée `ULISTROIS-<n>`.
+- rules.target : soit une clé JIRA explicite, soit une des valeurs spéciales `LAST_ACTIVE_TICKET` (dernier ticket actif du poste) ou `NO_ATTRIBUTION` (bloc non facturable), résolues par `RuleEvaluator` (`CatsAssistant.Correlator`).
 - time_blocks.status suit le cycle : proposed → edited? → validated → submitted.
 - sap_counter : Counter renvoyé par SAP à la création (traçabilité).
 - Aucune valeur de cookie/token dans cette base ; secrets dans le coffre dédié.

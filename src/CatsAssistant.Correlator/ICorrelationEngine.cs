@@ -9,5 +9,6 @@ public interface ICorrelationEngine
         IReadOnlyList<ActivityEvent> activityEvents,
         IReadOnlyList<VcsCommit> commits,
         IReadOnlyList<CalendarEventData> meetings,
-        int minBlockDurationMinutes = 15);
+        int minBlockDurationMinutes = 15,
+        IReadOnlyList<RuleRow>? rules = null);
 }
