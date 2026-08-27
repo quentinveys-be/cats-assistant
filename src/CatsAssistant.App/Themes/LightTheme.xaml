@@ -1,0 +1,40 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Jetons couleur thème clair — docs/design/tokens/design-tokens.dc.html. Seuls les jetons utilisés
+         par le shell (issue #15) sont repris ici ; les autres (timeline, cartes CATS…) seront ajoutés
+         avec les écrans qui les consomment. -->
+
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F3F3F3" />
+    <SolidColorBrush x:Key="LayerBackgroundBrush" Color="#FBFBFB" />
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SubtleFillSecondaryBrush" Color="#F0F0F0" />
+
+    <SolidColorBrush x:Key="DividerStrokeBrush" Color="#E5E5E5" />
+    <SolidColorBrush x:Key="ControlStrokeBrush" Color="#D8D8D8" />
+
+    <SolidColorBrush x:Key="TextFillPrimaryBrush" Color="#1A1A1A" />
+    <SolidColorBrush x:Key="TextFillSecondaryBrush" Color="#5D5D5D" />
+    <SolidColorBrush x:Key="TextFillTertiaryBrush" Color="#767676" />
+
+    <SolidColorBrush x:Key="AccentFillBrush" Color="#4B6E92" />
+    <SolidColorBrush x:Key="AccentFillHoverBrush" Color="#41628A" />
+    <SolidColorBrush x:Key="AccentFillPressedBrush" Color="#37546F" />
+    <SolidColorBrush x:Key="TextOnAccentBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AccentTintBrush" Color="#ECF1F6" />
+    <SolidColorBrush x:Key="AccentStrokeBrush" Color="#B9CBDC" />
+
+    <SolidColorBrush x:Key="SuccessBrush" Color="#0F7B0F" />
+    <SolidColorBrush x:Key="SuccessBgBrush" Color="#E6F4E6" />
+    <SolidColorBrush x:Key="CautionBrush" Color="#8A5300" />
+    <SolidColorBrush x:Key="CautionBgBrush" Color="#FBF0DC" />
+    <SolidColorBrush x:Key="CautionStrokeBrush" Color="#E5C58F" />
+    <SolidColorBrush x:Key="CriticalBrush" Color="#B02A1B" />
+    <SolidColorBrush x:Key="CriticalBgBrush" Color="#FDECEA" />
+    <SolidColorBrush x:Key="NeutralChipBrush" Color="#616161" />
+    <SolidColorBrush x:Key="NeutralBgBrush" Color="#EFEFEF" />
+    <SolidColorBrush x:Key="NeutralStrokeBrush" Color="#DCDCDC" />
+
+    <SolidColorBrush x:Key="CloseButtonHoverBrush" Color="#C42B1C" />
+
+</ResourceDictionary>

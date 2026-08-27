@@ -1,0 +1,165 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:CatsAssistant.App.ViewModels"
+                    xmlns:conv="clr-namespace:CatsAssistant.App.Converters">
+
+    <conv:NullableToVisibilityConverter x:Key="NullableToVisibilityConverter" />
+
+    <!-- Focus visible (WCAG 2.4.7) : contour accent, jamais l'anneau bleu par défaut. -->
+    <Style x:Key="AccentFocusVisualStyle">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="1" Stroke="{StaticResource AccentFillBrush}" StrokeThickness="2" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Boutons de la barre de titre (réduire/agrandir/fermer), 46x32. -->
+    <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextFillPrimaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisualStyle}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SubtleFillSecondaryBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CloseTitleBarButtonStyle" TargetType="Button" BasedOn="{StaticResource TitleBarButtonStyle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource CloseButtonHoverBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource TextOnAccentBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Bouton pied de rail ("Thème") : mêmes métriques qu'une entrée de nav, sans rail ni badge. -->
+    <Style x:Key="FooterButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Padding" Value="12,0,8,0" />
+        <Setter Property="Margin" Value="0,0,0,2" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextFillSecondaryBrush}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisualStyle}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SubtleFillSecondaryBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Entrée du rail de navigation : rail de sélection 3px + libellé + badge optionnel. -->
+    <DataTemplate x:Key="NavigationItemTemplate" DataType="{x:Type vm:NavigationItemViewModel}">
+        <Button Command="{Binding SelectCommand}" Background="Transparent" BorderThickness="0"
+                Height="36" Margin="0,0,0,2" Cursor="Hand"
+                HorizontalContentAlignment="Stretch"
+                FocusVisualStyle="{StaticResource AccentFocusVisualStyle}"
+                AutomationProperties.Name="{Binding Label}">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border x:Name="Rail" Grid.Column="0" Width="3" CornerRadius="2" Margin="0,8,0,8"
+                                Background="Transparent" />
+
+                        <Border x:Name="Bg" Grid.Column="1" CornerRadius="4" Margin="4,0,8,0" Background="Transparent">
+                            <DockPanel Margin="8,0,8,0">
+                                <Border x:Name="Badge" DockPanel.Dock="Right" VerticalAlignment="Center"
+                                        Height="18" Padding="6,0" CornerRadius="3"
+                                        Background="{StaticResource NeutralBgBrush}"
+                                        BorderBrush="{StaticResource NeutralStrokeBrush}" BorderThickness="1"
+                                        Visibility="{Binding BadgeCount, Converter={StaticResource NullableToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding BadgeCount}" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{StaticResource NeutralChipBrush}" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock x:Name="Label" Text="{Binding Label}" FontSize="14" VerticalAlignment="Center"
+                                           Foreground="{StaticResource TextFillPrimaryBrush}" />
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SubtleFillSecondaryBrush}" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter TargetName="Rail" Property="Background" Value="{StaticResource AccentFillBrush}" />
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SubtleFillSecondaryBrush}" />
+                            <Setter TargetName="Label" Property="FontWeight" Value="SemiBold" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </DataTemplate>
+
+    <!-- Pastille de connecteur (barre d'état) : halo + point coloré selon l'état de synchro. -->
+    <DataTemplate x:Key="ConnectorPillTemplate" DataType="{x:Type vm:ConnectorPillViewModel}">
+        <StackPanel Orientation="Horizontal" Margin="0,0,14,0" ToolTip="{Binding Tooltip}"
+                    AutomationProperties.Name="{Binding Tooltip}">
+            <Grid Width="12" Height="12" VerticalAlignment="Center">
+                <Ellipse x:Name="Halo" Width="12" Height="12" Fill="{StaticResource NeutralBgBrush}" />
+                <Ellipse x:Name="Dot" Width="8" Height="8" Fill="{StaticResource NeutralChipBrush}" />
+            </Grid>
+            <TextBlock Text="{Binding Name}" FontSize="12" Margin="6,0,0,0" VerticalAlignment="Center"
+                       Foreground="{StaticResource TextFillSecondaryBrush}" />
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Status}" Value="Success">
+                <Setter TargetName="Halo" Property="Fill" Value="{StaticResource SuccessBgBrush}" />
+                <Setter TargetName="Dot" Property="Fill" Value="{StaticResource SuccessBrush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Error">
+                <Setter TargetName="Halo" Property="Fill" Value="{StaticResource CriticalBgBrush}" />
+                <Setter TargetName="Dot" Property="Fill" Value="{StaticResource CriticalBrush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Running">
+                <Setter TargetName="Halo" Property="Fill" Value="{StaticResource AccentTintBrush}" />
+                <Setter TargetName="Dot" Property="Fill" Value="{StaticResource AccentFillBrush}" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+</ResourceDictionary>

@@ -3,6 +3,8 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Forms;
+using CatsAssistant.App.ViewModels;
+using CatsAssistant.App.Views;
 using CatsAssistant.Collector;
 using CatsAssistant.Connectors;
 using CatsAssistant.Secrets;
@@ -31,7 +33,7 @@ public partial class App : Application
     private NotifyIcon? _trayIcon;
     private ToolStripMenuItem? _toggleCaptureItem;
     private ToolStripMenuItem? _syncNowItem;
-    private TodayEventsWindow? _todayEventsWindow;
+    private MainWindow? _mainWindow;
     private string _dataDirectory = string.Empty;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -214,7 +216,7 @@ public partial class App : Application
 
         var openDataFolderItem = new ToolStripMenuItem("Ouvrir le dossier de données", null, OnOpenDataFolder);
 
-        var showTodayEventsItem = new ToolStripMenuItem("Afficher les événements du jour", null, OnShowTodayEvents);
+        var openMainWindowItem = new ToolStripMenuItem("Ouvrir CATS Assistant", null, OnOpenMainWindow);
 
         _syncNowItem = new ToolStripMenuItem("Synchroniser maintenant", null, OnSyncNow)
         {
@@ -233,7 +235,7 @@ public partial class App : Application
         var contextMenu = new ContextMenuStrip();
         contextMenu.Items.Add(_toggleCaptureItem);
         contextMenu.Items.Add(openDataFolderItem);
-        contextMenu.Items.Add(showTodayEventsItem);
+        contextMenu.Items.Add(openMainWindowItem);
         contextMenu.Items.Add(_syncNowItem);
         contextMenu.Items.Add(startWithWindowsItem);
 
@@ -285,19 +287,17 @@ public partial class App : Application
         });
     }
 
-    private void OnShowTodayEvents(object? sender, EventArgs e)
+    private void OnOpenMainWindow(object? sender, EventArgs e)
     {
-        if (_repository is null) return;
-
-        if (_todayEventsWindow is not null)
+        if (_mainWindow is not null)
         {
-            _todayEventsWindow.Activate();
+            _mainWindow.Activate();
             return;
         }
 
-        _todayEventsWindow = new TodayEventsWindow(_repository);
-        _todayEventsWindow.Closed += (_, _) => _todayEventsWindow = null;
-        _todayEventsWindow.Show();
+        _mainWindow = new MainWindow(new MainWindowViewModel(_syncService));
+        _mainWindow.Closed += (_, _) => _mainWindow = null;
+        _mainWindow.Show();
     }
 
     private async void OnSyncNow(object? sender, EventArgs e)
