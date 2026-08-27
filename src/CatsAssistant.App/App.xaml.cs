@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Forms;
@@ -12,6 +14,7 @@ using CatsAssistant.Secrets;
 using CatsAssistant.Store;
 using Microsoft.Data.Sqlite;
 using Application = System.Windows.Application;
+using Icon = System.Drawing.Icon;
 
 namespace CatsAssistant.App;
 
@@ -34,8 +37,12 @@ public partial class App : Application
     private HttpClient? _jiraHttpClient;
     private HttpClient? _gitLabHttpClient;
     private NotifyIcon? _trayIcon;
+    private ToolStripMenuItem? _headerItem;
     private ToolStripMenuItem? _toggleCaptureItem;
+    private ToolStripMenuItem? _catchUpItem;
     private ToolStripMenuItem? _syncNowItem;
+    private Bitmap? _activeDotImage;
+    private Bitmap? _pausedDotImage;
     private MainWindow? _mainWindow;
     private string _dataDirectory = string.Empty;
 
@@ -254,6 +261,9 @@ public partial class App : Application
             _trayIcon.Dispose();
         }
 
+        _activeDotImage?.Dispose();
+        _pausedDotImage?.Dispose();
+
         _syncService?.Dispose();
         _jiraHttpClient?.Dispose();
         _gitLabHttpClient?.Dispose();
@@ -264,13 +274,28 @@ public partial class App : Application
         base.OnExit(e);
     }
 
+    // Design du menu tray (issue #25, docs/design/screens/cats-assistant.dc.html — overlay "tray") : en-tête
+    // d'état, actions principales, Paramètres, puis les actions historiques (dossier de données, synchro
+    // manuelle, démarrage Windows) qui n'ont pas encore d'écran dédié où vivre.
     private NotifyIcon BuildTrayIcon()
     {
+        _activeDotImage = CreateDotImage(ColorTranslator.FromHtml("#0F7B0F"));
+        _pausedDotImage = CreateDotImage(ColorTranslator.FromHtml("#8A8A8A"));
+
+        _headerItem = new ToolStripMenuItem { Enabled = false };
+
+        var openDayItem = new ToolStripMenuItem("Ouvrir la journée", null,
+            (_, _) => OpenMainWindow(SelectDay));
+
         _toggleCaptureItem = new ToolStripMenuItem(ToggleCaptureLabel(), null, OnToggleCapture);
 
-        var openDataFolderItem = new ToolStripMenuItem("Ouvrir le dossier de données", null, OnOpenDataFolder);
+        _catchUpItem = new ToolStripMenuItem("Rattrapage", null,
+            (_, _) => OpenMainWindow(SelectCatchUp));
 
-        var openMainWindowItem = new ToolStripMenuItem("Ouvrir CATS Assistant", null, OnOpenMainWindow);
+        var settingsItem = new ToolStripMenuItem("Paramètres", null,
+            (_, _) => OpenMainWindow(SelectSettings));
+
+        var openDataFolderItem = new ToolStripMenuItem("Ouvrir le dossier de données", null, OnOpenDataFolder);
 
         // Toujours activé (issue #26) : coffre verrouillé, un clic tente le déverrouillage avant de
         // synchroniser plutôt que de rester désactivé jusqu'au redémarrage.
@@ -288,26 +313,103 @@ public partial class App : Application
         var exitItem = new ToolStripMenuItem("Quitter", null, OnExitClicked);
 
         var contextMenu = new ContextMenuStrip();
+        contextMenu.Items.Add(_headerItem);
+        contextMenu.Items.Add(new ToolStripSeparator());
+        contextMenu.Items.Add(openDayItem);
         contextMenu.Items.Add(_toggleCaptureItem);
+        contextMenu.Items.Add(_catchUpItem);
+        contextMenu.Items.Add(new ToolStripSeparator());
+        contextMenu.Items.Add(settingsItem);
         contextMenu.Items.Add(openDataFolderItem);
-        contextMenu.Items.Add(openMainWindowItem);
         contextMenu.Items.Add(_syncNowItem);
         contextMenu.Items.Add(testYubiKeyItem);
         contextMenu.Items.Add(startWithWindowsItem);
         contextMenu.Items.Add(new ToolStripSeparator());
         contextMenu.Items.Add(exitItem);
+        contextMenu.Opening += (_, _) => RefreshTrayMenu();
 
-        return new NotifyIcon
+        RefreshTrayMenu();
+
+        var trayIcon = new NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Application,
+            Icon = Icon.ExtractAssociatedIcon(Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule!.FileName)
+                   ?? SystemIcons.Application,
             Text = "CATS Assistant",
             Visible = true,
             ContextMenuStrip = contextMenu,
         };
+        trayIcon.MouseClick += OnTrayIconMouseClick;
+
+        return trayIcon;
     }
 
+    private static Bitmap CreateDotImage(Color color, int size = 8)
+    {
+        var bitmap = new Bitmap(size, size);
+        using var g = Graphics.FromImage(bitmap);
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        using var brush = new SolidBrush(color);
+        g.FillEllipse(brush, 0, 0, size - 1, size - 1);
+        return bitmap;
+    }
+
+    private void OnTrayIconMouseClick(object? sender, MouseEventArgs e)
+    {
+        if (e.Button == MouseButtons.Left)
+        {
+            OpenMainWindow();
+        }
+    }
+
+    private void RefreshTrayMenu()
+    {
+        if (_toggleCaptureItem is not null)
+        {
+            _toggleCaptureItem.Text = ToggleCaptureLabel();
+        }
+
+        if (_headerItem is not null)
+        {
+            var isRunning = _collector is { IsRunning: true };
+            _headerItem.Text = $"{(isRunning ? "Capture active" : "Capture en pause")} — {FormatDuration(GetCapturedTodayDuration())}";
+            _headerItem.Image = isRunning ? _activeDotImage : _pausedDotImage;
+        }
+
+        if (_catchUpItem is not null)
+        {
+            var catchUpCount = GetCatchUpCount();
+            _catchUpItem.Text = catchUpCount > 0 ? $"Rattrapage ({catchUpCount})" : "Rattrapage";
+        }
+    }
+
+    private TimeSpan GetCapturedTodayDuration()
+    {
+        if (_repository is null)
+        {
+            return TimeSpan.Zero;
+        }
+
+        var localNow = DateTime.Now;
+        var events = _repository.GetByDateRange(localNow.Date.ToUniversalTime(), localNow.ToUniversalTime());
+        return ActivityEventAggregator.Aggregate(events)
+            .Aggregate(TimeSpan.Zero, (total, segment) => total + (segment.EndUtc - segment.StartUtc));
+    }
+
+    private static string FormatDuration(TimeSpan duration) => $"{(int)duration.TotalHours}:{duration.Minutes:D2}";
+
+    // ponytail: le pipeline qui compte les blocs à corréler manuellement (rattrapage) n'existe pas encore
+    // côté App (le Correlator n'y est pas branché) — à câbler quand cet écran aura ses données réelles.
+    private static int GetCatchUpCount() => 0;
+
+    private static void SelectDay(MainWindowViewModel viewModel) => viewModel.NavigationItems[0].SelectCommand.Execute(null);
+
+    private static void SelectCatchUp(MainWindowViewModel viewModel) =>
+        viewModel.NavigationItems.Single(item => item.Label == "Rattrapage").SelectCommand.Execute(null);
+
+    private static void SelectSettings(MainWindowViewModel viewModel) => viewModel.SettingsItem.SelectCommand.Execute(null);
+
     private string ToggleCaptureLabel() =>
-        _collector is { IsRunning: true } ? "Mettre en pause la capture" : "Démarrer la capture";
+        _collector is { IsRunning: true } ? "Mettre la capture en pause" : "Reprendre la capture";
 
     private void OnToggleCapture(object? sender, EventArgs e)
     {
@@ -322,10 +424,7 @@ public partial class App : Application
             _collector.Start();
         }
 
-        if (_toggleCaptureItem is not null)
-        {
-            _toggleCaptureItem.Text = ToggleCaptureLabel();
-        }
+        RefreshTrayMenu();
     }
 
     private void OnOpenDataFolder(object? sender, EventArgs e)
@@ -337,17 +436,24 @@ public partial class App : Application
         });
     }
 
-    private void OnOpenMainWindow(object? sender, EventArgs e)
+    private void OpenMainWindow(Action<MainWindowViewModel>? select = null)
     {
-        if (_mainWindow is not null)
+        if (_mainWindow is null)
         {
-            _mainWindow.Activate();
+            var viewModel = new MainWindowViewModel(_syncService, _settingsRepository, _vaultCoordinator);
+            _mainWindow = new MainWindow(viewModel);
+            _mainWindow.Closed += (_, _) => _mainWindow = null;
+            select?.Invoke(viewModel);
+            _mainWindow.Show();
             return;
         }
 
-        _mainWindow = new MainWindow(new MainWindowViewModel(_syncService, _settingsRepository, _vaultCoordinator));
-        _mainWindow.Closed += (_, _) => _mainWindow = null;
-        _mainWindow.Show();
+        if (select is not null && _mainWindow.DataContext is MainWindowViewModel currentViewModel)
+        {
+            select(currentViewModel);
+        }
+
+        _mainWindow.Activate();
     }
 
     private async void OnSyncNow(object? sender, EventArgs e)
