@@ -25,11 +25,12 @@ public partial class App : Application
 
     private SqliteConnection? _connection;
     private SqliteConnection? _businessConnection;
-    private bool _businessVaultLocked;
     private IActivityEventRepository? _repository;
     private ISettingsRepository? _settingsRepository;
     private ActivityCollector? _collector;
     private SyncService? _syncService;
+    private YubiKeyVaultCoordinator? _vaultCoordinator;
+    private bool _yubiKeyDialogOpen;
     private HttpClient? _jiraHttpClient;
     private HttpClient? _gitLabHttpClient;
     private NotifyIcon? _trayIcon;
@@ -62,6 +63,21 @@ public partial class App : Application
 
         _collector = new ActivityCollector(_repository);
         _collector.Start();
+
+        _vaultCoordinator = new YubiKeyVaultCoordinator(new BusinessMasterKeyProvider(
+            BusinessMasterKeyProvider.GetDefaultChallengeFilePath(),
+            new YubiKeyChallengeResponseClient()));
+
+        // Pas de dialogue si aucune YubiKey n'est branchée (rien à toucher) : dégrade en silence plutôt
+        // que d'inviter à un geste impossible (issue #26, "sans double invite").
+        if (_vaultCoordinator.IsYubiKeyPresent)
+        {
+            ShowYubiKeyUnlockDialog();
+        }
+        else
+        {
+            _vaultCoordinator.ContinueWithoutVault();
+        }
 
         OpenBusinessDatabase();
         InitializeSyncService();
@@ -164,18 +180,14 @@ public partial class App : Application
         return targets;
     }
 
-    // Mode dégradé (docs/adr/D6) : sans YubiKey (absente ou refusée), la base métier reste fermée mais la
-    // capture d'activité (activity.db, DPAPI) continue normalement — jamais de crash ni de blocage.
+    // Mode dégradé (docs/adr/D6) : sans YubiKey (absente, refusée ou "Continuer sans coffre", issue #26),
+    // la base métier reste fermée mais la capture d'activité (activity.db, DPAPI) continue normalement —
+    // jamais de crash ni de blocage. Réutilise la clé déjà dérivée par _vaultCoordinator (un seul appui
+    // YubiKey par session) plutôt que d'en redériver une ici.
     private void OpenBusinessDatabase()
     {
-        var keyProvider = new BusinessMasterKeyProvider(
-            BusinessMasterKeyProvider.GetDefaultChallengeFilePath(),
-            new YubiKeyChallengeResponseClient());
-        var businessKey = keyProvider.TryGetOrDeriveKey();
-
-        if (businessKey is null)
+        if (_vaultCoordinator!.State != YubiKeyVaultState.Unlocked)
         {
-            _businessVaultLocked = true;
             return;
         }
 
@@ -183,13 +195,51 @@ public partial class App : Application
         {
             var businessDatabasePath = SqliteConnectionFactory.GetDefaultBusinessDatabasePath();
             var businessMigrator = new SqliteMigrator(SqliteMigrator.BusinessMigrations);
-            _businessConnection = new SqliteConnectionFactory(businessDatabasePath, businessKey, businessMigrator).OpenConnection();
+            _businessConnection = new SqliteConnectionFactory(businessDatabasePath, _vaultCoordinator.CachedKey!, businessMigrator).OpenConnection();
         }
         catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
         {
-            // Clé dérivable mais base illisible (challenge régénéré/perdu après création, fichier corrompu) :
+            // Clé dérivée mais base illisible (challenge régénéré/perdu après création, fichier corrompu) :
             // mode dégradé plutôt que crash au démarrage (docs/adr/D6).
-            _businessVaultLocked = true;
+        }
+    }
+
+    // Un seul dialogue à la fois (issue #26, "sans double invite") : démarrage, "Tester la clé" (tray) et
+    // "Synchroniser maintenant" coffre verrouillé peuvent tous trois demander une invite.
+    private void ShowYubiKeyUnlockDialog()
+    {
+        if (_yubiKeyDialogOpen)
+        {
+            return;
+        }
+
+        _yubiKeyDialogOpen = true;
+        try
+        {
+            var dialog = new YubiKeyUnlockDialog(new YubiKeyUnlockViewModel(_vaultCoordinator!)) { Owner = _mainWindow };
+            dialog.ShowDialog();
+        }
+        finally
+        {
+            _yubiKeyDialogOpen = false;
+        }
+    }
+
+    // Point d'entrée des déclenchements à la demande (issue #26) : tente le déverrouillage si nécessaire,
+    // puis (ré)ouvre business.db et la synchro si ce n'était pas déjà fait.
+    private void UnlockVaultOnDemandAndInitializeSync()
+    {
+        if (_businessConnection is not null)
+        {
+            return;
+        }
+
+        ShowYubiKeyUnlockDialog();
+
+        if (_vaultCoordinator!.State == YubiKeyVaultState.Unlocked)
+        {
+            OpenBusinessDatabase();
+            InitializeSyncService();
         }
     }
 
@@ -222,10 +272,11 @@ public partial class App : Application
 
         var openMainWindowItem = new ToolStripMenuItem("Ouvrir CATS Assistant", null, OnOpenMainWindow);
 
-        _syncNowItem = new ToolStripMenuItem("Synchroniser maintenant", null, OnSyncNow)
-        {
-            Enabled = _syncService is not null,
-        };
+        // Toujours activé (issue #26) : coffre verrouillé, un clic tente le déverrouillage avant de
+        // synchroniser plutôt que de rester désactivé jusqu'au redémarrage.
+        _syncNowItem = new ToolStripMenuItem("Synchroniser maintenant", null, OnSyncNow);
+
+        var testYubiKeyItem = new ToolStripMenuItem("Tester la clé YubiKey", null, OnTestYubiKey);
 
         var startWithWindowsItem = new ToolStripMenuItem("Démarrer avec Windows")
         {
@@ -241,13 +292,8 @@ public partial class App : Application
         contextMenu.Items.Add(openDataFolderItem);
         contextMenu.Items.Add(openMainWindowItem);
         contextMenu.Items.Add(_syncNowItem);
+        contextMenu.Items.Add(testYubiKeyItem);
         contextMenu.Items.Add(startWithWindowsItem);
-
-        if (_businessVaultLocked)
-        {
-            contextMenu.Items.Add(new ToolStripMenuItem("Coffre métier verrouillé") { Enabled = false });
-        }
-
         contextMenu.Items.Add(new ToolStripSeparator());
         contextMenu.Items.Add(exitItem);
 
@@ -299,16 +345,31 @@ public partial class App : Application
             return;
         }
 
-        _mainWindow = new MainWindow(new MainWindowViewModel(_syncService, _settingsRepository));
+        _mainWindow = new MainWindow(new MainWindowViewModel(_syncService, _settingsRepository, _vaultCoordinator));
         _mainWindow.Closed += (_, _) => _mainWindow = null;
         _mainWindow.Show();
     }
 
     private async void OnSyncNow(object? sender, EventArgs e)
     {
+        UnlockVaultOnDemandAndInitializeSync();
+
         if (_syncService is null) return;
 
         await _syncService.SyncAllAsync();
+    }
+
+    // "Tester la clé" (issue #26) : toujours affiché, même coffre déjà déverrouillé (confirme qu'il reste
+    // accessible ; instantané puisque la clé est en cache, aucun nouvel appui YubiKey).
+    private void OnTestYubiKey(object? sender, EventArgs e)
+    {
+        ShowYubiKeyUnlockDialog();
+
+        if (_vaultCoordinator!.State == YubiKeyVaultState.Unlocked && _businessConnection is null)
+        {
+            OpenBusinessDatabase();
+            InitializeSyncService();
+        }
     }
 
     private void OnToggleStartWithWindows(object? sender, EventArgs e)

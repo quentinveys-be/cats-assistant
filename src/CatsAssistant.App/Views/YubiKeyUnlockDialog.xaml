@@ -1,0 +1,55 @@
+<Window x:Class="CatsAssistant.App.Views.YubiKeyUnlockDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CatsAssistant.App.ViewModels"
+        xmlns:conv="clr-namespace:CatsAssistant.App.Converters"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Coffre YubiKey" Height="280" Width="420"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{StaticResource LayerBackgroundBrush}"
+        d:DataContext="{d:DesignInstance vm:YubiKeyUnlockViewModel}">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <conv:NullableToVisibilityConverter x:Key="NullableToVisibility" />
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Touchez votre YubiKey" FontSize="18" FontWeight="SemiBold"
+                   HorizontalAlignment="Center" TextAlignment="Center"
+                   Foreground="{StaticResource TextFillPrimaryBrush}" />
+
+        <TextBlock Grid.Row="1" Margin="0,8,0,0" TextWrapping="Wrap" TextAlignment="Center" FontSize="13"
+                   Foreground="{StaticResource TextFillSecondaryBrush}"
+                   Text="Le coffre est verrouillé. La clé maître est dérivée par challenge-response HMAC-SHA1 ; les tokens JIRA et GitLab restent inaccessibles jusqu'au déverrouillage." />
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0"
+                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
+            <ProgressBar IsIndeterminate="True" Width="60" Height="4" VerticalAlignment="Center" />
+            <TextBlock Text="En attente de la clé…" FontSize="13" Margin="8,0,0,0"
+                       VerticalAlignment="Center" Foreground="{StaticResource TextFillTertiaryBrush}" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="3" Margin="0,16,0,0" TextWrapping="Wrap" TextAlignment="Center" FontSize="13"
+                   Foreground="{StaticResource CriticalBrush}" Text="{Binding ErrorMessage}"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullableToVisibility}}" />
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,20,0,0">
+            <Button Content="Continuer sans coffre" Command="{Binding ContinueWithoutVaultCommand}"
+                    Width="182" Height="32" Margin="0,0,8,0" />
+            <Button Content="Réessayer" Command="{Binding RetryCommand}" Width="182" Height="32" />
+        </StackPanel>
+    </Grid>
+</Window>

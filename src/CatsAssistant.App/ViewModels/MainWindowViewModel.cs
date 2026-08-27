@@ -17,7 +17,10 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
     private ScreenViewModelBase _currentScreen;
     private bool _isDarkTheme;
 
-    public MainWindowViewModel(SyncService? syncService, ISettingsRepository? settingsRepository = null)
+    public MainWindowViewModel(
+        SyncService? syncService,
+        ISettingsRepository? settingsRepository = null,
+        YubiKeyVaultCoordinator? vaultCoordinator = null)
     {
         _settingsRepository = settingsRepository;
 
@@ -28,7 +31,7 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
 
         NavigationItems = [day, catchUp, summary];
 
-        StatusBar = new StatusBarViewModel(syncService);
+        StatusBar = new StatusBarViewModel(syncService, vaultCoordinator);
 
         _isDarkTheme = _settingsRepository?.Get(ThemeSettingKey) == DarkThemeSettingValue;
         ToggleThemeCommand = new RelayCommand(() =>

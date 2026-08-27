@@ -22,10 +22,10 @@ public sealed class ConnectorPillViewModel(string name) : ObservableObject
         private set => SetProperty(ref _tooltip, value);
     }
 
-    public void Update(SyncStatus status, DateTimeOffset? lastSyncUtc, string? lastError)
+    public void Update(SyncStatus status, DateTimeOffset? lastSyncUtc, string? lastError, string? tooltipOverride = null)
     {
         Status = status;
-        Tooltip = status switch
+        Tooltip = tooltipOverride ?? status switch
         {
             SyncStatus.Unavailable => $"{Name} : non configuré",
             SyncStatus.Running => $"{Name} : synchronisation en cours…",
