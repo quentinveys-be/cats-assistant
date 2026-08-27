@@ -1,3 +1,4 @@
+using CatsAssistant.App.Services;
 using CatsAssistant.App.ViewModels;
 using CatsAssistant.Store;
 
@@ -86,6 +87,45 @@ public class MainWindowViewModelTests
 
         viewModel.ToggleThemeCommand.Execute(null);
         Assert.Equal("light", settings.Get("ui.theme"));
+    }
+
+    [Fact]
+    public void Constructor_WithIncompleteCatchUpDays_SetsNavigationBadge()
+    {
+        using var viewModel = new MainWindowViewModel(syncService: null, timeBlockRepository: RepositoryWithOneIncompleteDayBeforeToday());
+        var catchUp = viewModel.NavigationItems.Single(i => i.Label == "Rattrapage");
+
+        Assert.Equal(1, catchUp.BadgeCount);
+    }
+
+    [Fact]
+    public void CatchUp_OpenDay_SwitchesToDayScreenWithSelectedDate()
+    {
+        using var viewModel = new MainWindowViewModel(syncService: null, timeBlockRepository: RepositoryWithOneIncompleteDayBeforeToday());
+        var catchUp = (CatchUpViewModel)viewModel.NavigationItems.Single(i => i.Label == "Rattrapage").Screen;
+        var targetDate = catchUp.Days[0].Date;
+
+        catchUp.Days[0].OpenCommand.Execute(null);
+
+        var day = Assert.IsType<DayViewModel>(viewModel.CurrentScreen);
+        Assert.Equal(targetDate, day.SelectedDate);
+        Assert.True(viewModel.NavigationItems[0].IsSelected);
+    }
+
+    // La remontée du Rattrapage s'arrête au premier jour ouvré sans aucune ligne (cf. CatchUpDayCalculator) :
+    // il faut une ligne sur le dernier jour ouvré avant "aujourd'hui" pour obtenir un jour non complété.
+    private static FakeTimeBlockRepository RepositoryWithOneIncompleteDayBeforeToday()
+    {
+        var repository = new FakeTimeBlockRepository();
+        var date = DateOnly.FromDateTime(DateTime.Today).AddDays(-1);
+        while (!CatchUpDayCalculator.IsBusinessDay(date))
+        {
+            date = date.AddDays(-1);
+        }
+
+        repository.Insert(new TimeBlock(date, date.ToDateTime(TimeOnly.MinValue), date.ToDateTime(TimeOnly.MinValue).AddHours(1),
+            "Résumé", "ULISTROIS-1", "POSID", "ZWPID", string.Empty, 1.0, TimeBlockStatus.Proposed, null));
+        return repository;
     }
 
     private sealed class FakeSettingsRepository : ISettingsRepository

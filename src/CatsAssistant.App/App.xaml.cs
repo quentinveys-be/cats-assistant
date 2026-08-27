@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Forms;
+using CatsAssistant.App.Services;
 using CatsAssistant.App.Themes;
 using CatsAssistant.App.ViewModels;
 using CatsAssistant.App.Views;
@@ -30,6 +31,7 @@ public partial class App : Application
     private SqliteConnection? _businessConnection;
     private IActivityEventRepository? _repository;
     private ISettingsRepository? _settingsRepository;
+    private ITimeBlockRepository? _timeBlockRepository;
     private ActivityCollector? _collector;
     private SyncService? _syncService;
     private YubiKeyVaultCoordinator? _vaultCoordinator;
@@ -203,6 +205,7 @@ public partial class App : Application
             var businessDatabasePath = SqliteConnectionFactory.GetDefaultBusinessDatabasePath();
             var businessMigrator = new SqliteMigrator(SqliteMigrator.BusinessMigrations);
             _businessConnection = new SqliteConnectionFactory(businessDatabasePath, _vaultCoordinator.CachedKey!, businessMigrator).OpenConnection();
+            _timeBlockRepository = new SqliteTimeBlockRepository(_businessConnection);
         }
         catch (Exception ex) when (ex is SqliteException or IOException or UnauthorizedAccessException)
         {
@@ -397,9 +400,20 @@ public partial class App : Application
 
     private static string FormatDuration(TimeSpan duration) => $"{(int)duration.TotalHours}:{duration.Minutes:D2}";
 
-    // ponytail: le pipeline qui compte les blocs à corréler manuellement (rattrapage) n'existe pas encore
-    // côté App (le Correlator n'y est pas branché) — à câbler quand cet écran aura ses données réelles.
-    private static int GetCatchUpCount() => 0;
+    // Nombre de jours ouvrés non complétés (issue #22) : recalculé à chaque ouverture du menu tray
+    // (contextMenu.Opening → RefreshTrayMenu), donc toujours synchronisé sans état à invalider.
+    private int GetCatchUpCount()
+    {
+        if (_timeBlockRepository is null)
+        {
+            return 0;
+        }
+
+        var expectedHoursPerDay = WorkScheduleSettings.ExpectedHoursPerDay(_settingsRepository);
+        return CatchUpDayCalculator
+            .ComputeIncompleteDays(_timeBlockRepository, DateOnly.FromDateTime(DateTime.Today), expectedHoursPerDay)
+            .Count(d => d.Status is not (CatchUpDayStatus.Validated or CatchUpDayStatus.InProgress));
+    }
 
     private static void SelectDay(MainWindowViewModel viewModel) => viewModel.NavigationItems[0].SelectCommand.Execute(null);
 
@@ -440,7 +454,7 @@ public partial class App : Application
     {
         if (_mainWindow is null)
         {
-            var viewModel = new MainWindowViewModel(_syncService, _settingsRepository, _vaultCoordinator);
+            var viewModel = new MainWindowViewModel(_syncService, _settingsRepository, _vaultCoordinator, _timeBlockRepository);
             _mainWindow = new MainWindow(viewModel);
             _mainWindow.Closed += (_, _) => _mainWindow = null;
             select?.Invoke(viewModel);
@@ -463,6 +477,7 @@ public partial class App : Application
         if (_syncService is null) return;
 
         await _syncService.SyncAllAsync();
+        RefreshTrayMenu();
     }
 
     // "Tester la clé" (issue #26) : toujours affiché, même coffre déjà déverrouillé (confirme qu'il reste
@@ -475,6 +490,7 @@ public partial class App : Application
         {
             OpenBusinessDatabase();
             InitializeSyncService();
+            RefreshTrayMenu();
         }
     }
 
