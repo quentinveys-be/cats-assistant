@@ -20,12 +20,25 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
     public MainWindowViewModel(
         SyncService? syncService,
         ISettingsRepository? settingsRepository = null,
-        YubiKeyVaultCoordinator? vaultCoordinator = null)
+        YubiKeyVaultCoordinator? vaultCoordinator = null,
+        ITimeBlockRepository? timeBlockRepository = null)
     {
         _settingsRepository = settingsRepository;
 
         var day = new NavigationItemViewModel("Journée", new DayViewModel(), Select);
-        var catchUp = new NavigationItemViewModel("Rattrapage", new CatchUpViewModel(), Select);
+        var catchUpScreen = new CatchUpViewModel(timeBlockRepository, settingsRepository, date => OpenDay(day, date));
+        var catchUp = new NavigationItemViewModel("Rattrapage", catchUpScreen, Select,
+            catchUpScreen.IncompleteDayCount > 0 ? catchUpScreen.IncompleteDayCount : null);
+
+        // Badge synchronisé sur les validations faites dans l'écran (tâche 5 de l'issue #22).
+        catchUpScreen.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(CatchUpViewModel.IncompleteDayCount))
+            {
+                catchUp.BadgeCount = catchUpScreen.IncompleteDayCount > 0 ? catchUpScreen.IncompleteDayCount : null;
+            }
+        };
+
         var summary = new NavigationItemViewModel("Récapitulatif", new SummaryViewModel(), Select);
         SettingsItem = new NavigationItemViewModel("Paramètres", new SettingsViewModel(), Select);
 
@@ -73,6 +86,14 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
 
         SettingsItem.IsSelected = SettingsItem == item;
         CurrentScreen = item.Screen;
+    }
+
+    // "Ouvrir la journée" (issue #22) : bascule sur l'écran Journée avec la date ciblée. La timeline
+    // elle-même est hors périmètre tant que cet écran n'est pas implémenté.
+    private void OpenDay(NavigationItemViewModel day, DateOnly date)
+    {
+        ((DayViewModel)day.Screen).SelectedDate = date;
+        Select(day);
     }
 
     public void Dispose() => StatusBar.Dispose();

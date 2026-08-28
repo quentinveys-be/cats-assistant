@@ -1,0 +1,28 @@
+using CatsAssistant.Store;
+
+namespace CatsAssistant.Tests.App;
+
+/// <summary>En mémoire (CLAUDE.md, pas de base réelle en test) : suffisant pour couvrir GetByDateRange/Update.</summary>
+internal sealed class FakeTimeBlockRepository : ITimeBlockRepository
+{
+    private readonly Dictionary<long, TimeBlock> _blocks = [];
+    private long _nextId = 1;
+
+    public long Insert(TimeBlock timeBlock)
+    {
+        var id = _nextId++;
+        _blocks[id] = timeBlock;
+        return id;
+    }
+
+    public void Update(long id, TimeBlock timeBlock) => _blocks[id] = timeBlock;
+
+    public TimeBlockRow? GetById(long id) => _blocks.TryGetValue(id, out var block) ? new TimeBlockRow(id, block) : null;
+
+    public IReadOnlyList<TimeBlockRow> GetByDateRange(DateOnly fromDate, DateOnly toDate) =>
+        _blocks
+            .Where(kvp => kvp.Value.Date >= fromDate && kvp.Value.Date <= toDate)
+            .Select(kvp => new TimeBlockRow(kvp.Key, kvp.Value))
+            .OrderBy(row => row.TimeBlock.StartUtc)
+            .ToList();
+}
