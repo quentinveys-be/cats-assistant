@@ -1,11 +1,15 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:conv="clr-namespace:CatsAssistant.App.Converters">
 
     <!-- Styles implicites des contrôles récurrents (issue #16) : boutons, chips de statut, interrupteur,
          cartes. Toutes les couleurs sont en DynamicResource pour suivre la bascule clair/sombre à chaud.
          ponytail : pas de steppers ni de segmented control ici — aucun écran ne les consomme encore et
          leur gabarit exact (valeurs min/max, segments) sera fixé par l'écran qui les introduira ; les
          ajouter à l'aveugle risquerait de ne pas correspondre à la maquette réelle. -->
+
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    <conv:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
 
     <DropShadowEffect x:Key="CardShadowEffect" Color="Black" Opacity="0.07" BlurRadius="3" ShadowDepth="1" Direction="270" />
     <DropShadowEffect x:Key="FlyoutShadowEffect" Color="Black" Opacity="0.14" BlurRadius="16" ShadowDepth="8" Direction="270" />
