@@ -454,7 +454,17 @@ public partial class App : Application
     {
         if (_mainWindow is null)
         {
-            var viewModel = new MainWindowViewModel(_syncService, _settingsRepository, _vaultCoordinator, _timeBlockRepository);
+            var viewModel = _businessConnection is null
+                ? new MainWindowViewModel(_syncService, _settingsRepository, _vaultCoordinator, _repository, _timeBlockRepository)
+                : new MainWindowViewModel(
+                    _syncService,
+                    _settingsRepository,
+                    _vaultCoordinator,
+                    _repository,
+                    _timeBlockRepository,
+                    new SqliteCalendarEventRepository(_businessConnection),
+                    new SqliteVcsCommitRepository(_businessConnection),
+                    new SqliteRuleRepository(_businessConnection));
             _mainWindow = new MainWindow(viewModel);
             _mainWindow.Closed += (_, _) => _mainWindow = null;
             select?.Invoke(viewModel);

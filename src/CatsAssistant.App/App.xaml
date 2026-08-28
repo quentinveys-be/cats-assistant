@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="Themes/Typography.xaml" />
                 <ResourceDictionary Source="Themes/ControlStyles.xaml" />
                 <ResourceDictionary Source="Themes/ShellStyles.xaml" />
+                <ResourceDictionary Source="Themes/TimelineStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

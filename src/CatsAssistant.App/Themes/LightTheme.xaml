@@ -66,4 +66,26 @@
     <SolidColorBrush x:Key="TimelineUncorrelatedFillBrush" Color="#F2F2F2" />
     <SolidColorBrush x:Key="TimelineUncorrelatedStrokeBrush" Color="#BDBDBD" />
 
+    <!-- Motif de hachures du segment "non corrélé" (issue #17) : tuile 6x6 diagonale, couleurs figées en
+         dur comme le reste de ce dictionnaire (pas de DynamicResource imbriquée dans un Freezable). -->
+    <DrawingBrush x:Key="TimelineUncorrelatedHatchBrush" Viewport="0,0,6,6" ViewportUnits="Absolute" TileMode="Tile">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#F2F2F2">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,6,6" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#BDBDBD" Thickness="1.4" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="0,6" EndPoint="6,0" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
 </ResourceDictionary>

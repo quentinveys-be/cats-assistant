@@ -65,4 +65,25 @@
     <SolidColorBrush x:Key="TimelineUncorrelatedFillBrush" Color="#2A2A2A" />
     <SolidColorBrush x:Key="TimelineUncorrelatedStrokeBrush" Color="#454545" />
 
+    <!-- Motif de hachures du segment "non corrélé" (issue #17), voir LightTheme.xaml. -->
+    <DrawingBrush x:Key="TimelineUncorrelatedHatchBrush" Viewport="0,0,6,6" ViewportUnits="Absolute" TileMode="Tile">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#2A2A2A">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,6,6" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#454545" Thickness="1.4" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="0,6" EndPoint="6,0" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
 </ResourceDictionary>

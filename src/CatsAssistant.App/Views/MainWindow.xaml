@@ -21,6 +21,9 @@
         <DataTemplate DataType="{x:Type vm:ScreenViewModelBase}">
             <views:PlaceholderView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DayViewModel}">
+            <views:DayView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:CatchUpViewModel}">
             <views:CatchUpView />
         </DataTemplate>

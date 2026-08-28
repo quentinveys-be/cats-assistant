@@ -1,0 +1,93 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Styles de l'écran Journée (issue #17) : teinte par ticket (t1-t4), inactivité, non corrélé — dérivés
+         de TimelineHue par DataTrigger, même pattern que ConnectorPillTemplate (ShellStyles.xaml). -->
+
+    <Style x:Key="TimelineSegmentBorderStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="{DynamicResource TimelineIdleFillBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource TimelineIdleStrokeBrush}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Hue}" Value="Uncorrelated">
+                <Setter Property="Background" Value="{DynamicResource TimelineUncorrelatedHatchBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TimelineUncorrelatedStrokeBrush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue1">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue1TintBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TimelineHue1Brush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue2">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue2TintBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TimelineHue2Brush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue3">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue3TintBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TimelineHue3Brush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue4">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue4TintBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TimelineHue4Brush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Liseré 3 px gauche coloré : uniquement visible pour les segments corrélés (t1-t4). -->
+    <Style x:Key="TimelineSegmentAccentBarStyle" TargetType="Border">
+        <Setter Property="Background" Value="Transparent" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue1">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue1Brush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue2">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue2Brush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue3">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue3Brush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue4">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue4Brush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Plage CATS regroupée : fond teinté + liseré gauche 3 px (BorderThickness non uniforme). -->
+    <Style x:Key="TimelineGroupBorderStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="BorderThickness" Value="3,1,1,1" />
+        <Setter Property="Background" Value="{DynamicResource TimelineHue1TintBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource TimelineHue1Brush}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue2">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue2TintBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TimelineHue2Brush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue3">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue3TintBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TimelineHue3Brush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Hue}" Value="Hue4">
+                <Setter Property="Background" Value="{DynamicResource TimelineHue4TintBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TimelineHue4Brush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Point de statut de la ligne CATS associée (proposed/edited/validated/submitted). -->
+    <Style x:Key="TimelineStatusDotStyle" TargetType="Ellipse">
+        <Setter Property="Fill" Value="{DynamicResource AccentFillBrush}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Status}" Value="Edited">
+                <Setter Property="Fill" Value="{DynamicResource CautionBrush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Validated">
+                <Setter Property="Fill" Value="{DynamicResource SuccessBrush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Submitted">
+                <Setter Property="Fill" Value="{DynamicResource NeutralChipBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

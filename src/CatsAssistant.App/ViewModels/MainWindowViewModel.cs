@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CatsAssistant.App.Mvvm;
+using CatsAssistant.Correlator;
 using CatsAssistant.Store;
 
 namespace CatsAssistant.App.ViewModels;
@@ -21,13 +22,23 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         SyncService? syncService,
         ISettingsRepository? settingsRepository = null,
         YubiKeyVaultCoordinator? vaultCoordinator = null,
-        ITimeBlockRepository? timeBlockRepository = null)
+        IActivityEventRepository? activityEventRepository = null,
+        ITimeBlockRepository? timeBlockRepository = null,
+        ICalendarEventRepository? calendarEventRepository = null,
+        IVcsCommitRepository? vcsCommitRepository = null,
+        IRuleRepository? ruleRepository = null,
+        ICorrelationEngine? correlationEngine = null)
     {
         _settingsRepository = settingsRepository;
 
-        var day = new NavigationItemViewModel("Journée", new DayViewModel(), Select);
-        var catchUpScreen = new CatchUpViewModel(timeBlockRepository, settingsRepository, date => OpenDay(day, date));
-        var catchUp = new NavigationItemViewModel("Rattrapage", catchUpScreen, Select,
+        // "day" et "catchUp" se référencent mutuellement (navigation Journée <-> Rattrapage, issues #17/#22) :
+        // déclarés avant leur construction pour que les deux fermetures (navigateToCatchUp / openDay) les
+        // capturent par variable, résolue à l'exécution plutôt qu'à la construction.
+        NavigationItemViewModel? day = null;
+        NavigationItemViewModel? catchUp = null;
+
+        var catchUpScreen = new CatchUpViewModel(timeBlockRepository, settingsRepository, date => OpenDay(day!, date));
+        catchUp = new NavigationItemViewModel("Rattrapage", catchUpScreen, Select,
             catchUpScreen.IncompleteDayCount > 0 ? catchUpScreen.IncompleteDayCount : null);
 
         // Badge synchronisé sur les validations faites dans l'écran (tâche 5 de l'issue #22).
@@ -38,6 +49,16 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
                 catchUp.BadgeCount = catchUpScreen.IncompleteDayCount > 0 ? catchUpScreen.IncompleteDayCount : null;
             }
         };
+
+        var dayScreen = new DayViewModel(
+            activityEventRepository,
+            timeBlockRepository,
+            calendarEventRepository,
+            vcsCommitRepository,
+            ruleRepository,
+            correlationEngine,
+            navigateToCatchUp: () => Select(catchUp!));
+        day = new NavigationItemViewModel("Journée", dayScreen, Select);
 
         var summary = new NavigationItemViewModel("Récapitulatif", new SummaryViewModel(), Select);
         SettingsItem = new NavigationItemViewModel("Paramètres", new SettingsViewModel(), Select);
@@ -88,8 +109,7 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         CurrentScreen = item.Screen;
     }
 
-    // "Ouvrir la journée" (issue #22) : bascule sur l'écran Journée avec la date ciblée. La timeline
-    // elle-même est hors périmètre tant que cet écran n'est pas implémenté.
+    // "Ouvrir la journée" (issue #22) : bascule sur l'écran Journée avec la date ciblée.
     private void OpenDay(NavigationItemViewModel day, DateOnly date)
     {
         ((DayViewModel)day.Screen).SelectedDate = date;
