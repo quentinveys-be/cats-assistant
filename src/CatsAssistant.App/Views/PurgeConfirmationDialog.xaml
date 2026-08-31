@@ -1,0 +1,77 @@
+<Window x:Class="CatsAssistant.App.Views.PurgeConfirmationDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CatsAssistant.App.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Purger les données locales ?" Height="460" Width="440"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{StaticResource LayerBackgroundBrush}"
+        d:DataContext="{d:DesignInstance vm:PurgeConfirmationViewModel}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Purger les données locales ?" FontSize="16" FontWeight="SemiBold"
+                   Foreground="{StaticResource TextFillPrimaryBrush}" TextWrapping="Wrap" />
+
+        <TextBlock Grid.Row="1" Margin="0,6,0,16" TextWrapping="Wrap" FontSize="13"
+                   Foreground="{StaticResource TextFillSecondaryBrush}"
+                   Text="Cette action est définitive et ne touche pas SAP." />
+
+        <Border Grid.Row="2" Background="{StaticResource CriticalBgBrush}" BorderBrush="{StaticResource CriticalStrokeBrush}"
+                BorderThickness="1,1,1,1" CornerRadius="6" Padding="12,10" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="Seront supprimés" FontSize="12" FontWeight="SemiBold"
+                           Foreground="{StaticResource CriticalBrush}" Margin="0,0,0,6" />
+                <TextBlock FontSize="12" Foreground="{StaticResource TextFillSecondaryBrush}">
+                    <Run Text="{Binding Preview.ActivityEvents, Mode=OneWay}" />
+                    <Run Text=" événement(s) d'activité" />
+                </TextBlock>
+                <TextBlock FontSize="12" Foreground="{StaticResource TextFillSecondaryBrush}">
+                    <Run Text="{Binding Preview.UnsubmittedTimeBlocks, Mode=OneWay}" />
+                    <Run Text=" bloc(s) non soumis" />
+                </TextBlock>
+                <TextBlock FontSize="12" Foreground="{StaticResource TextFillSecondaryBrush}">
+                    <Run Text="{Binding Preview.LearnedRules, Mode=OneWay}" />
+                    <Run Text=" règle(s) apprise(s)" />
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="3" Background="{StaticResource CardBackgroundSecondaryBrush}" CornerRadius="6" Padding="12,10" Margin="0,0,0,16">
+            <StackPanel>
+                <TextBlock Text="Seront conservés" FontSize="12" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextFillPrimaryBrush}" Margin="0,0,0,6" />
+                <TextBlock Text="Lignes soumises (et leur Counter SAP)" FontSize="12" Foreground="{StaticResource TextFillSecondaryBrush}" />
+                <TextBlock Text="Tokens du coffre (JIRA, GitLab)" FontSize="12" Foreground="{StaticResource TextFillSecondaryBrush}" />
+                <TextBlock Text="Règles manuelles" FontSize="12" Foreground="{StaticResource TextFillSecondaryBrush}" />
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Row="4" Margin="0,0,0,8">
+            <TextBlock Text="Saisissez PURGER pour confirmer" FontSize="12" Margin="0,0,0,4"
+                       Foreground="{StaticResource TextFillSecondaryBrush}" />
+            <TextBox Text="{Binding ConfirmationText, UpdateSourceTrigger=PropertyChanged}" Height="32"
+                     VerticalContentAlignment="Center" Padding="8,0"
+                     AutomationProperties.Name="Confirmation de purge" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Annuler" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CancelCommand}"
+                    Width="100" Margin="0,0,8,0" IsCancel="True" />
+            <Button Content="Purger" Style="{StaticResource DestructiveButtonStyle}" Command="{Binding PurgeCommand}"
+                    Width="100" />
+        </StackPanel>
+    </Grid>
+</Window>

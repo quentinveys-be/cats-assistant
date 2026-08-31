@@ -6,7 +6,7 @@ namespace CatsAssistant.Collector;
 /// In-process foreground/idle capture via SetWinEventHook + GetLastInputInfo (ADR D2).
 /// Runs inside the WPF App process rather than as a separate service, since the project is user-mode only.
 /// </summary>
-public sealed class ActivityCollector : IDisposable
+public sealed class ActivityCollector : IDisposable, IActivityCollectorControl
 {
     private readonly IActivityEventRepository _repository;
     private readonly IdleDetector _idleDetector;

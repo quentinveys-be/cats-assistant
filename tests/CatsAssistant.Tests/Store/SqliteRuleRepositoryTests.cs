@@ -84,6 +84,36 @@ public class SqliteRuleRepositoryTests
         Assert.Empty(repository.GetAll());
     }
 
+    [Fact]
+    public void CountByOrigin_CountsOnlyMatchingOrigin()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteRuleRepository(connection);
+
+        repository.Insert(SampleRule with { Origin = RuleOrigin.Manual });
+        repository.Insert(SampleRule with { Origin = RuleOrigin.Learned, Priority = 2 });
+        repository.Insert(SampleRule with { Origin = RuleOrigin.Learned, Priority = 3 });
+
+        Assert.Equal(2, repository.CountByOrigin(RuleOrigin.Learned));
+        Assert.Equal(1, repository.CountByOrigin(RuleOrigin.Manual));
+    }
+
+    [Fact]
+    public void DeleteByOrigin_KeepsManualRules()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteRuleRepository(connection);
+
+        var manualId = repository.Insert(SampleRule with { Origin = RuleOrigin.Manual });
+        repository.Insert(SampleRule with { Origin = RuleOrigin.Learned, Priority = 2 });
+
+        var deleted = repository.DeleteByOrigin(RuleOrigin.Learned);
+
+        Assert.Equal(1, deleted);
+        var stored = Assert.Single(repository.GetAll());
+        Assert.Equal(manualId, stored.Id);
+    }
+
     private static SqliteConnection OpenMigratedConnection()
     {
         var connection = new SqliteConnection("DataSource=:memory:");

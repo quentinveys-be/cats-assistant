@@ -83,6 +83,28 @@ public sealed class SqliteRuleRepository : IRuleRepository
         }
     }
 
+    public int CountByOrigin(RuleOrigin origin)
+    {
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM rules WHERE origin = $origin;";
+            command.Parameters.AddWithValue("$origin", FormatOrigin(origin));
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+    }
+
+    public int DeleteByOrigin(RuleOrigin origin)
+    {
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "DELETE FROM rules WHERE origin = $origin;";
+            command.Parameters.AddWithValue("$origin", FormatOrigin(origin));
+            return command.ExecuteNonQuery();
+        }
+    }
+
     private static void BindParameters(SqliteCommand command, Rule rule)
     {
         command.Parameters.AddWithValue("$matcherKind", FormatMatcherKind(rule.MatcherKind));

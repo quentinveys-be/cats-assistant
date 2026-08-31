@@ -76,6 +76,33 @@ public class SqliteActivityEventRepositoryTests
         Assert.Equal("recent.exe", stored.Process);
     }
 
+    [Fact]
+    public void Count_ReturnsNumberOfStoredEvents()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteActivityEventRepository(connection);
+
+        repository.Insert(DateTime.UtcNow, ActivityEventKind.Foreground, "a.exe", "a", null);
+        repository.Insert(DateTime.UtcNow, ActivityEventKind.Foreground, "b.exe", "b", null);
+
+        Assert.Equal(2, repository.Count());
+    }
+
+    [Fact]
+    public void DeleteAll_RemovesEveryEvent()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteActivityEventRepository(connection);
+
+        repository.Insert(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), ActivityEventKind.Foreground, "old.exe", "old", null);
+        repository.Insert(DateTime.UtcNow, ActivityEventKind.Foreground, "recent.exe", "recent", null);
+
+        var deleted = repository.DeleteAll();
+
+        Assert.Equal(2, deleted);
+        Assert.Equal(0, repository.Count());
+    }
+
     private static SqliteConnection OpenMigratedConnection()
     {
         var connection = new SqliteConnection("DataSource=:memory:");

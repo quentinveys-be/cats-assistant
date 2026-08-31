@@ -8,8 +8,7 @@ using CatsAssistant.Store;
 namespace CatsAssistant.App.ViewModels;
 
 /// <summary>
-/// Écran Journée (issue #17) : timeline capturée branchée sur le Correlator, et panneau « Lignes CATS
-/// proposées » (issue #18) branché sur les mêmes <c>time_blocks</c> du jour. Toutes les dépendances sont
+/// Écran Journée (issue #17) : timeline capturée branchée sur le Correlator. Toutes les dépendances sont
 /// optionnelles pour dégrader en écran vide quand la base métier est verrouillée (pas de YubiKey), comme
 /// le reste de l'app (docs/adr/D6).
 /// </summary>
@@ -17,16 +16,12 @@ public sealed class DayViewModel : ScreenViewModelBase
 {
     private static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("fr-FR");
 
-    // Journée de travail complète du prototype (docs/design/screens/cats-assistant.dc.html) : 7h36.
-    private const double ExpectedDailyHours = 7.6;
-
     private readonly IActivityEventRepository? _activityEventRepository;
     private readonly ITimeBlockRepository? _timeBlockRepository;
     private readonly ICalendarEventRepository? _calendarEventRepository;
     private readonly IVcsCommitRepository? _vcsCommitRepository;
     private readonly IRuleRepository? _ruleRepository;
     private readonly ICorrelationEngine _correlationEngine;
-    private readonly Action? _navigateToSummary;
 
     private DateOnly _selectedDate;
     private string _dayLabel = string.Empty;
@@ -35,9 +30,6 @@ public sealed class DayViewModel : ScreenViewModelBase
     private double _timelineHeight;
     private string _rawHeader = string.Empty;
     private string _groupHeader = string.Empty;
-    private string _totalProposedLabel = FormatHours(0);
-    private double _gaugePercent;
-    private int _validatedLinesCount;
 
     public DayViewModel(
         IActivityEventRepository? activityEventRepository = null,
@@ -46,8 +38,7 @@ public sealed class DayViewModel : ScreenViewModelBase
         IVcsCommitRepository? vcsCommitRepository = null,
         IRuleRepository? ruleRepository = null,
         ICorrelationEngine? correlationEngine = null,
-        Action? navigateToCatchUp = null,
-        Action? navigateToSummary = null)
+        Action? navigateToCatchUp = null)
         : base("Journée")
     {
         _activityEventRepository = activityEventRepository;
@@ -56,21 +47,17 @@ public sealed class DayViewModel : ScreenViewModelBase
         _vcsCommitRepository = vcsCommitRepository;
         _ruleRepository = ruleRepository;
         _correlationEngine = correlationEngine ?? new CorrelationEngine();
-        _navigateToSummary = navigateToSummary;
 
         PreviousDayCommand = new RelayCommand(() => LoadDay(_selectedDate.AddDays(-1)));
         NextDayCommand = new RelayCommand(() => LoadDay(_selectedDate.AddDays(1)));
         TodayCommand = new RelayCommand(() => LoadDay(DateOnly.FromDateTime(DateTime.Now)));
         GoToCatchUpCommand = new RelayCommand(() => navigateToCatchUp?.Invoke(), () => navigateToCatchUp is not null);
-        ValidateAllCommand = new RelayCommand(ValidateAll);
-        GoToSummaryCommand = new RelayCommand(() => _navigateToSummary?.Invoke());
 
         Hours = [];
         Segments = [];
         Groups = [];
         Gaps = [];
         Meetings = [];
-        Lines = [];
 
         LoadDay(DateOnly.FromDateTime(DateTime.Now));
     }
@@ -83,10 +70,6 @@ public sealed class DayViewModel : ScreenViewModelBase
 
     public RelayCommand GoToCatchUpCommand { get; }
 
-    public RelayCommand ValidateAllCommand { get; }
-
-    public RelayCommand GoToSummaryCommand { get; }
-
     public ObservableCollection<HourMarkItem> Hours { get; }
 
     public ObservableCollection<TimelineSegmentItem> Segments { get; }
@@ -96,8 +79,6 @@ public sealed class DayViewModel : ScreenViewModelBase
     public ObservableCollection<TimelineGapItem> Gaps { get; }
 
     public ObservableCollection<TimelineMeetingItem> Meetings { get; }
-
-    public ObservableCollection<CatsLineViewModel> Lines { get; }
 
     /// <summary>Jour ciblé par la navigation "Ouvrir la journée" du Rattrapage (issue #22) : assigner une
     /// valeur recharge immédiatement la timeline sur ce jour.</summary>
@@ -157,26 +138,6 @@ public sealed class DayViewModel : ScreenViewModelBase
         private set => SetProperty(ref _groupHeader, value);
     }
 
-    public string ExpectedLabel { get; } = FormatHours(ExpectedDailyHours);
-
-    public string TotalProposedLabel
-    {
-        get => _totalProposedLabel;
-        private set => SetProperty(ref _totalProposedLabel, value);
-    }
-
-    public double GaugePercent
-    {
-        get => _gaugePercent;
-        private set => SetProperty(ref _gaugePercent, value);
-    }
-
-    public int ValidatedLinesCount
-    {
-        get => _validatedLinesCount;
-        private set => SetProperty(ref _validatedLinesCount, value);
-    }
-
     private void LoadDay(DateOnly date)
     {
         _selectedDate = date;
@@ -207,17 +168,6 @@ public sealed class DayViewModel : ScreenViewModelBase
         IncompleteDaysCount = _timeBlockRepository is null
             ? 0
             : IncompleteDaysCounter.CountIncompleteWeekdays(_timeBlockRepository, DateOnly.FromDateTime(DateTime.Now));
-
-        Lines.Clear();
-        if (_timeBlockRepository is not null)
-        {
-            foreach (var row in _timeBlockRepository.GetByDateRange(date, date))
-            {
-                Lines.Add(new CatsLineViewModel(row, _timeBlockRepository, RecomputeLineAggregates));
-            }
-        }
-
-        RecomputeLineAggregates();
     }
 
     private DayTimeline BuildTimeline(DateOnly date)
@@ -239,27 +189,5 @@ public sealed class DayViewModel : ScreenViewModelBase
         var correlation = _correlationEngine.Correlate(activityEvents, commits, meetings, rules: rules);
 
         return DayTimelineBuilder.Build(activityEvents, correlation, meetings, timeBlocksForDay);
-    }
-
-    private void ValidateAll()
-    {
-        foreach (var line in Lines)
-        {
-            line.Validate();
-        }
-    }
-
-    private void RecomputeLineAggregates()
-    {
-        var totalHours = Lines.Sum(l => l.DurationHours);
-        TotalProposedLabel = FormatHours(totalHours);
-        GaugePercent = Math.Min(100, totalHours / ExpectedDailyHours * 100);
-        ValidatedLinesCount = Lines.Count(l => l.Status is TimeBlockStatus.Validated or TimeBlockStatus.Submitted);
-    }
-
-    private static string FormatHours(double hours)
-    {
-        var totalMinutes = (int)Math.Round(hours * 60, MidpointRounding.AwayFromZero);
-        return string.Create(CultureInfo.InvariantCulture, $"{totalMinutes / 60}:{totalMinutes % 60:00}");
     }
 }
