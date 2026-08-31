@@ -400,14 +400,29 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type vm:TimelineGapItem}">
-                                        <Border Margin="{Binding Margin}" Height="{Binding Height}" VerticalAlignment="Top"
-                                                CornerRadius="3" BorderThickness="1" Background="{DynamicResource CautionBgBrush}"
-                                                BorderBrush="{DynamicResource CautionBrush}"
-                                                AutomationProperties.Name="{Binding Label}">
-                                            <TextBlock Text="{Binding Label}" Style="{StaticResource MicroTextStyle}"
-                                                       Foreground="{DynamicResource CautionBrush}" HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                        </Border>
+                                        <!-- Ouvre le dialogue « Imputer cette plage » (issue #19). -->
+                                        <Button Margin="{Binding Margin}" Height="{Binding Height}" VerticalAlignment="Top"
+                                                Cursor="Hand" FocusVisualStyle="{StaticResource AccentFocusVisualStyle}"
+                                                Command="{Binding DataContext.EditGapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                AutomationProperties.Name="{Binding AutomationLabel}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="Bg" CornerRadius="3" BorderThickness="1"
+                                                            Background="{DynamicResource CautionBgBrush}"
+                                                            BorderBrush="{DynamicResource CautionBrush}">
+                                                        <TextBlock Text="{Binding Label}" Style="{StaticResource MicroTextStyle}"
+                                                                   Foreground="{DynamicResource CautionBrush}" HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="Bg" Property="BorderThickness" Value="2" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -420,24 +435,33 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type vm:TimelineGroupItem}">
-                                        <Border Margin="{Binding Margin}" Height="{Binding Height}" VerticalAlignment="Top"
-                                                Style="{StaticResource TimelineGroupBorderStyle}" Padding="8,0"
-                                                AutomationProperties.Name="{Binding MetaLabel}">
-                                            <Grid>
-                                                <StackPanel VerticalAlignment="Center">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Key}" Style="{StaticResource MicroTextStyle}"
-                                                                   TextTrimming="CharacterEllipsis" FontFamily="{StaticResource MonoFontFamily}" />
-                                                        <TextBlock Text=" · " Style="{StaticResource MicroTextStyle}" />
-                                                        <TextBlock Text="{Binding DurationLabel}" Style="{StaticResource MicroTextStyle}" />
-                                                    </StackPanel>
-                                                    <TextBlock Text="{Binding MetaLabel}" Style="{StaticResource CaptionTextStyle}"
-                                                               Visibility="{Binding ShowMeta, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                                </StackPanel>
-                                                <Ellipse Width="6" Height="6" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                                         Style="{StaticResource TimelineStatusDotStyle}" />
-                                            </Grid>
-                                        </Border>
+                                        <!-- Ouvre le dialogue « Modifier la plage CATS » (issue #19). -->
+                                        <Button Margin="{Binding Margin}" Height="{Binding Height}" VerticalAlignment="Top"
+                                                Cursor="Hand" FocusVisualStyle="{StaticResource AccentFocusVisualStyle}"
+                                                Command="{Binding DataContext.EditGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                AutomationProperties.Name="{Binding AutomationLabel}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Style="{StaticResource TimelineGroupBorderStyle}" Padding="8,0">
+                                                        <Grid>
+                                                            <StackPanel VerticalAlignment="Center">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding Key}" Style="{StaticResource MicroTextStyle}"
+                                                                               TextTrimming="CharacterEllipsis" FontFamily="{StaticResource MonoFontFamily}" />
+                                                                    <TextBlock Text=" · " Style="{StaticResource MicroTextStyle}" />
+                                                                    <TextBlock Text="{Binding DurationLabel}" Style="{StaticResource MicroTextStyle}" />
+                                                                </StackPanel>
+                                                                <TextBlock Text="{Binding MetaLabel}" Style="{StaticResource CaptionTextStyle}"
+                                                                           Visibility="{Binding ShowMeta, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                            </StackPanel>
+                                                            <Ellipse Width="6" Height="6" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                                     Style="{StaticResource TimelineStatusDotStyle}" />
+                                                        </Grid>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -450,25 +474,34 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type vm:TimelineSegmentItem}">
-                                        <Border Margin="{Binding Margin}" Height="{Binding Height}" Width="306"
-                                                HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True"
-                                                Style="{StaticResource TimelineSegmentBorderStyle}"
+                                        <!-- Ouvre le dialogue « Modifier l'activité capturée » (issue #19). -->
+                                        <Button Margin="{Binding Margin}" Height="{Binding Height}" Width="306"
+                                                HorizontalAlignment="Left" VerticalAlignment="Top"
+                                                Cursor="Hand" FocusVisualStyle="{StaticResource AccentFocusVisualStyle}"
+                                                Command="{Binding DataContext.EditSegmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
                                                 AutomationProperties.Name="{Binding AutomationLabel}">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Border Width="3" VerticalAlignment="Stretch" CornerRadius="2,0,0,2"
-                                                        Style="{StaticResource TimelineSegmentAccentBarStyle}" />
-                                                <TextBlock Text="{Binding StartTimeLabel}" Margin="6,0,0,0" Style="{StaticResource MicroTextStyle}"
-                                                           Foreground="{DynamicResource TextFillTertiaryBrush}" FontWeight="Normal"
-                                                           Typography.NumeralAlignment="Tabular"
-                                                           Visibility="{Binding ShowStartTime, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                                <TextBlock Text="{Binding Process}" Margin="6,0,0,0" Style="{StaticResource MicroTextStyle}"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Visibility="{Binding ShowLabels, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                                <TextBlock Text="{Binding Detail}" Margin="6,0,6,0" Style="{StaticResource CaptionTextStyle}"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Visibility="{Binding ShowLabels, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                            </StackPanel>
-                                        </Border>
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border ClipToBounds="True" Style="{StaticResource TimelineSegmentBorderStyle}">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <Border Width="3" VerticalAlignment="Stretch" CornerRadius="2,0,0,2"
+                                                                    Style="{StaticResource TimelineSegmentAccentBarStyle}" />
+                                                            <TextBlock Text="{Binding StartTimeLabel}" Margin="6,0,0,0" Style="{StaticResource MicroTextStyle}"
+                                                                       Foreground="{DynamicResource TextFillTertiaryBrush}" FontWeight="Normal"
+                                                                       Typography.NumeralAlignment="Tabular"
+                                                                       Visibility="{Binding ShowStartTime, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                            <TextBlock Text="{Binding Process}" Margin="6,0,0,0" Style="{StaticResource MicroTextStyle}"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       Visibility="{Binding ShowLabels, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                            <TextBlock Text="{Binding Detail}" Margin="6,0,6,0" Style="{StaticResource CaptionTextStyle}"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       Visibility="{Binding ShowLabels, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>

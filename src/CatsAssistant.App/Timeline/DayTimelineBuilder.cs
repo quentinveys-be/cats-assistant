@@ -49,29 +49,49 @@ public static class DayTimelineBuilder
             .Select(entry => BuildSegment(entry, correlation.Blocks, hueByKey, meetings, TopUtc))
             .ToList();
 
+        // Zones « à imputer » du corrélateur, moins celles déjà couvertes par une plage manuelle (un
+        // time_block créé par le dialogue d'édition, issue #19) : une zone imputée disparaît de la timeline
+        // et sa plage manuelle rejoint la colonne des plages CATS.
+        var uncorrelatedBlocks = correlation.Blocks.Where(b => b.JiraKey is null && !b.NoAttribution).ToList();
+        var manualRanges = timeBlocksForDay
+            .Where(row => uncorrelatedBlocks.Any(b => Overlaps(row.TimeBlock, b)))
+            .ToList();
+
         var jiraBlocks = correlation.Blocks.Where(b => b.JiraKey is not null).ToList();
-        var plageCountByKey = jiraBlocks.GroupBy(b => b.JiraKey!).ToDictionary(g => g.Key, g => g.Count());
-        var plageSeenByKey = new Dictionary<string, int>();
-        var groups = jiraBlocks.Select(block =>
+        var groupSpecs = jiraBlocks
+            .Select(b => (Key: b.JiraKey!, b.StartUtc, b.EndUtc,
+                Status: statusByKey.GetValueOrDefault(b.JiraKey!, TimeBlockStatus.Proposed)))
+            .Concat(manualRanges.Select(r => (Key: r.TimeBlock.JiraKey ?? "Sans ticket",
+                r.TimeBlock.StartUtc, r.TimeBlock.EndUtc, r.TimeBlock.Status)))
+            .OrderBy(s => s.StartUtc)
+            .ToList();
+
+        foreach (var spec in groupSpecs.Where(s => !hueByKey.ContainsKey(s.Key)))
         {
-            var key = block.JiraKey!;
-            plageSeenByKey[key] = plageSeenByKey.GetValueOrDefault(key) + 1;
-            var rawHeight = TopUtc(block.EndUtc) - TopUtc(block.StartUtc);
+            hueByKey[spec.Key] = Hues[hueByKey.Count % Hues.Length];
+        }
+
+        var plageCountByKey = groupSpecs.GroupBy(s => s.Key).ToDictionary(g => g.Key, g => g.Count());
+        var plageSeenByKey = new Dictionary<string, int>();
+        var groups = groupSpecs.Select(spec =>
+        {
+            plageSeenByKey[spec.Key] = plageSeenByKey.GetValueOrDefault(spec.Key) + 1;
+            var rawHeight = TopUtc(spec.EndUtc) - TopUtc(spec.StartUtc);
             return new TimelineGroup(
-                key,
-                block.StartUtc.ToLocalTime(),
-                block.EndUtc.ToLocalTime(),
-                hueByKey[key],
-                statusByKey.GetValueOrDefault(key, TimeBlockStatus.Proposed),
-                plageSeenByKey[key],
-                plageCountByKey[key],
-                TopUtc(block.StartUtc) + 1,
+                spec.Key,
+                spec.StartUtc.ToLocalTime(),
+                spec.EndUtc.ToLocalTime(),
+                hueByKey[spec.Key],
+                spec.Status,
+                plageSeenByKey[spec.Key],
+                plageCountByKey[spec.Key],
+                TopUtc(spec.StartUtc) + 1,
                 Math.Max(1, rawHeight - 3),
                 rawHeight >= 28);
         }).ToList();
 
-        var gaps = correlation.Blocks
-            .Where(b => b.JiraKey is null && !b.NoAttribution)
+        var gaps = uncorrelatedBlocks
+            .Where(b => !manualRanges.Any(r => Overlaps(r.TimeBlock, b)))
             .Select(block =>
             {
                 var rawHeight = TopUtc(block.EndUtc) - TopUtc(block.StartUtc);
@@ -109,7 +129,10 @@ public static class DayTimelineBuilder
         IReadOnlyList<CalendarEventData> meetings,
         Func<DateTime, double> topUtc)
     {
-        var hue = entry.IsIdle ? TimelineHue.Idle : HueOf(entry, blocks, hueByKey);
+        var jiraKey = entry.IsIdle ? null : KeyOf(entry, blocks);
+        var hue = entry.IsIdle
+            ? TimelineHue.Idle
+            : jiraKey is not null ? hueByKey[jiraKey] : TimelineHue.Uncorrelated;
         var rawHeight = topUtc(entry.EndUtc) - topUtc(entry.StartUtc);
 
         // Un segment ne masque son libellé que sous une réunion assez haute pour porter le sien
@@ -124,31 +147,32 @@ public static class DayTimelineBuilder
             entry.Process,
             entry.Detail,
             hue,
+            jiraKey,
             topUtc(entry.StartUtc),
             Math.Max(3, rawHeight - 1.5),
             ShowLabels: rawHeight >= 11 && !under,
             ShowStartTime: rawHeight >= 13 && !under);
     }
 
-    private static TimelineHue HueOf(
+    private static string? KeyOf(
         (DateTime StartUtc, DateTime EndUtc, string? Process, string? Detail, bool IsIdle) entry,
-        IReadOnlyList<CorrelatedBlock> blocks,
-        IReadOnlyDictionary<string, TimelineHue> hueByKey)
-    {
-        var block = blocks.FirstOrDefault(b => b.StartUtc <= entry.StartUtc && entry.EndUtc <= b.EndUtc);
-        return block?.JiraKey is { } key ? hueByKey[key] : TimelineHue.Uncorrelated;
-    }
+        IReadOnlyList<CorrelatedBlock> blocks) =>
+        blocks.FirstOrDefault(b => b.StartUtc <= entry.StartUtc && entry.EndUtc <= b.EndUtc)?.JiraKey;
+
+    private static readonly TimelineHue[] Hues = [TimelineHue.Hue1, TimelineHue.Hue2, TimelineHue.Hue3, TimelineHue.Hue4];
+
+    private static bool Overlaps(TimeBlock timeBlock, CorrelatedBlock block) =>
+        timeBlock.StartUtc < block.EndUtc && block.StartUtc < timeBlock.EndUtc;
 
     private static Dictionary<string, TimelineHue> AssignHues(IReadOnlyList<CorrelatedBlock> blocks)
     {
-        var hues = new[] { TimelineHue.Hue1, TimelineHue.Hue2, TimelineHue.Hue3, TimelineHue.Hue4 };
         var map = new Dictionary<string, TimelineHue>();
 
         foreach (var block in blocks)
         {
             if (block.JiraKey is { } key && !map.ContainsKey(key))
             {
-                map[key] = hues[map.Count % hues.Length];
+                map[key] = Hues[map.Count % Hues.Length];
             }
         }
 

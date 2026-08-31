@@ -11,6 +11,7 @@ public sealed record TimelineSegment(
     string? Process,
     string? Detail,
     TimelineHue Hue,
+    string? JiraKey,
     double Top,
     double Height,
     bool ShowLabels,

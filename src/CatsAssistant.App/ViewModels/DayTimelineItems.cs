@@ -18,7 +18,8 @@ public sealed record HourMarkItem(string Label, Thickness LabelMargin, Thickness
 
 public sealed record TimelineSegmentItem(
     Thickness Margin, double Height, TimelineHue Hue, string? Process, string? Detail,
-    bool ShowLabels, bool ShowStartTime, string StartTimeLabel, string AutomationLabel)
+    bool ShowLabels, bool ShowStartTime, string StartTimeLabel, string AutomationLabel,
+    DateTime StartLocal, DateTime EndLocal, string? JiraKey)
 {
     public static TimelineSegmentItem From(TimelineSegment segment) => new(
         new Thickness(46, segment.Top, 0, 0),
@@ -29,12 +30,16 @@ public sealed record TimelineSegmentItem(
         segment.ShowLabels,
         segment.ShowStartTime,
         segment.StartLocal.ToString("HH:mm"),
-        $"{segment.StartLocal:HH:mm}–{segment.EndLocal:HH:mm} · {segment.Process ?? "Inactivité"} · {segment.Detail}");
+        $"{segment.StartLocal:HH:mm}–{segment.EndLocal:HH:mm} · {segment.Process ?? "Inactivité"} · {segment.Detail}",
+        segment.StartLocal,
+        segment.EndLocal,
+        segment.JiraKey);
 }
 
 public sealed record TimelineGroupItem(
     Thickness Margin, double Height, TimelineHue Hue, TimeBlockStatus Status,
-    string Key, string DurationLabel, bool ShowMeta, string MetaLabel)
+    string Key, string DurationLabel, bool ShowMeta, string MetaLabel,
+    DateTime StartLocal, DateTime EndLocal)
 {
     public static TimelineGroupItem From(TimelineGroup group) => new(
         new Thickness(362, group.Top, 6, 0),
@@ -45,7 +50,11 @@ public sealed record TimelineGroupItem(
         FormatDuration(group.EndLocal - group.StartLocal),
         group.ShowMeta,
         $"{group.StartLocal:HH:mm}–{group.EndLocal:HH:mm}" +
-            (group.PlageCount > 1 ? $" · plage {group.PlageIndex}/{group.PlageCount}" : string.Empty));
+            (group.PlageCount > 1 ? $" · plage {group.PlageIndex}/{group.PlageCount}" : string.Empty),
+        group.StartLocal,
+        group.EndLocal);
+
+    public string AutomationLabel => $"Modifier la plage CATS {Key} · {MetaLabel}";
 
     private static string FormatDuration(TimeSpan span)
     {
@@ -54,12 +63,17 @@ public sealed record TimelineGroupItem(
     }
 }
 
-public sealed record TimelineGapItem(Thickness Margin, double Height, string? Label)
+public sealed record TimelineGapItem(
+    Thickness Margin, double Height, string? Label, DateTime StartLocal, DateTime EndLocal)
 {
+    public string AutomationLabel => $"Imputer cette plage · {StartLocal:HH:mm}–{EndLocal:HH:mm}";
+
     public static TimelineGapItem From(TimelineGap gap) => new(
         new Thickness(362, gap.Top, 6, 0),
         gap.Height,
-        gap.Label);
+        gap.Label,
+        gap.StartLocal,
+        gap.EndLocal);
 }
 
 public sealed record TimelineMeetingItem(Thickness Margin, double Height, string Subject, string TimeLabel, bool ShowLabel)

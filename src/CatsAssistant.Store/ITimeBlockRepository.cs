@@ -6,6 +6,8 @@ public interface ITimeBlockRepository
 
     void Update(long id, TimeBlock timeBlock);
 
+    void Delete(long id);
+
     TimeBlockRow? GetById(long id);
 
     /// <summary>

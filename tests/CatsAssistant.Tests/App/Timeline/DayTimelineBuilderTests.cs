@@ -69,6 +69,52 @@ public class DayTimelineBuilderTests
     }
 
     [Fact]
+    public void Build_UncorrelatedBlockCoveredByTimeBlock_BecomesManualGroupInsteadOfGap()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "chrome.exe", "sans ticket", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.IdleStart, null, null, null),
+        };
+        var block = new CorrelatedBlock(Day, Day.AddMinutes(20), null, null);
+        var correlation = new CorrelationResult([block], [], []);
+        // Zone imputée par le dialogue d'édition (issue #19) : le time_block couvre le bloc non corrélé.
+        var manualRange = new TimeBlockRow(1, new TimeBlock(
+            DateOnly.FromDateTime(Day), Day, Day.AddMinutes(20), "Imputation manuelle", "ULISTROIS-3428",
+            "P.X-01", "ZS042", "note", 20 / 60.0, TimeBlockStatus.Edited, null));
+
+        var result = DayTimelineBuilder.Build(events, correlation, [], [manualRange]);
+
+        Assert.Empty(result.Gaps);
+        var group = Assert.Single(result.Groups);
+        Assert.Equal("ULISTROIS-3428", group.JiraKey);
+        Assert.Equal(TimeBlockStatus.Edited, group.Status);
+    }
+
+    [Fact]
+    public void Build_TimeBlockWithoutOverlappingUncorrelatedBlock_DoesNotCreateGroup()
+    {
+        var events = new[]
+        {
+            new ActivityEvent(1, Day, ActivityEventKind.Foreground, "idea64.exe", "ULISTROIS-3101", null),
+            new ActivityEvent(2, Day.AddMinutes(20), ActivityEventKind.IdleStart, null, null, null),
+        };
+        var block = new CorrelatedBlock(Day, Day.AddMinutes(20), "ULISTROIS-3101", null);
+        var correlation = new CorrelationResult([block], [], []);
+        // Ligne à durée seule (édition du panneau) : ne chevauche aucune zone non corrélée, la timeline
+        // continue d'afficher uniquement les plages du corrélateur.
+        var lineOnly = new TimeBlockRow(1, new TimeBlock(
+            DateOnly.FromDateTime(Day), Day, Day.AddMinutes(20), "src", "ULISTROIS-3101",
+            "P.X-01", "ZS042", "note", 1.5, TimeBlockStatus.Edited, null));
+
+        var result = DayTimelineBuilder.Build(events, correlation, [], [lineOnly]);
+
+        var group = Assert.Single(result.Groups);
+        Assert.Equal("ULISTROIS-3101", group.JiraKey);
+        Assert.Equal(TimeBlockStatus.Edited, group.Status); // statut relu depuis la ligne du jour
+    }
+
+    [Fact]
     public void Build_NoAttributionBlock_ProducesNoGap()
     {
         var events = new[]

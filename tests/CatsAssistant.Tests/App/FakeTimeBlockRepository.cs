@@ -17,6 +17,8 @@ internal sealed class FakeTimeBlockRepository : ITimeBlockRepository
 
     public void Update(long id, TimeBlock timeBlock) => _blocks[id] = timeBlock;
 
+    public void Delete(long id) => _blocks.Remove(id);
+
     public TimeBlockRow? GetById(long id) => _blocks.TryGetValue(id, out var block) ? new TimeBlockRow(id, block) : null;
 
     public IReadOnlyList<TimeBlockRow> GetByDateRange(DateOnly fromDate, DateOnly toDate) =>

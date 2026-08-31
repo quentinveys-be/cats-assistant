@@ -8,7 +8,7 @@ namespace CatsAssistant.App.ViewModels;
 /// Une carte du panneau « Lignes CATS proposées » (issue #18), portée par une ligne <see cref="TimeBlock"/>.
 /// Le cycle de statut manipulable au clic ne couvre que Validé ⇄ Proposé (comme le prototype :
 /// <c>onValidate</c> ne fait que basculer 'validated'/'proposed') ; le passage à Modifié vient du dialogue
-/// d'édition, hors périmètre de cette issue.
+/// d'édition (issue #19), ouvert par le bouton « Modifier ».
 /// </summary>
 public sealed class CatsLineViewModel : ObservableObject
 {
@@ -16,17 +16,20 @@ public sealed class CatsLineViewModel : ObservableObject
     private readonly Action _onChanged;
     private TimeBlockRow _row;
 
-    public CatsLineViewModel(TimeBlockRow row, ITimeBlockRepository repository, Action onChanged)
+    public CatsLineViewModel(
+        TimeBlockRow row, ITimeBlockRepository repository, Action onChanged, Action<CatsLineViewModel>? onEdit = null)
     {
         _row = row;
         _repository = repository;
         _onChanged = onChanged;
 
         ToggleValidateCommand = new RelayCommand(ToggleValidate, () => Status != TimeBlockStatus.Submitted);
-        // ponytail : dialogue d'édition = issue dédiée ; le bouton "Modifier" existe pour la parité
-        // visuelle mais n'ouvre encore rien.
-        EditCommand = new RelayCommand(() => { });
+        EditCommand = new RelayCommand(() => onEdit?.Invoke(this), () => onEdit is not null);
     }
+
+    public long Id => _row.Id;
+
+    public TimeBlock Block => _row.TimeBlock;
 
     public double DurationHours => _row.TimeBlock.DurationHours;
 
