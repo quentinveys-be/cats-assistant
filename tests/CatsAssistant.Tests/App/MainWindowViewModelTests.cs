@@ -56,6 +56,27 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void Constructor_WithoutTimeBlockRepository_SummaryBadgeStartsAtZero()
+    {
+        using var viewModel = new MainWindowViewModel(syncService: null);
+
+        var summary = viewModel.NavigationItems.Single(i => i.Label == "Récapitulatif");
+        Assert.Equal(0, summary.BadgeCount);
+    }
+
+    [Fact]
+    public void DayScreen_GoToSummaryCommand_NavigatesToSummary()
+    {
+        using var viewModel = new MainWindowViewModel(syncService: null);
+        var day = (DayViewModel)viewModel.CurrentScreen;
+
+        day.GoToSummaryCommand.Execute(null);
+
+        Assert.IsType<SummaryViewModel>(viewModel.CurrentScreen);
+        Assert.True(viewModel.NavigationItems.Single(i => i.Label == "Récapitulatif").IsSelected);
+    }
+
+    [Fact]
     public void Dispose_DoesNotThrow()
     {
         var viewModel = new MainWindowViewModel(syncService: null);
