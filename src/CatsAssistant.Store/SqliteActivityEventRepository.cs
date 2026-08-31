@@ -83,6 +83,26 @@ public sealed class SqliteActivityEventRepository : IActivityEventRepository
         }
     }
 
+    public int Count()
+    {
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM activity_events;";
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+    }
+
+    public int DeleteAll()
+    {
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "DELETE FROM activity_events;";
+            return command.ExecuteNonQuery();
+        }
+    }
+
     private static ActivityEvent ReadEvent(SqliteDataReader reader)
     {
         return new ActivityEvent(

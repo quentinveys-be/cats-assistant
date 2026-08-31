@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace CatsAssistant.App.Converters;
 
-/// <summary>Visible quand la valeur liée est false (ex. état vide, ligne en mode affichage).</summary>
+/// <summary>Visible quand la valeur liée est false (ex. contenu masqué par l'état vide, issue #17).</summary>
 public sealed class InverseBooleanToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
