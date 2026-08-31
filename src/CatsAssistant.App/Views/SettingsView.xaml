@@ -11,6 +11,8 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <conv:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibility" />
+        <conv:NullableToVisibilityConverter x:Key="NullableToVisibility" />
+        <conv:EqualityConverter x:Key="EqualsConverter" />
 
         <!-- Chip "Connexions" pilotée par ConnectionStatus (NotConfigured/Connected/Expired) — Jira & GitLab. -->
         <Style x:Key="ConnectionStatusChipStyle" TargetType="ContentControl" BasedOn="{StaticResource StatusChipBaseStyle}">
@@ -98,12 +100,6 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="SelectedSettingsTabButtonStyle" TargetType="Button" BasedOn="{StaticResource SettingsTabButtonStyle}">
-            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
-
         <!-- Chip "Origine" d'une règle (RuleOrigin) : manuelle = neutre, apprise = accent. -->
         <Style x:Key="RuleOriginChipStyle" TargetType="ContentControl" BasedOn="{StaticResource StatusChipBaseStyle}">
             <Setter Property="Foreground" Value="{DynamicResource NeutralChipBrush}" />
@@ -174,6 +170,28 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
+
+        <Style x:Key="SegmentButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="Width" Value="72" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <Style x:Key="StepperButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+
+        <Style x:Key="SettingsSectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+        </Style>
+
+        <Style x:Key="ToggleRowStyle" TargetType="DockPanel">
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
@@ -193,7 +211,9 @@
                         <Style TargetType="Button" BasedOn="{StaticResource SettingsTabButtonStyle}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedTab}" Value="Connexions">
-                                    <Setter Property="Style" Value="{StaticResource SelectedSettingsTabButtonStyle}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -204,7 +224,35 @@
                         <Style TargetType="Button" BasedOn="{StaticResource SettingsTabButtonStyle}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedTab}" Value="Regles">
-                                    <Setter Property="Style" Value="{StaticResource SelectedSettingsTabButtonStyle}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="Capture" Command="{Binding SelectCaptureTabCommand}" AutomationProperties.Name="Onglet Capture">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SettingsTabButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsCaptureTabSelected}" Value="True">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="Données" Command="{Binding SelectDataTabCommand}" AutomationProperties.Name="Onglet Données">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SettingsTabButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDataTabSelected}" Value="True">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -518,6 +566,189 @@
                             </Border>
                         </StackPanel>
                     </Border>
+                </StackPanel>
+
+                <!-- Onglet Capture -->
+                <StackPanel MaxWidth="640" HorizontalAlignment="Left"
+                            Visibility="{Binding IsCaptureTabSelected, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel DataContext="{Binding Capture}">
+                        <TextBlock Text="Seuil d'inactivité" Style="{StaticResource SettingsSectionTitleStyle}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <Button Content="−" Style="{StaticResource StepperButtonStyle}"
+                                    Command="{Binding DecrementIdleThresholdCommand}"
+                                    AutomationProperties.Name="Diminuer le seuil d'inactivité" />
+                            <Border Width="72" Height="32" BorderBrush="{DynamicResource ControlStrokeBrush}" BorderThickness="0,1,0,1">
+                                <TextBlock Text="{Binding IdleThresholdMinutes, StringFormat='{}{0} min'}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                            </Border>
+                            <Button Content="+" Style="{StaticResource StepperButtonStyle}"
+                                    Command="{Binding IncrementIdleThresholdCommand}"
+                                    AutomationProperties.Name="Augmenter le seuil d'inactivité" />
+                        </StackPanel>
+
+                        <TextBlock Text="Durée minimale d'un bloc" Style="{StaticResource SettingsSectionTitleStyle}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <Button Content="10 min"
+                                    Command="{Binding SelectMinBlockCommand}" CommandParameter="10">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SegmentButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <Binding Path="MinBlockMinutes" Converter="{StaticResource EqualsConverter}" ConverterParameter="10" />
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="15 min"
+                                    Command="{Binding SelectMinBlockCommand}" CommandParameter="15">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SegmentButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <Binding Path="MinBlockMinutes" Converter="{StaticResource EqualsConverter}" ConverterParameter="15" />
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="30 min"
+                                    Command="{Binding SelectMinBlockCommand}" CommandParameter="30">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SegmentButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <Binding Path="MinBlockMinutes" Converter="{StaticResource EqualsConverter}" ConverterParameter="30" />
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding RestartNotice}" Foreground="{DynamicResource CautionBrush}" FontSize="12"
+                                   Margin="0,-12,0,16" TextWrapping="Wrap"
+                                   Visibility="{Binding RestartNotice, Converter={StaticResource NullableToVisibility}}" />
+
+                        <DockPanel Style="{StaticResource ToggleRowStyle}">
+                            <CheckBox DockPanel.Dock="Right" Style="{StaticResource ToggleSwitchStyle}"
+                                      IsChecked="{Binding IsAutostartEnabled}"
+                                      AutomationProperties.Name="Capture au démarrage de Windows" />
+                            <TextBlock Text="Capture au démarrage de Windows" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                        </DockPanel>
+
+                        <DockPanel Style="{StaticResource ToggleRowStyle}">
+                            <CheckBox DockPanel.Dock="Right" Style="{StaticResource ToggleSwitchStyle}"
+                                      IsChecked="{Binding IsPaused}"
+                                      AutomationProperties.Name="Capture en pause" />
+                            <TextBlock Text="Capture en pause" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                        </DockPanel>
+
+                        <Border Background="{DynamicResource CardBackgroundSecondaryBrush}" CornerRadius="6" Padding="14,12" Margin="0,8,0,0">
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextFillSecondaryBrush}"
+                                       Text="Jamais capturés : frappes clavier, captures d'écran, contenu des documents." />
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Onglet Données -->
+                <StackPanel MaxWidth="640" HorizontalAlignment="Left"
+                            Visibility="{Binding IsDataTabSelected, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel DataContext="{Binding Data}">
+                        <TextBlock Text="Rétention" Style="{StaticResource SettingsSectionTitleStyle}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <Button Content="30 j"
+                                    Command="{Binding SelectRetentionCommand}" CommandParameter="30">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SegmentButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <Binding Path="RetentionDays" Converter="{StaticResource EqualsConverter}" ConverterParameter="30" />
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="90 j"
+                                    Command="{Binding SelectRetentionCommand}" CommandParameter="90">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SegmentButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <Binding Path="RetentionDays" Converter="{StaticResource EqualsConverter}" ConverterParameter="90" />
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="180 j"
+                                    Command="{Binding SelectRetentionCommand}" CommandParameter="180">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SegmentButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <Binding Path="RetentionDays" Converter="{StaticResource EqualsConverter}" ConverterParameter="180" />
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+
+                        <TextBlock Text="Base locale" Style="{StaticResource SettingsSectionTitleStyle}" />
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="{Binding DatabasePath}" FontSize="12" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextFillSecondaryBrush}" Margin="0,0,0,4" />
+                                <TextBlock FontSize="12" Foreground="{DynamicResource TextFillSecondaryBrush}">
+                                    <Run Text="{Binding DatabaseSizeText, Mode=OneWay}" />
+                                    <Run Text=" · " />
+                                    <Run Text="{Binding EventCount, Mode=OneWay}" />
+                                    <Run Text=" événement(s)" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Exporter (CSV)" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"
+                                    IsEnabled="False" ToolTip="Export CSV à venir (issue dédiée)." />
+                            <Button x:Name="PurgeButton" Content="Purger les données" Style="{StaticResource DestructiveButtonStyle}"
+                                    IsEnabled="{Binding CanPurge}" Click="OnPurgeClick" />
+                        </StackPanel>
+                    </StackPanel>
                 </StackPanel>
 
             </Grid>

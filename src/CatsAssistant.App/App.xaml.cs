@@ -32,11 +32,12 @@ public partial class App : Application
     private IActivityEventRepository? _repository;
     private ISettingsRepository? _settingsRepository;
     private ITimeBlockRepository? _timeBlockRepository;
+    private IRuleRepository? _ruleRepository;
     private ActivityCollector? _collector;
+    private string _activityDatabasePath = string.Empty;
     private SyncService? _syncService;
     private YubiKeyVaultCoordinator? _vaultCoordinator;
     private ISecretVault? _secretVault;
-    private IRuleRepository? _ruleRepository;
     private bool _yubiKeyDialogOpen;
     private HttpClient? _jiraHttpClient;
     private HttpClient? _gitLabHttpClient;
@@ -56,6 +57,7 @@ public partial class App : Application
 
         var legacyDatabasePath = SqliteConnectionFactory.GetDefaultDatabasePath();
         var activityDatabasePath = SqliteConnectionFactory.GetDefaultActivityDatabasePath();
+        _activityDatabasePath = activityDatabasePath;
         _dataDirectory = Path.GetDirectoryName(activityDatabasePath)!;
 
         var activityKey = new DpapiActivityKeyStore(DpapiActivityKeyStore.GetDefaultKeyFilePath()).GetOrCreateKey();
@@ -68,12 +70,21 @@ public partial class App : Application
         _settingsRepository = new SqliteSettingsRepository(_connection);
         ThemeService.Apply(_settingsRepository.Get("ui.theme") == "dark");
 
-        // Retention is 90 days (docs/data-model.md, ADR D3); startup is the only moment the app is
-        // guaranteed to reach in a user-mode, no-scheduler deployment.
-        new ActivityEventRetentionPurger(_repository).Purge();
+        // Retention is 90 days by default, configurable from Paramètres → Données (issue #23); startup is
+        // the only moment the app is guaranteed to reach in a user-mode, no-scheduler deployment.
+        var retentionDays = SettingsInt.ParseOrDefault(
+            _settingsRepository.Get(DataSettingsViewModel.RetentionDaysKey), (int)ActivityEventRetentionPurger.DefaultRetention.TotalDays);
+        new ActivityEventRetentionPurger(_repository, TimeSpan.FromDays(retentionDays)).Purge();
 
-        _collector = new ActivityCollector(_repository);
-        _collector.Start();
+        var idleThresholdMinutes = SettingsInt.ParseOrDefault(
+            _settingsRepository.Get(CaptureSettingsViewModel.IdleThresholdMinutesKey), (int)IdleDetector.DefaultThreshold.TotalMinutes);
+        _collector = new ActivityCollector(_repository, TimeSpan.FromMinutes(idleThresholdMinutes));
+
+        var startsPaused = _settingsRepository.Get(CaptureSettingsViewModel.PausedKey) == "true";
+        if (!startsPaused)
+        {
+            _collector.Start();
+        }
 
         _vaultCoordinator = new YubiKeyVaultCoordinator(new BusinessMasterKeyProvider(
             BusinessMasterKeyProvider.GetDefaultChallengeFilePath(),
@@ -443,6 +454,10 @@ public partial class App : Application
             _collector.Start();
         }
 
+        // Garde le toggle "Paramètres → Capture → Capture en pause" en phase avec celui-ci — même réglage,
+        // deux points d'entrée (tray et Settings).
+        _settingsRepository?.Set(CaptureSettingsViewModel.PausedKey, _collector.IsRunning ? "false" : "true");
+
         RefreshTrayMenu();
     }
 
@@ -459,10 +474,22 @@ public partial class App : Application
     {
         if (_mainWindow is null)
         {
+            var purgeService = _timeBlockRepository is not null && _ruleRepository is not null && _repository is not null
+                ? new ManualPurgeService(_repository, _timeBlockRepository, _ruleRepository)
+                : null;
+
             var viewModel = _businessConnection is null
                 ? new MainWindowViewModel(
-                    _syncService, _settingsRepository, _vaultCoordinator, _repository, _timeBlockRepository,
-                    secretVault: _secretVault)
+                    _syncService,
+                    _settingsRepository,
+                    _vaultCoordinator,
+                    _repository,
+                    _timeBlockRepository,
+                    secretVault: _secretVault,
+                    collector: _collector,
+                    startupRegistration: _startupRegistration,
+                    purgeService: purgeService,
+                    activityDatabasePath: _activityDatabasePath)
                 : new MainWindowViewModel(
                     _syncService,
                     _settingsRepository,
@@ -473,7 +500,11 @@ public partial class App : Application
                     new SqliteVcsCommitRepository(_businessConnection),
                     _ruleRepository,
                     secretVault: _secretVault,
-                    jiraTicketRepository: new SqliteJiraTicketRepository(_businessConnection));
+                    jiraTicketRepository: new SqliteJiraTicketRepository(_businessConnection),
+                    collector: _collector,
+                    startupRegistration: _startupRegistration,
+                    purgeService: purgeService,
+                    activityDatabasePath: _activityDatabasePath);
             _mainWindow = new MainWindow(viewModel);
             _mainWindow.Closed += (_, _) => _mainWindow = null;
             select?.Invoke(viewModel);

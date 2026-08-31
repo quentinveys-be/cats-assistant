@@ -9,4 +9,8 @@ public interface IActivityEventRepository
     void Delete(long id);
 
     int DeleteOlderThan(DateTime thresholdUtc);
+
+    int Count();
+
+    int DeleteAll();
 }

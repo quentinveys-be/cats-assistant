@@ -178,5 +178,9 @@ public class DayViewModelTests
         public void Delete(long id) => throw new NotSupportedException();
 
         public int DeleteOlderThan(DateTime thresholdUtc) => throw new NotSupportedException();
+
+        public int Count() => throw new NotSupportedException();
+
+        public int DeleteAll() => throw new NotSupportedException();
     }
 }

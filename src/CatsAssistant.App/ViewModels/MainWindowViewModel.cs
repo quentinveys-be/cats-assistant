@@ -1,4 +1,5 @@
 using CatsAssistant.App.Mvvm;
+using CatsAssistant.Collector;
 using CatsAssistant.Correlator;
 using CatsAssistant.Secrets;
 using CatsAssistant.Store;
@@ -29,7 +30,11 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         IRuleRepository? ruleRepository = null,
         ICorrelationEngine? correlationEngine = null,
         ISecretVault? secretVault = null,
-        IJiraTicketRepository? jiraTicketRepository = null)
+        IJiraTicketRepository? jiraTicketRepository = null,
+        IActivityCollectorControl? collector = null,
+        IStartupRegistration? startupRegistration = null,
+        ManualPurgeService? purgeService = null,
+        string? activityDatabasePath = null)
     {
         _settingsRepository = settingsRepository;
 
@@ -83,7 +88,10 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
             ? new ConnectionsViewModel(secretVault, settingsRepository, vaultCoordinator, syncService)
             : null;
         var rules = ruleRepository is not null ? new RulesViewModel(ruleRepository) : null;
-        SettingsItem = new NavigationItemViewModel("Paramètres", new SettingsViewModel(connections, rules), Select);
+        var captureSettings = new CaptureSettingsViewModel(settingsRepository, collector, startupRegistration);
+        var dataSettings = new DataSettingsViewModel(settingsRepository, activityEventRepository, purgeService, activityDatabasePath);
+        SettingsItem = new NavigationItemViewModel("Paramètres",
+            new SettingsViewModel(connections, rules, captureSettings, dataSettings), Select);
 
         NavigationItems = [day, catchUp, summary];
 

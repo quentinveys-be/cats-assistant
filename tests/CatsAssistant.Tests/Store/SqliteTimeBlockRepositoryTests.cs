@@ -108,6 +108,37 @@ public class SqliteTimeBlockRepositoryTests
         Assert.Equal(new DateOnly(2026, 8, 13), stored.TimeBlock.Date);
     }
 
+    [Fact]
+    public void CountUnsubmitted_ExcludesSubmittedBlocks()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteTimeBlockRepository(connection);
+
+        repository.Insert(SampleTimeBlock with { Status = TimeBlockStatus.Proposed });
+        repository.Insert(SampleTimeBlock with { Status = TimeBlockStatus.Validated });
+        repository.Insert(SampleTimeBlock with { Status = TimeBlockStatus.Submitted, SapCounter = "000123" });
+
+        Assert.Equal(2, repository.CountUnsubmitted());
+    }
+
+    [Fact]
+    public void DeleteUnsubmitted_KeepsSubmittedBlocksAndTheirCounter()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteTimeBlockRepository(connection);
+
+        repository.Insert(SampleTimeBlock with { Status = TimeBlockStatus.Proposed });
+        var submittedId = repository.Insert(SampleTimeBlock with { Status = TimeBlockStatus.Submitted, SapCounter = "000123" });
+
+        var deleted = repository.DeleteUnsubmitted();
+
+        Assert.Equal(1, deleted);
+        var remaining = repository.GetByDateRange(DateOnly.MinValue, DateOnly.MaxValue);
+        var stored = Assert.Single(remaining);
+        Assert.Equal(submittedId, stored.Id);
+        Assert.Equal("000123", stored.TimeBlock.SapCounter);
+    }
+
     private static SqliteConnection OpenMigratedConnection()
     {
         var connection = new SqliteConnection("DataSource=:memory:");

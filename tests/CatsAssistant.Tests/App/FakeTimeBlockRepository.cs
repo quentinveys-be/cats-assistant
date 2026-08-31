@@ -25,4 +25,13 @@ internal sealed class FakeTimeBlockRepository : ITimeBlockRepository
             .Select(kvp => new TimeBlockRow(kvp.Key, kvp.Value))
             .OrderBy(row => row.TimeBlock.StartUtc)
             .ToList();
+
+    public int CountUnsubmitted() => _blocks.Count(kvp => kvp.Value.Status != TimeBlockStatus.Submitted);
+
+    public int DeleteUnsubmitted()
+    {
+        var ids = _blocks.Where(kvp => kvp.Value.Status != TimeBlockStatus.Submitted).Select(kvp => kvp.Key).ToList();
+        foreach (var id in ids) _blocks.Remove(id);
+        return ids.Count;
+    }
 }

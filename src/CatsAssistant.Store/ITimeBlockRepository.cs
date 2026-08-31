@@ -14,4 +14,9 @@ public interface ITimeBlockRepository
     /// des jours calendaires (DateOnly), pas des instants.
     /// </summary>
     IReadOnlyList<TimeBlockRow> GetByDateRange(DateOnly fromDate, DateOnly toDate);
+
+    /// <summary>Blocs non soumis (proposed/edited/validated) — ceux que la purge manuelle efface.</summary>
+    int CountUnsubmitted();
+
+    int DeleteUnsubmitted();
 }
