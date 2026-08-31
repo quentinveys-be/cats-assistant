@@ -5,11 +5,13 @@ namespace CatsAssistant.Tests.App;
 public class SettingsViewModelTests
 {
     [Fact]
-    public void Constructor_SelectsCaptureTabByDefault()
+    public void Constructor_SelectsConnexionsTabByDefault()
     {
+        // Onglets fusionnés (issues #24 + #23) : Connexions est le premier onglet, donc celui par défaut.
         var viewModel = new SettingsViewModel();
 
-        Assert.True(viewModel.IsCaptureTabSelected);
+        Assert.Equal(SettingsTab.Connexions, viewModel.SelectedTab);
+        Assert.False(viewModel.IsCaptureTabSelected);
         Assert.False(viewModel.IsDataTabSelected);
     }
 

@@ -1,7 +1,7 @@
-using System.Collections.ObjectModel;
 using CatsAssistant.App.Mvvm;
 using CatsAssistant.Collector;
 using CatsAssistant.Correlator;
+using CatsAssistant.Secrets;
 using CatsAssistant.Store;
 
 namespace CatsAssistant.App.ViewModels;
@@ -29,6 +29,8 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         IVcsCommitRepository? vcsCommitRepository = null,
         IRuleRepository? ruleRepository = null,
         ICorrelationEngine? correlationEngine = null,
+        ISecretVault? secretVault = null,
+        IJiraTicketRepository? jiraTicketRepository = null,
         IActivityCollectorControl? collector = null,
         IStartupRegistration? startupRegistration = null,
         ManualPurgeService? purgeService = null,
@@ -36,9 +38,10 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
     {
         _settingsRepository = settingsRepository;
 
-        // "day" et "catchUp" se référencent mutuellement (navigation Journée <-> Rattrapage, issues #17/#22) :
-        // déclarés avant leur construction pour que les deux fermetures (navigateToCatchUp / openDay) les
-        // capturent par variable, résolue à l'exécution plutôt qu'à la construction.
+        // "day", "catchUp" et "summary" se référencent mutuellement (navigation Journée <-> Rattrapage,
+        // issues #17/#22 ; Journée -> Récapitulatif, issue #18) : déclarés avant leur construction pour que
+        // les fermetures (navigateToCatchUp / navigateToSummary / openDay) les capturent par variable,
+        // résolue à l'exécution plutôt qu'à la construction.
         NavigationItemViewModel? day = null;
         NavigationItemViewModel? catchUp = null;
 
@@ -55,6 +58,8 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
             }
         };
 
+        var summary = new NavigationItemViewModel("Récapitulatif", new SummaryViewModel(), Select);
+
         var dayScreen = new DayViewModel(
             activityEventRepository,
             timeBlockRepository,
@@ -62,14 +67,31 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
             vcsCommitRepository,
             ruleRepository,
             correlationEngine,
-            navigateToCatchUp: () => Select(catchUp!));
+            navigateToCatchUp: () => Select(catchUp!),
+            navigateToSummary: () => Select(summary),
+            jiraTicketRepository: jiraTicketRepository);
         day = new NavigationItemViewModel("Journée", dayScreen, Select);
 
-        var summary = new NavigationItemViewModel("Récapitulatif", new SummaryViewModel(), Select);
+        // Badge du nombre de lignes CATS validées (issue #18), tenu à jour en direct.
+        dayScreen.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(DayViewModel.ValidatedLinesCount))
+            {
+                summary.BadgeCount = dayScreen.ValidatedLinesCount;
+            }
+        };
+        summary.BadgeCount = dayScreen.ValidatedLinesCount;
 
+        // Coffre verrouillé ou base métier indisponible au démarrage (docs/adr/D6, mode dégradé) : les
+        // onglets restent affichés mais désactivés plutôt que d'empêcher l'accès aux Paramètres.
+        var connections = secretVault is not null && settingsRepository is not null && vaultCoordinator is not null
+            ? new ConnectionsViewModel(secretVault, settingsRepository, vaultCoordinator, syncService)
+            : null;
+        var rules = ruleRepository is not null ? new RulesViewModel(ruleRepository) : null;
         var captureSettings = new CaptureSettingsViewModel(settingsRepository, collector, startupRegistration);
         var dataSettings = new DataSettingsViewModel(settingsRepository, activityEventRepository, purgeService, activityDatabasePath);
-        SettingsItem = new NavigationItemViewModel("Paramètres", new SettingsViewModel(captureSettings, dataSettings), Select);
+        SettingsItem = new NavigationItemViewModel("Paramètres",
+            new SettingsViewModel(connections, rules, captureSettings, dataSettings), Select);
 
         NavigationItems = [day, catchUp, summary];
 
@@ -124,5 +146,9 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         Select(day);
     }
 
-    public void Dispose() => StatusBar.Dispose();
+    public void Dispose()
+    {
+        StatusBar.Dispose();
+        (SettingsItem.Screen as IDisposable)?.Dispose();
+    }
 }

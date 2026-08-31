@@ -37,6 +37,7 @@ public partial class App : Application
     private string _activityDatabasePath = string.Empty;
     private SyncService? _syncService;
     private YubiKeyVaultCoordinator? _vaultCoordinator;
+    private ISecretVault? _secretVault;
     private bool _yubiKeyDialogOpen;
     private HttpClient? _jiraHttpClient;
     private HttpClient? _gitLabHttpClient;
@@ -89,6 +90,12 @@ public partial class App : Application
             BusinessMasterKeyProvider.GetDefaultChallengeFilePath(),
             new YubiKeyChallengeResponseClient()));
 
+        // Coffre de tokens JIRA/GitLab (ADR D6) : indépendant de business.db, donc construit ici
+        // inconditionnellement pour rester utilisable (carte Connexions) même coffre métier verrouillé.
+        _secretVault = new DpapiYubiKeySecretVault(
+            DpapiYubiKeySecretVault.GetDefaultVaultDirectory(),
+            new YubiKeyChallengeResponseClient());
+
         // Pas de dialogue si aucune YubiKey n'est branchée (rien à toucher) : dégrade en silence plutôt
         // que d'inviter à un geste impossible (issue #26, "sans double invite").
         if (_vaultCoordinator.IsYubiKeyPresent)
@@ -116,12 +123,8 @@ public partial class App : Application
             return;
         }
 
-        var vault = new DpapiYubiKeySecretVault(
-            DpapiYubiKeySecretVault.GetDefaultVaultDirectory(),
-            new YubiKeyChallengeResponseClient());
-
-        var jiraConnector = BuildJiraConnector(vault);
-        var gitLabConnector = BuildGitLabConnector(vault, out var gitLabTargets);
+        var jiraConnector = BuildJiraConnector(_secretVault!);
+        var gitLabConnector = BuildGitLabConnector(_secretVault!, out var gitLabTargets);
         var outlookConnector = new OutlookComConnector();
 
         _syncService = new SyncService(
@@ -143,7 +146,7 @@ public partial class App : Application
     // Instance JIRA fixée par l'ADR D7 (ulis-uliege.atlassian.net) ; seul l'e-mail du compte (non
     // secret) reste à fournir — pas encore de config utilisateur (onboarding, Phase 5), donc lu depuis
     // une variable d'environnement en attendant.
-    private IJiraConnector? BuildJiraConnector(DpapiYubiKeySecretVault vault)
+    private IJiraConnector? BuildJiraConnector(ISecretVault vault)
     {
         var accountEmail = Environment.GetEnvironmentVariable("CATS_JIRA_ACCOUNT_EMAIL");
         if (string.IsNullOrWhiteSpace(accountEmail))
@@ -159,7 +162,7 @@ public partial class App : Application
     // Pas de découverte GitLab (l'API ne liste pas "mes dépôts" de façon exploitable ici) : la base
     // URL et la liste projet:branche sont lues depuis l'environnement en attendant l'onboarding config
     // (Phase 5, docs/phases.md).
-    private IGitLabConnector? BuildGitLabConnector(DpapiYubiKeySecretVault vault, out IReadOnlyList<GitLabSyncTarget> targets)
+    private IGitLabConnector? BuildGitLabConnector(ISecretVault vault, out IReadOnlyList<GitLabSyncTarget> targets)
     {
         targets = [];
 
@@ -482,6 +485,7 @@ public partial class App : Application
                     _vaultCoordinator,
                     _repository,
                     _timeBlockRepository,
+                    secretVault: _secretVault,
                     collector: _collector,
                     startupRegistration: _startupRegistration,
                     purgeService: purgeService,
@@ -495,6 +499,8 @@ public partial class App : Application
                     new SqliteCalendarEventRepository(_businessConnection),
                     new SqliteVcsCommitRepository(_businessConnection),
                     _ruleRepository,
+                    secretVault: _secretVault,
+                    jiraTicketRepository: new SqliteJiraTicketRepository(_businessConnection),
                     collector: _collector,
                     startupRegistration: _startupRegistration,
                     purgeService: purgeService,
