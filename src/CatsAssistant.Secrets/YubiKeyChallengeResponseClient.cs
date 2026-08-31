@@ -11,7 +11,8 @@ public sealed class YubiKeyChallengeResponseClient : IYubiKeyChallengeResponseCl
 {
     private readonly Slot _slot;
 
-    public YubiKeyChallengeResponseClient(Slot slot = Slot.ShortPress)
+    // Slot 2 (touche longue) : le slot 1 héberge la credential Yubico OTP de l'utilisateur.
+    public YubiKeyChallengeResponseClient(Slot slot = Slot.LongPress)
     {
         _slot = slot;
     }
