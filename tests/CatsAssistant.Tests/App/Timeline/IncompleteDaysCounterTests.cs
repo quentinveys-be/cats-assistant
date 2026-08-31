@@ -61,5 +61,9 @@ public class IncompleteDaysCounterTests
 
         public IReadOnlyList<TimeBlockRow> GetByDateRange(DateOnly fromDate, DateOnly toDate) =>
             _rows.Where(r => r.TimeBlock.Date >= fromDate && r.TimeBlock.Date <= toDate).ToList();
+
+        public int CountUnsubmitted() => throw new NotSupportedException();
+
+        public int DeleteUnsubmitted() => throw new NotSupportedException();
     }
 }

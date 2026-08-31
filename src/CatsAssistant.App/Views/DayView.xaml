@@ -2,15 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:CatsAssistant.App.ViewModels"
-             xmlns:conv="clr-namespace:CatsAssistant.App.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignHeight="700" d:DesignWidth="1000"
              d:DataContext="{d:DesignInstance vm:DayViewModel}">
 
     <UserControl.Resources>
-        <conv:StatusToChipStyleConverter x:Key="StatusToChipStyleConverter" />
-
         <!-- Bouton icône seul (précédent/suivant du sélecteur de jour) : 32x30, sans les métriques d'un
              SecondaryButtonStyle prévu pour du texte. -->
         <Style x:Key="DayNavIconButtonStyle" TargetType="Button">
@@ -43,122 +40,6 @@
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Margin" Value="0,0,5,0" />
         </Style>
-
-        <!-- Jauge de complétude (durée proposée / attendue, issue #18) : gabarit natif ProgressBar,
-             parties PART_Track/PART_Indicator (WPF calcule la largeur proportionnelle lui-même). -->
-        <Style x:Key="CompletionGaugeStyle" TargetType="ProgressBar">
-            <Setter Property="Height" Value="4" />
-            <Setter Property="Minimum" Value="0" />
-            <Setter Property="Maximum" Value="100" />
-            <Setter Property="Background" Value="{DynamicResource SubtleFillSecondaryBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentFillBrush}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ProgressBar">
-                        <Border CornerRadius="2" Background="{TemplateBinding Background}" ClipToBounds="True">
-                            <Grid>
-                                <Rectangle x:Name="PART_Track" Fill="Transparent" />
-                                <Decorator x:Name="PART_Indicator" HorizontalAlignment="Left">
-                                    <Rectangle Fill="{TemplateBinding Foreground}" RadiusX="2" RadiusY="2" />
-                                </Decorator>
-                            </Grid>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Liseré gauche 3 px de la carte de ligne CATS, coloré par statut. -->
-        <Style x:Key="CatsLineAccentStripeStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Status}" Value="Edited">
-                    <Setter Property="Background" Value="{DynamicResource CautionBrush}" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Status}" Value="Validated">
-                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Status}" Value="Submitted">
-                    <Setter Property="Background" Value="{DynamicResource NeutralChipBrush}" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Contour + fond de la carte de ligne CATS : fond estompé et liseré neutre pour une ligne déjà
-             soumise (plus d'actions, docs/design/screens/cats-assistant.dc.html "l.status === 'submitted'"). -->
-        <Style x:Key="CatsLineCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AccentStrokeBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Status}" Value="Edited">
-                    <Setter Property="BorderBrush" Value="{DynamicResource CautionStrokeBrush}" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Status}" Value="Validated">
-                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessStrokeBrush}" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Status}" Value="Submitted">
-                    <Setter Property="BorderBrush" Value="{DynamicResource DividerStrokeBrush}" />
-                    <Setter Property="Background" Value="{DynamicResource CardBackgroundSecondaryBrush}" />
-                    <Setter Property="Opacity" Value="0.85" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Clé JIRA de la ligne CATS : accent normalement, warn quand aucun ticket corrélé (mise en
-             évidence demandée par l'issue #18). -->
-        <Style x:Key="CatsLineKeyStyle" TargetType="TextBlock" BasedOn="{StaticResource MonoTextStyle}">
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsUncorrelated}" Value="True">
-                    <Setter Property="Foreground" Value="{DynamicResource CautionBrush}" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <DataTemplate DataType="{x:Type vm:CatsLineViewModel}">
-            <Border Style="{StaticResource CatsLineCardStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource CatsLineAccentStripeStyle}" CornerRadius="3,0,0,3" />
-
-                    <StackPanel Grid.Column="1" Margin="9,10,10,10">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding DurationLabel}" Style="{StaticResource DurationTextStyle}" />
-                            <TextBlock Text="{Binding KeyDisplay}" Style="{StaticResource CatsLineKeyStyle}"
-                                       Margin="8,0,0,0" VerticalAlignment="Center" />
-                            <ContentControl Content="{Binding StatusLabel}" Style="{Binding Status, Converter={StaticResource StatusToChipStyleConverter}}"
-                                             HorizontalAlignment="Right" Margin="8,0,0,0" />
-                        </StackPanel>
-
-                        <TextBlock Text="{Binding Note}" Style="{StaticResource BodySmallTextStyle}"
-                                   Margin="0,5,0,0" TextTrimming="CharacterEllipsis" />
-
-                        <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
-                            <TextBlock Text="{Binding Posid}" Style="{StaticResource MonoTextStyle}" FontSize="11" />
-                            <Border Width="1" Height="10" Margin="6,0" Background="{DynamicResource ControlStrokeBrush}" />
-                            <TextBlock Text="{Binding Zwpid}" Style="{StaticResource MonoTextStyle}" FontSize="11" />
-                            <ContentControl Content="{Binding VerificationLabel}" Style="{StaticResource NeutralStatusChipStyle}"
-                                             Margin="6,0,0,0" Height="18" FontWeight="Normal" />
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,9,0,0" Visibility="{Binding HasActions, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Button Content="Modifier" Command="{Binding EditCommand}" Style="{StaticResource SecondaryButtonStyle}"
-                                    Height="28" Padding="12,0" FontSize="13" />
-                            <Button Content="{Binding ValidateLabel}" Command="{Binding ToggleValidateCommand}" Style="{StaticResource PrimaryButtonStyle}"
-                                    Height="28" Padding="12,0" FontSize="13" Margin="6,0,0,0" />
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </DataTemplate>
     </UserControl.Resources>
 
     <Grid Margin="20,16,20,16">
@@ -213,281 +94,203 @@
             </Button>
         </StackPanel>
 
-        <!-- Timeline capturée + panneau Lignes CATS proposées, côte à côte -->
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="372" />
-            </Grid.ColumnDefinitions>
+        <!-- Carte « Journée capturée » -->
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="24" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <!-- Carte « Journée capturée » -->
-            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="24" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <!-- En-tête : titre + légende -->
-                    <Border Grid.Row="0" Background="{DynamicResource CardBackgroundSecondaryBrush}"
-                            BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="0,0,0,1">
-                        <StackPanel Orientation="Horizontal" Margin="14,0">
-                            <TextBlock Text="Journée capturée" Style="{StaticResource BodyStrongTextStyle}" VerticalAlignment="Center" />
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,0,0,0" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
-                                    <Border Style="{StaticResource LegendSwatchStyle}" Background="{DynamicResource TimelineHue1Brush}" />
-                                    <TextBlock Text="corrélé" Style="{StaticResource CaptionTextStyle}" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
-                                    <Border Style="{StaticResource LegendSwatchStyle}" Background="{DynamicResource TimelineUncorrelatedHatchBrush}"
-                                            BorderBrush="{DynamicResource TimelineUncorrelatedStrokeBrush}" BorderThickness="1" />
-                                    <TextBlock Text="non corrélé" Style="{StaticResource CaptionTextStyle}" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
-                                    <Border Style="{StaticResource LegendSwatchStyle}" Background="{DynamicResource TimelineIdleFillBrush}"
-                                            BorderBrush="{DynamicResource TimelineIdleStrokeBrush}" BorderThickness="1" />
-                                    <TextBlock Text="inactivité" Style="{StaticResource CaptionTextStyle}" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Border Style="{StaticResource LegendSwatchStyle}" Background="{DynamicResource AccentTintBrush}"
-                                            BorderBrush="{DynamicResource AccentFillBrush}" BorderThickness="1" />
-                                    <TextBlock Text="réunion" Style="{StaticResource CaptionTextStyle}" />
-                                </StackPanel>
+                <!-- En-tête : titre + légende -->
+                <Border Grid.Row="0" Background="{DynamicResource CardBackgroundSecondaryBrush}"
+                        BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="0,0,0,1">
+                    <StackPanel Orientation="Horizontal" Margin="14,0">
+                        <TextBlock Text="Journée capturée" Style="{StaticResource BodyStrongTextStyle}" VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,0,0,0" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
+                                <Border Style="{StaticResource LegendSwatchStyle}" Background="{DynamicResource TimelineHue1Brush}" />
+                                <TextBlock Text="corrélé" Style="{StaticResource CaptionTextStyle}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
+                                <Border Style="{StaticResource LegendSwatchStyle}" Background="{DynamicResource TimelineUncorrelatedHatchBrush}"
+                                        BorderBrush="{DynamicResource TimelineUncorrelatedStrokeBrush}" BorderThickness="1" />
+                                <TextBlock Text="non corrélé" Style="{StaticResource CaptionTextStyle}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
+                                <Border Style="{StaticResource LegendSwatchStyle}" Background="{DynamicResource TimelineIdleFillBrush}"
+                                        BorderBrush="{DynamicResource TimelineIdleStrokeBrush}" BorderThickness="1" />
+                                <TextBlock Text="inactivité" Style="{StaticResource CaptionTextStyle}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Style="{StaticResource LegendSwatchStyle}" Background="{DynamicResource AccentTintBrush}"
+                                        BorderBrush="{DynamicResource AccentFillBrush}" BorderThickness="1" />
+                                <TextBlock Text="réunion" Style="{StaticResource CaptionTextStyle}" />
                             </StackPanel>
                         </StackPanel>
-                    </Border>
-
-                    <!-- En-tête de colonnes -->
-                    <Border Grid.Row="1" BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="0,0,0,1">
-                        <StackPanel Orientation="Horizontal" Margin="46,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding RawHeader}" Width="306" Style="{StaticResource CaptionTextStyle}"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding GroupHeader}" Margin="10,0,0,0" Style="{StaticResource CaptionTextStyle}"
-                                       FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- État vide -->
-                    <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="280"
-                                Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="Aucune activité capturée" Style="{StaticResource BodyStrongTextStyle}"
-                                   HorizontalAlignment="Center" />
-                        <TextBlock Text="La capture était en pause ou le poste éteint. Vous pouvez ajouter une ligne manuellement."
-                                   Style="{StaticResource BodySmallTextStyle}" TextWrapping="Wrap" TextAlignment="Center"
-                                   Margin="0,4,0,14" />
-                        <!-- ponytail : l'ajout manuel écrit dans le panneau Lignes CATS (issue dédiée, hors périmètre
-                             de #17) — bouton désactivé en attendant ce câblage plutôt que de simuler une action. -->
-                        <Button Content="Ajouter une ligne" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="False"
-                                HorizontalAlignment="Center" />
                     </StackPanel>
+                </Border>
 
-                    <!-- Timeline -->
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                                  Visibility="{Binding IsEmpty, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
-                        <Grid Height="{Binding TimelineHeight}" Margin="8,8,8,8">
+                <!-- En-tête de colonnes -->
+                <Border Grid.Row="1" BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="0,0,0,1">
+                    <StackPanel Orientation="Horizontal" Margin="46,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding RawHeader}" Width="306" Style="{StaticResource CaptionTextStyle}"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding GroupHeader}" Margin="10,0,0,0" Style="{StaticResource CaptionTextStyle}"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" />
+                    </StackPanel>
+                </Border>
 
-                            <Border Margin="356,0,0,0" Width="1" HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                                    Background="{DynamicResource DividerStrokeBrush}" />
+                <!-- État vide -->
+                <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="280"
+                            Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Aucune activité capturée" Style="{StaticResource BodyStrongTextStyle}"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="La capture était en pause ou le poste éteint. Vous pouvez ajouter une ligne manuellement."
+                               Style="{StaticResource BodySmallTextStyle}" TextWrapping="Wrap" TextAlignment="Center"
+                               Margin="0,4,0,14" />
+                    <!-- ponytail : l'ajout manuel écrit dans le panneau Lignes CATS (issue dédiée, hors périmètre
+                         de #17) — bouton désactivé en attendant ce câblage plutôt que de simuler une action. -->
+                    <Button Content="Ajouter une ligne" Style="{StaticResource SecondaryButtonStyle}" IsEnabled="False"
+                            HorizontalAlignment="Center" />
+                </StackPanel>
 
-                            <ItemsControl ItemsSource="{Binding Hours}" Focusable="False">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Grid />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type vm:HourMarkItem}">
-                                        <Grid>
-                                            <TextBlock Text="{Binding Label}" Width="38" TextAlignment="Right"
-                                                       Margin="{Binding LabelMargin}" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                       Style="{StaticResource CaptionTextStyle}" Typography.NumeralAlignment="Tabular" />
-                                            <Border Margin="{Binding LineMargin}" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                                                    Background="{DynamicResource DividerStrokeBrush}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                <!-- Timeline -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              Visibility="{Binding IsEmpty, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                    <Grid Height="{Binding TimelineHeight}" Margin="8,8,8,8">
 
-                            <ItemsControl ItemsSource="{Binding Gaps}" Focusable="False">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Grid />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type vm:TimelineGapItem}">
-                                        <Border Margin="{Binding Margin}" Height="{Binding Height}" VerticalAlignment="Top"
-                                                CornerRadius="3" BorderThickness="1" Background="{DynamicResource CautionBgBrush}"
-                                                BorderBrush="{DynamicResource CautionBrush}"
-                                                AutomationProperties.Name="{Binding Label}">
-                                            <TextBlock Text="{Binding Label}" Style="{StaticResource MicroTextStyle}"
-                                                       Foreground="{DynamicResource CautionBrush}" HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                        <Border Margin="356,0,0,0" Width="1" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                                Background="{DynamicResource DividerStrokeBrush}" />
 
-                            <ItemsControl ItemsSource="{Binding Groups}" Focusable="False">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Grid />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type vm:TimelineGroupItem}">
-                                        <Border Margin="{Binding Margin}" Height="{Binding Height}" VerticalAlignment="Top"
-                                                Style="{StaticResource TimelineGroupBorderStyle}" Padding="8,0"
-                                                AutomationProperties.Name="{Binding MetaLabel}">
-                                            <Grid>
-                                                <StackPanel VerticalAlignment="Center">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Key}" Style="{StaticResource MicroTextStyle}"
-                                                                   TextTrimming="CharacterEllipsis" FontFamily="{StaticResource MonoFontFamily}" />
-                                                        <TextBlock Text=" · " Style="{StaticResource MicroTextStyle}" />
-                                                        <TextBlock Text="{Binding DurationLabel}" Style="{StaticResource MicroTextStyle}" />
-                                                    </StackPanel>
-                                                    <TextBlock Text="{Binding MetaLabel}" Style="{StaticResource CaptionTextStyle}"
-                                                               Visibility="{Binding ShowMeta, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                                </StackPanel>
-                                                <Ellipse Width="6" Height="6" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                                         Style="{StaticResource TimelineStatusDotStyle}" />
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <ItemsControl ItemsSource="{Binding Segments}" Focusable="False">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Grid />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type vm:TimelineSegmentItem}">
-                                        <Border Margin="{Binding Margin}" Height="{Binding Height}" Width="306"
-                                                HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True"
-                                                Style="{StaticResource TimelineSegmentBorderStyle}"
-                                                AutomationProperties.Name="{Binding AutomationLabel}">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Border Width="3" VerticalAlignment="Stretch" CornerRadius="2,0,0,2"
-                                                        Style="{StaticResource TimelineSegmentAccentBarStyle}" />
-                                                <TextBlock Text="{Binding StartTimeLabel}" Margin="6,0,0,0" Style="{StaticResource MicroTextStyle}"
-                                                           Foreground="{DynamicResource TextFillTertiaryBrush}" FontWeight="Normal"
-                                                           Typography.NumeralAlignment="Tabular"
-                                                           Visibility="{Binding ShowStartTime, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                                <TextBlock Text="{Binding Process}" Margin="6,0,0,0" Style="{StaticResource MicroTextStyle}"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Visibility="{Binding ShowLabels, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                                <TextBlock Text="{Binding Detail}" Margin="6,0,6,0" Style="{StaticResource CaptionTextStyle}"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Visibility="{Binding ShowLabels, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <ItemsControl ItemsSource="{Binding Meetings}" Focusable="False" IsHitTestVisible="False" Panel.ZIndex="3">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Grid />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type vm:TimelineMeetingItem}">
-                                        <Border Margin="{Binding Margin}" Height="{Binding Height}" Width="286"
-                                                HorizontalAlignment="Left" VerticalAlignment="Top" CornerRadius="3"
-                                                BorderThickness="1" BorderBrush="{DynamicResource AccentFillBrush}"
-                                                Background="{DynamicResource AccentTintBrush}">
-                                            <StackPanel Orientation="Horizontal" Margin="6,0" VerticalAlignment="Center"
-                                                        Visibility="{Binding ShowLabel, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                <TextBlock Text="{Binding Subject}" Style="{StaticResource MicroTextStyle}"
-                                                           Foreground="{DynamicResource AccentTextBrush}" TextTrimming="CharacterEllipsis" />
-                                                <TextBlock Text="{Binding TimeLabel}" Margin="6,0,0,0" Style="{StaticResource CaptionTextStyle}"
-                                                           Foreground="{DynamicResource AccentTextBrush}" Typography.NumeralAlignment="Tabular" />
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                        </Grid>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-
-            <!-- Panneau « Lignes CATS proposées » (issue #18) -->
-            <Border Grid.Column="2" BorderBrush="{DynamicResource ControlStrokeBrush}" BorderThickness="1"
-                    CornerRadius="6" Background="{DynamicResource CardBackgroundBrush}" Effect="{StaticResource CardShadowEffect}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <!-- En-tête : titre + compteur total/attendu + jauge -->
-                    <Border Grid.Row="0" Padding="14,12,14,10" BorderThickness="0,0,0,1"
-                            BorderBrush="{DynamicResource DividerStrokeBrush}" Background="{DynamicResource CardBackgroundSecondaryBrush}">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Lignes CATS proposées" Style="{StaticResource BodyStrongTextStyle}" />
-                                <TextBlock HorizontalAlignment="Right" Style="{StaticResource CaptionTextStyle}"
-                                           Typography.NumeralAlignment="Tabular">
-                                    <Run Text="{Binding TotalProposedLabel, Mode=OneWay}" />
-                                    <Run Text=" / " />
-                                    <Run Text="{Binding ExpectedLabel, Mode=OneWay}" />
-                                </TextBlock>
-                            </StackPanel>
-                            <ProgressBar Value="{Binding GaugePercent, Mode=OneWay}" Style="{StaticResource CompletionGaugeStyle}" Margin="0,8,0,0" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Cartes de lignes -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
-                        <ItemsControl ItemsSource="{Binding Lines}" Focusable="False">
+                        <ItemsControl ItemsSource="{Binding Hours}" Focusable="False">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <StackPanel />
+                                    <Grid />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemContainerStyle>
-                                <Style TargetType="ContentPresenter">
-                                    <Setter Property="Margin" Value="0,0,0,8" />
-                                </Style>
-                            </ItemsControl.ItemContainerStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:HourMarkItem}">
+                                    <Grid>
+                                        <TextBlock Text="{Binding Label}" Width="38" TextAlignment="Right"
+                                                   Margin="{Binding LabelMargin}" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                                   Style="{StaticResource CaptionTextStyle}" Typography.NumeralAlignment="Tabular" />
+                                        <Border Margin="{Binding LineMargin}" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                                                Background="{DynamicResource DividerStrokeBrush}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </ScrollViewer>
 
-                    <!-- Pied : Tout valider / Récapitulatif -->
-                    <Border Grid.Row="2" Padding="10" BorderThickness="0,1,0,0"
-                            BorderBrush="{DynamicResource DividerStrokeBrush}" Background="{DynamicResource CardBackgroundSecondaryBrush}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Content="Tout valider" Command="{Binding ValidateAllCommand}"
-                                    Style="{StaticResource SecondaryButtonStyle}" Height="32" Margin="0,0,4,0" />
-                            <Button Grid.Column="1" Command="{Binding GoToSummaryCommand}"
-                                    Style="{StaticResource PrimaryButtonStyle}" Height="32" Margin="4,0,0,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Récapitulatif" VerticalAlignment="Center" />
-                                    <!-- rgba(255,255,255,.22) du prototype : pas de jeton dédié pour ce halo sur fond accent. -->
-                                    <Border Background="#38FFFFFF" CornerRadius="9" Padding="6,0" Margin="6,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding ValidatedLinesCount}" FontSize="11"
-                                                   Typography.NumeralAlignment="Tabular" Foreground="{DynamicResource TextOnAccentBrush}" />
+                        <ItemsControl ItemsSource="{Binding Gaps}" Focusable="False">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Grid />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:TimelineGapItem}">
+                                    <Border Margin="{Binding Margin}" Height="{Binding Height}" VerticalAlignment="Top"
+                                            CornerRadius="3" BorderThickness="1" Background="{DynamicResource CautionBgBrush}"
+                                            BorderBrush="{DynamicResource CautionBrush}"
+                                            AutomationProperties.Name="{Binding Label}">
+                                        <TextBlock Text="{Binding Label}" Style="{StaticResource MicroTextStyle}"
+                                                   Foreground="{DynamicResource CautionBrush}" HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                     </Border>
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </Border>
-        </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <ItemsControl ItemsSource="{Binding Groups}" Focusable="False">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Grid />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:TimelineGroupItem}">
+                                    <Border Margin="{Binding Margin}" Height="{Binding Height}" VerticalAlignment="Top"
+                                            Style="{StaticResource TimelineGroupBorderStyle}" Padding="8,0"
+                                            AutomationProperties.Name="{Binding MetaLabel}">
+                                        <Grid>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Key}" Style="{StaticResource MicroTextStyle}"
+                                                               TextTrimming="CharacterEllipsis" FontFamily="{StaticResource MonoFontFamily}" />
+                                                    <TextBlock Text=" · " Style="{StaticResource MicroTextStyle}" />
+                                                    <TextBlock Text="{Binding DurationLabel}" Style="{StaticResource MicroTextStyle}" />
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding MetaLabel}" Style="{StaticResource CaptionTextStyle}"
+                                                           Visibility="{Binding ShowMeta, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                            </StackPanel>
+                                            <Ellipse Width="6" Height="6" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                     Style="{StaticResource TimelineStatusDotStyle}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <ItemsControl ItemsSource="{Binding Segments}" Focusable="False">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Grid />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:TimelineSegmentItem}">
+                                    <Border Margin="{Binding Margin}" Height="{Binding Height}" Width="306"
+                                            HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True"
+                                            Style="{StaticResource TimelineSegmentBorderStyle}"
+                                            AutomationProperties.Name="{Binding AutomationLabel}">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Border Width="3" VerticalAlignment="Stretch" CornerRadius="2,0,0,2"
+                                                    Style="{StaticResource TimelineSegmentAccentBarStyle}" />
+                                            <TextBlock Text="{Binding StartTimeLabel}" Margin="6,0,0,0" Style="{StaticResource MicroTextStyle}"
+                                                       Foreground="{DynamicResource TextFillTertiaryBrush}" FontWeight="Normal"
+                                                       Typography.NumeralAlignment="Tabular"
+                                                       Visibility="{Binding ShowStartTime, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                            <TextBlock Text="{Binding Process}" Margin="6,0,0,0" Style="{StaticResource MicroTextStyle}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Visibility="{Binding ShowLabels, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                            <TextBlock Text="{Binding Detail}" Margin="6,0,6,0" Style="{StaticResource CaptionTextStyle}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Visibility="{Binding ShowLabels, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <ItemsControl ItemsSource="{Binding Meetings}" Focusable="False" IsHitTestVisible="False" Panel.ZIndex="3">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Grid />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:TimelineMeetingItem}">
+                                    <Border Margin="{Binding Margin}" Height="{Binding Height}" Width="286"
+                                            HorizontalAlignment="Left" VerticalAlignment="Top" CornerRadius="3"
+                                            BorderThickness="1" BorderBrush="{DynamicResource AccentFillBrush}"
+                                            Background="{DynamicResource AccentTintBrush}">
+                                        <StackPanel Orientation="Horizontal" Margin="6,0" VerticalAlignment="Center"
+                                                    Visibility="{Binding ShowLabel, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding Subject}" Style="{StaticResource MicroTextStyle}"
+                                                       Foreground="{DynamicResource AccentTextBrush}" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding TimeLabel}" Margin="6,0,0,0" Style="{StaticResource CaptionTextStyle}"
+                                                       Foreground="{DynamicResource AccentTextBrush}" Typography.NumeralAlignment="Tabular" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

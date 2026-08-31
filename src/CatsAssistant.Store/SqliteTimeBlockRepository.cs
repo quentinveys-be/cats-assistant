@@ -91,6 +91,28 @@ public sealed class SqliteTimeBlockRepository : ITimeBlockRepository
         }
     }
 
+    public int CountUnsubmitted()
+    {
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM time_blocks WHERE status <> $submitted;";
+            command.Parameters.AddWithValue("$submitted", FormatStatus(TimeBlockStatus.Submitted));
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+    }
+
+    public int DeleteUnsubmitted()
+    {
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "DELETE FROM time_blocks WHERE status <> $submitted;";
+            command.Parameters.AddWithValue("$submitted", FormatStatus(TimeBlockStatus.Submitted));
+            return command.ExecuteNonQuery();
+        }
+    }
+
     private static void BindParameters(SqliteCommand command, TimeBlock timeBlock)
     {
         command.Parameters.AddWithValue("$date", FormatDate(timeBlock.Date));

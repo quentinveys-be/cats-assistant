@@ -32,11 +32,11 @@ public partial class App : Application
     private IActivityEventRepository? _repository;
     private ISettingsRepository? _settingsRepository;
     private ITimeBlockRepository? _timeBlockRepository;
+    private IRuleRepository? _ruleRepository;
     private ActivityCollector? _collector;
+    private string _activityDatabasePath = string.Empty;
     private SyncService? _syncService;
     private YubiKeyVaultCoordinator? _vaultCoordinator;
-    private ISecretVault? _secretVault;
-    private IRuleRepository? _ruleRepository;
     private bool _yubiKeyDialogOpen;
     private HttpClient? _jiraHttpClient;
     private HttpClient? _gitLabHttpClient;
@@ -56,6 +56,7 @@ public partial class App : Application
 
         var legacyDatabasePath = SqliteConnectionFactory.GetDefaultDatabasePath();
         var activityDatabasePath = SqliteConnectionFactory.GetDefaultActivityDatabasePath();
+        _activityDatabasePath = activityDatabasePath;
         _dataDirectory = Path.GetDirectoryName(activityDatabasePath)!;
 
         var activityKey = new DpapiActivityKeyStore(DpapiActivityKeyStore.GetDefaultKeyFilePath()).GetOrCreateKey();
@@ -68,22 +69,25 @@ public partial class App : Application
         _settingsRepository = new SqliteSettingsRepository(_connection);
         ThemeService.Apply(_settingsRepository.Get("ui.theme") == "dark");
 
-        // Retention is 90 days (docs/data-model.md, ADR D3); startup is the only moment the app is
-        // guaranteed to reach in a user-mode, no-scheduler deployment.
-        new ActivityEventRetentionPurger(_repository).Purge();
+        // Retention is 90 days by default, configurable from Paramètres → Données (issue #23); startup is
+        // the only moment the app is guaranteed to reach in a user-mode, no-scheduler deployment.
+        var retentionDays = SettingsInt.ParseOrDefault(
+            _settingsRepository.Get(DataSettingsViewModel.RetentionDaysKey), (int)ActivityEventRetentionPurger.DefaultRetention.TotalDays);
+        new ActivityEventRetentionPurger(_repository, TimeSpan.FromDays(retentionDays)).Purge();
 
-        _collector = new ActivityCollector(_repository);
-        _collector.Start();
+        var idleThresholdMinutes = SettingsInt.ParseOrDefault(
+            _settingsRepository.Get(CaptureSettingsViewModel.IdleThresholdMinutesKey), (int)IdleDetector.DefaultThreshold.TotalMinutes);
+        _collector = new ActivityCollector(_repository, TimeSpan.FromMinutes(idleThresholdMinutes));
+
+        var startsPaused = _settingsRepository.Get(CaptureSettingsViewModel.PausedKey) == "true";
+        if (!startsPaused)
+        {
+            _collector.Start();
+        }
 
         _vaultCoordinator = new YubiKeyVaultCoordinator(new BusinessMasterKeyProvider(
             BusinessMasterKeyProvider.GetDefaultChallengeFilePath(),
             new YubiKeyChallengeResponseClient()));
-
-        // Coffre de tokens JIRA/GitLab (ADR D6) : indépendant de business.db, donc construit ici
-        // inconditionnellement pour rester utilisable (carte Connexions) même coffre métier verrouillé.
-        _secretVault = new DpapiYubiKeySecretVault(
-            DpapiYubiKeySecretVault.GetDefaultVaultDirectory(),
-            new YubiKeyChallengeResponseClient());
 
         // Pas de dialogue si aucune YubiKey n'est branchée (rien à toucher) : dégrade en silence plutôt
         // que d'inviter à un geste impossible (issue #26, "sans double invite").
@@ -112,8 +116,12 @@ public partial class App : Application
             return;
         }
 
-        var jiraConnector = BuildJiraConnector(_secretVault!);
-        var gitLabConnector = BuildGitLabConnector(_secretVault!, out var gitLabTargets);
+        var vault = new DpapiYubiKeySecretVault(
+            DpapiYubiKeySecretVault.GetDefaultVaultDirectory(),
+            new YubiKeyChallengeResponseClient());
+
+        var jiraConnector = BuildJiraConnector(vault);
+        var gitLabConnector = BuildGitLabConnector(vault, out var gitLabTargets);
         var outlookConnector = new OutlookComConnector();
 
         _syncService = new SyncService(
@@ -135,7 +143,7 @@ public partial class App : Application
     // Instance JIRA fixée par l'ADR D7 (ulis-uliege.atlassian.net) ; seul l'e-mail du compte (non
     // secret) reste à fournir — pas encore de config utilisateur (onboarding, Phase 5), donc lu depuis
     // une variable d'environnement en attendant.
-    private IJiraConnector? BuildJiraConnector(ISecretVault vault)
+    private IJiraConnector? BuildJiraConnector(DpapiYubiKeySecretVault vault)
     {
         var accountEmail = Environment.GetEnvironmentVariable("CATS_JIRA_ACCOUNT_EMAIL");
         if (string.IsNullOrWhiteSpace(accountEmail))
@@ -151,7 +159,7 @@ public partial class App : Application
     // Pas de découverte GitLab (l'API ne liste pas "mes dépôts" de façon exploitable ici) : la base
     // URL et la liste projet:branche sont lues depuis l'environnement en attendant l'onboarding config
     // (Phase 5, docs/phases.md).
-    private IGitLabConnector? BuildGitLabConnector(ISecretVault vault, out IReadOnlyList<GitLabSyncTarget> targets)
+    private IGitLabConnector? BuildGitLabConnector(DpapiYubiKeySecretVault vault, out IReadOnlyList<GitLabSyncTarget> targets)
     {
         targets = [];
 
@@ -443,6 +451,10 @@ public partial class App : Application
             _collector.Start();
         }
 
+        // Garde le toggle "Paramètres → Capture → Capture en pause" en phase avec celui-ci — même réglage,
+        // deux points d'entrée (tray et Settings).
+        _settingsRepository?.Set(CaptureSettingsViewModel.PausedKey, _collector.IsRunning ? "false" : "true");
+
         RefreshTrayMenu();
     }
 
@@ -459,10 +471,21 @@ public partial class App : Application
     {
         if (_mainWindow is null)
         {
+            var purgeService = _timeBlockRepository is not null && _ruleRepository is not null && _repository is not null
+                ? new ManualPurgeService(_repository, _timeBlockRepository, _ruleRepository)
+                : null;
+
             var viewModel = _businessConnection is null
                 ? new MainWindowViewModel(
-                    _syncService, _settingsRepository, _vaultCoordinator, _repository, _timeBlockRepository,
-                    secretVault: _secretVault)
+                    _syncService,
+                    _settingsRepository,
+                    _vaultCoordinator,
+                    _repository,
+                    _timeBlockRepository,
+                    collector: _collector,
+                    startupRegistration: _startupRegistration,
+                    purgeService: purgeService,
+                    activityDatabasePath: _activityDatabasePath)
                 : new MainWindowViewModel(
                     _syncService,
                     _settingsRepository,
@@ -472,7 +495,10 @@ public partial class App : Application
                     new SqliteCalendarEventRepository(_businessConnection),
                     new SqliteVcsCommitRepository(_businessConnection),
                     _ruleRepository,
-                    secretVault: _secretVault);
+                    collector: _collector,
+                    startupRegistration: _startupRegistration,
+                    purgeService: purgeService,
+                    activityDatabasePath: _activityDatabasePath);
             _mainWindow = new MainWindow(viewModel);
             _mainWindow.Closed += (_, _) => _mainWindow = null;
             select?.Invoke(viewModel);

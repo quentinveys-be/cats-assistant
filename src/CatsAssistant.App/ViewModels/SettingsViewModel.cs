@@ -2,44 +2,41 @@ using CatsAssistant.App.Mvvm;
 
 namespace CatsAssistant.App.ViewModels;
 
-public enum SettingsTab
+/// <summary>Écran Paramètres (issue #23) : onglets Capture et Données. Connexions et Règles sont hors
+/// périmètre (issues dédiées).</summary>
+public sealed class SettingsViewModel : ScreenViewModelBase
 {
-    Connexions,
-    Regles,
-}
+    private bool _isDataTabSelected;
 
-/// <summary>
-/// Écran "Paramètres" (issue #24) : onglets Connexions et Règles. <see cref="Connections"/> et
-/// <see cref="Rules"/> sont null quand leurs dépendances (coffre, base métier) ne sont pas disponibles
-/// (coffre verrouillé au démarrage) — la vue affiche alors un message dégradé plutôt que de planter.
-/// </summary>
-public sealed class SettingsViewModel : ScreenViewModelBase, IDisposable
-{
-    private SettingsTab _selectedTab = SettingsTab.Connexions;
-
-    public SettingsViewModel(ConnectionsViewModel? connections = null, RulesViewModel? rules = null)
+    public SettingsViewModel(CaptureSettingsViewModel? capture = null, DataSettingsViewModel? data = null)
         : base("Paramètres")
     {
-        Connections = connections;
-        Rules = rules;
+        Capture = capture ?? new CaptureSettingsViewModel();
+        Data = data ?? new DataSettingsViewModel();
 
-        SelectConnexionsCommand = new RelayCommand(() => SelectedTab = SettingsTab.Connexions);
-        SelectReglesCommand = new RelayCommand(() => SelectedTab = SettingsTab.Regles);
+        SelectCaptureTabCommand = new RelayCommand(() => IsDataTabSelected = false);
+        SelectDataTabCommand = new RelayCommand(() => IsDataTabSelected = true);
     }
 
-    public ConnectionsViewModel? Connections { get; }
+    public CaptureSettingsViewModel Capture { get; }
 
-    public RulesViewModel? Rules { get; }
+    public DataSettingsViewModel Data { get; }
 
-    public SettingsTab SelectedTab
+    public RelayCommand SelectCaptureTabCommand { get; }
+
+    public RelayCommand SelectDataTabCommand { get; }
+
+    public bool IsCaptureTabSelected => !_isDataTabSelected;
+
+    public bool IsDataTabSelected
     {
-        get => _selectedTab;
-        private set => SetProperty(ref _selectedTab, value);
+        get => _isDataTabSelected;
+        private set
+        {
+            if (SetProperty(ref _isDataTabSelected, value))
+            {
+                OnPropertyChanged(nameof(IsCaptureTabSelected));
+            }
+        }
     }
-
-    public RelayCommand SelectConnexionsCommand { get; }
-
-    public RelayCommand SelectReglesCommand { get; }
-
-    public void Dispose() => Connections?.Dispose();
 }
