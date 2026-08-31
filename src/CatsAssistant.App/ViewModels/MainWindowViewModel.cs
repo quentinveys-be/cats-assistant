@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using CatsAssistant.App.Mvvm;
 using CatsAssistant.Correlator;
 using CatsAssistant.Store;
@@ -31,9 +30,10 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
     {
         _settingsRepository = settingsRepository;
 
-        // "day" et "catchUp" se référencent mutuellement (navigation Journée <-> Rattrapage, issues #17/#22) :
-        // déclarés avant leur construction pour que les deux fermetures (navigateToCatchUp / openDay) les
-        // capturent par variable, résolue à l'exécution plutôt qu'à la construction.
+        // "day", "catchUp" et "summary" se référencent mutuellement (navigation Journée <-> Rattrapage,
+        // issues #17/#22 ; Journée -> Récapitulatif, issue #18) : déclarés avant leur construction pour que
+        // les fermetures (navigateToCatchUp / navigateToSummary / openDay) les capturent par variable,
+        // résolue à l'exécution plutôt qu'à la construction.
         NavigationItemViewModel? day = null;
         NavigationItemViewModel? catchUp = null;
 
@@ -50,6 +50,8 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
             }
         };
 
+        var summary = new NavigationItemViewModel("Récapitulatif", new SummaryViewModel(), Select);
+
         var dayScreen = new DayViewModel(
             activityEventRepository,
             timeBlockRepository,
@@ -57,10 +59,20 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
             vcsCommitRepository,
             ruleRepository,
             correlationEngine,
-            navigateToCatchUp: () => Select(catchUp!));
+            navigateToCatchUp: () => Select(catchUp!),
+            navigateToSummary: () => Select(summary));
         day = new NavigationItemViewModel("Journée", dayScreen, Select);
 
-        var summary = new NavigationItemViewModel("Récapitulatif", new SummaryViewModel(), Select);
+        // Badge du nombre de lignes CATS validées (issue #18), tenu à jour en direct.
+        dayScreen.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(DayViewModel.ValidatedLinesCount))
+            {
+                summary.BadgeCount = dayScreen.ValidatedLinesCount;
+            }
+        };
+        summary.BadgeCount = dayScreen.ValidatedLinesCount;
+
         SettingsItem = new NavigationItemViewModel("Paramètres", new SettingsViewModel(), Select);
 
         NavigationItems = [day, catchUp, summary];
