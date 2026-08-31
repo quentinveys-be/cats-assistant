@@ -1,0 +1,526 @@
+<UserControl x:Class="CatsAssistant.App.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:CatsAssistant.App.ViewModels"
+             xmlns:conv="clr-namespace:CatsAssistant.App.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignHeight="720" d:DesignWidth="960"
+             d:DataContext="{d:DesignInstance vm:SettingsViewModel}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <conv:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibility" />
+
+        <!-- Chip "Connexions" pilotée par ConnectionStatus (NotConfigured/Connected/Expired) — Jira & GitLab. -->
+        <Style x:Key="ConnectionStatusChipStyle" TargetType="ContentControl" BasedOn="{StaticResource StatusChipBaseStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource NeutralChipBrush}" />
+            <Setter Property="Background" Value="{DynamicResource NeutralBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeutralStrokeBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Connected">
+                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource SuccessBgBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessStrokeBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Expired">
+                    <Setter Property="Foreground" Value="{DynamicResource CriticalBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource CriticalBgBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource CriticalStrokeBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Chip "Coffre YubiKey" pilotée par YubiKeyVaultState. -->
+        <Style x:Key="YubiKeyStatusChipStyle" TargetType="ContentControl" BasedOn="{StaticResource StatusChipBaseStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource CriticalBrush}" />
+            <Setter Property="Background" Value="{DynamicResource CriticalBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CriticalStrokeBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Unlocked">
+                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource SuccessBgBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessStrokeBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Degraded">
+                    <Setter Property="Foreground" Value="{DynamicResource NeutralChipBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource NeutralBgBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource NeutralStrokeBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Chip "Outlook" pilotée par SyncStatus. -->
+        <Style x:Key="OutlookStatusChipStyle" TargetType="ContentControl" BasedOn="{StaticResource StatusChipBaseStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource NeutralChipBrush}" />
+            <Setter Property="Background" Value="{DynamicResource NeutralBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeutralStrokeBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Success">
+                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource SuccessBgBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessStrokeBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Error">
+                    <Setter Property="Foreground" Value="{DynamicResource CriticalBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource CriticalBgBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource CriticalStrokeBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton d'onglet : soulignement accent quand sélectionné, sinon transparent. -->
+        <Style x:Key="SettingsTabButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="2,0,2,10" />
+            <Setter Property="Margin" Value="0,0,20,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillSecondaryBrush}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderThickness" Value="0,0,0,2" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisualStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SelectedSettingsTabButtonStyle" TargetType="Button" BasedOn="{StaticResource SettingsTabButtonStyle}">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillPrimaryBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <!-- Chip "Origine" d'une règle (RuleOrigin) : manuelle = neutre, apprise = accent. -->
+        <Style x:Key="RuleOriginChipStyle" TargetType="ContentControl" BasedOn="{StaticResource StatusChipBaseStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource NeutralChipBrush}" />
+            <Setter Property="Background" Value="{DynamicResource NeutralBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeutralStrokeBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Origin}" Value="Learned">
+                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource AccentTintBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentStrokeBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Une seule ligne de tableau "Règles" : bascule affichage/édition en place (RuleRowViewModel.IsEditing). -->
+        <DataTemplate x:Key="RuleRowTemplate" DataType="{x:Type vm:RuleRowViewModel}">
+            <Grid MinHeight="40" Margin="14,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="180" />
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Affichage -->
+                <TextBlock Grid.Column="0" Text="{Binding MatcherKind}" FontFamily="Consolas" FontSize="12"
+                           Foreground="{DynamicResource TextFillSecondaryBrush}" VerticalAlignment="Center"
+                           Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibility}}" />
+                <TextBlock Grid.Column="1" Text="{Binding MatcherValue}" FontFamily="Consolas" FontSize="12" TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center" Margin="8,0"
+                           Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibility}}" />
+                <TextBlock Grid.Column="2" Text="{Binding Target}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextFillSecondaryBrush}"
+                           Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibility}}" />
+                <TextBlock Grid.Column="3" Text="{Binding Priority}" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextFillSecondaryBrush}"
+                           Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibility}}" />
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center"
+                            Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibility}}">
+                    <ContentControl Content="{Binding OriginLabel}" Style="{StaticResource RuleOriginChipStyle}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center"
+                            Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibility}}">
+                    <Button Content="Modifier" Style="{StaticResource SecondaryButtonStyle}" Padding="10,0" Command="{Binding EditCommand}" Margin="0,0,6,0" />
+                    <Button Content="Supprimer" Style="{StaticResource DestructiveButtonStyle}" Padding="10,0" Command="{Binding DeleteCommand}" />
+                </StackPanel>
+
+                <!-- Édition -->
+                <ComboBox Grid.Column="0" ItemsSource="{Binding MatcherKinds}" SelectedItem="{Binding MatcherKind}" Margin="0,0,6,0" VerticalAlignment="Center"
+                          Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}" />
+                <TextBox Grid.Column="1" Text="{Binding MatcherValue, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,6,0" VerticalAlignment="Center"
+                         AutomationProperties.Name="Motif de la règle"
+                         Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}" />
+                <TextBox Grid.Column="2" Text="{Binding Target, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,6,0" VerticalAlignment="Center"
+                         AutomationProperties.Name="Cible de la règle"
+                         Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}" />
+                <TextBox Grid.Column="3" Text="{Binding Priority, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,6,0" VerticalAlignment="Center"
+                         AutomationProperties.Name="Priorité de la règle"
+                         Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}" />
+                <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center"
+                            Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}">
+                    <Button Content="Enregistrer" Style="{StaticResource PrimaryButtonStyle}" Padding="10,0" Command="{Binding SaveCommand}" Margin="0,0,6,0" />
+                    <Button Content="Annuler" Style="{StaticResource SecondaryButtonStyle}" Padding="10,0" Command="{Binding CancelCommand}" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="20" FontWeight="SemiBold" Margin="20,18,20,0"
+                   Foreground="{DynamicResource TextFillPrimaryBrush}" />
+
+        <Border Grid.Row="1" Margin="20,12,20,0" BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Connexions" Command="{Binding SelectConnexionsCommand}" AutomationProperties.Name="Onglet Connexions">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SettingsTabButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedTab}" Value="Connexions">
+                                    <Setter Property="Style" Value="{StaticResource SelectedSettingsTabButtonStyle}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="Règles" Command="{Binding SelectReglesCommand}" AutomationProperties.Name="Onglet Règles">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SettingsTabButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedTab}" Value="Regles">
+                                    <Setter Property="Style" Value="{StaticResource SelectedSettingsTabButtonStyle}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="2" Margin="20,16,20,16" VerticalScrollBarVisibility="Auto" Focusable="False">
+            <Grid>
+
+                <!-- Onglet Connexions -->
+                <StackPanel MaxWidth="900" HorizontalAlignment="Left">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedTab}" Value="Connexions">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="Coffre verrouillé : reconnectez votre YubiKey pour gérer les connexions JIRA, GitLab et le coffre."
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextFillTertiaryBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Connections}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <StackPanel DataContext="{Binding Connections}">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <!-- SAP -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10" DataContext="{Binding Sap}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="SAP — HCM_TIMESHEET_MAN_SRV" FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                                        <TextBlock Text="p09.sap.ulg.ac.be · client 010" FontSize="13" Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                    </StackPanel>
+                                    <ContentControl Grid.Column="1" Content="{Binding StatusLabel}" Style="{StaticResource NeutralStatusChipStyle}"
+                                                     VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <Button Grid.Column="2" Content="Se connecter" Style="{StaticResource PrimaryButtonStyle}"
+                                            Command="{Binding OpenLogonCommand}" AutomationProperties.Name="Se connecter à SAP" />
+                                </Grid>
+                                <Border Margin="0,10,0,0" Padding="8,6" CornerRadius="4" Background="{DynamicResource CardBackgroundSecondaryBrush}"
+                                        BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="1">
+                                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextFillSecondaryBrush}">
+                                        <Run Text="Aucun identifiant SAP n'est enregistré." />
+                                        <LineBreak />
+                                        <Run Text="La fenêtre de logon SAP (WebView2) arrive en Phase 4 (D4) : jamais de mot de passe stocké sur disque." />
+                                    </TextBlock>
+                                </Border>
+                                <TextBlock Text="Se connecter sera disponible avec la Phase 4 (logon WebView2)." Margin="0,8,0,0" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource AccentTextBrush}"
+                                           Visibility="{Binding ShowStubMessage, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- JIRA -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10" DataContext="{Binding Jira}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                                        <TextBlock Text="{Binding SubtitleLine}" FontSize="13" Margin="0,2,0,0" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding MaskedSuffix}" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextFillTertiaryBrush}" Margin="0,0,10,0" />
+                                    <ContentControl Grid.Column="2" Content="{Binding StatusLabel}" Style="{StaticResource ConnectionStatusChipStyle}"
+                                                     VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <Button Grid.Column="3" Content="Remplacer" Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding ReplaceCommand}" AutomationProperties.Name="Remplacer le token JIRA" />
+                                </Grid>
+
+                                <StackPanel Margin="0,10,0,0">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsReplacing}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <TextBlock Text="Nouveau token JIRA" FontSize="13" Foreground="{DynamicResource TextFillSecondaryBrush}" Margin="0,0,0,4" />
+                                    <PasswordBox x:Name="JiraTokenPasswordBox" MaxWidth="360" HorizontalAlignment="Left" PasswordChanged="OnTokenPasswordChanged"
+                                                 AutomationProperties.Name="Nouveau token JIRA" />
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                        <Button Content="Confirmer" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ConfirmReplaceCommand}"
+                                                Click="OnJiraPasswordFormClosed" Margin="0,0,8,0" />
+                                        <Button Content="Annuler" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CancelReplaceCommand}"
+                                                Click="OnJiraPasswordFormClosed" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding ErrorMessage}" Margin="0,8,0,0" Foreground="{DynamicResource CriticalBrush}" FontSize="13"
+                                               Visibility="{Binding ErrorMessage, Converter={StaticResource NullableToVisibilityConverter}}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- GitLab -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10" DataContext="{Binding GitLab}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                                        <TextBlock Text="{Binding SubtitleLine}" FontSize="13" Margin="0,2,0,0" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding MaskedSuffix}" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextFillTertiaryBrush}" Margin="0,0,10,0" />
+                                    <ContentControl Grid.Column="2" Content="{Binding StatusLabel}" Style="{StaticResource ConnectionStatusChipStyle}"
+                                                     VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <Button Grid.Column="3" Content="Remplacer" Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding ReplaceCommand}" AutomationProperties.Name="Remplacer le token GitLab" />
+                                </Grid>
+
+                                <StackPanel Margin="0,10,0,0">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsReplacing}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <TextBlock Text="Nouveau token GitLab" FontSize="13" Foreground="{DynamicResource TextFillSecondaryBrush}" Margin="0,0,0,4" />
+                                    <PasswordBox x:Name="GitLabTokenPasswordBox" MaxWidth="360" HorizontalAlignment="Left" PasswordChanged="OnTokenPasswordChanged"
+                                                 AutomationProperties.Name="Nouveau token GitLab" />
+
+                                    <TextBlock Text="Date d'expiration (renseignée par GitLab lors de la création du token)" FontSize="13"
+                                               Foreground="{DynamicResource TextFillSecondaryBrush}" Margin="0,8,0,4" />
+                                    <DatePicker SelectedDate="{Binding PendingExpiryDate}" MaxWidth="180" HorizontalAlignment="Left"
+                                                AutomationProperties.Name="Date d'expiration du token GitLab" />
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                        <Button Content="Confirmer" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ConfirmReplaceCommand}"
+                                                Click="OnGitLabPasswordFormClosed" Margin="0,0,8,0" />
+                                        <Button Content="Annuler" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CancelReplaceCommand}"
+                                                Click="OnGitLabPasswordFormClosed" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding ErrorMessage}" Margin="0,8,0,0" Foreground="{DynamicResource CriticalBrush}" FontSize="13"
+                                               Visibility="{Binding ErrorMessage, Converter={StaticResource NullableToVisibilityConverter}}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Coffre YubiKey -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10" DataContext="{Binding YubiKey}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="Coffre YubiKey" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                                        <TextBlock Text="Clé maître dérivée par challenge-response HMAC-SHA1 + DPAPI · tokens JIRA et GitLab uniquement"
+                                                   FontSize="13" Margin="0,2,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                    </StackPanel>
+                                    <ContentControl Grid.Column="1" Content="{Binding StatusLabel}" Style="{StaticResource YubiKeyStatusChipStyle}"
+                                                     VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <Button Grid.Column="2" Content="Tester la clé" Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding TestKeyCommand}" AutomationProperties.Name="Tester la clé YubiKey" />
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0" Visibility="{Binding IsTesting, Converter={StaticResource BoolToVisibility}}">
+                                    <ProgressBar IsIndeterminate="True" Width="60" Height="4" VerticalAlignment="Center" />
+                                    <TextBlock Text="En attente de la clé…" FontSize="13" Margin="8,0,0,0" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding TestResultMessage}" FontSize="13" Margin="0,8,0,0" Foreground="{DynamicResource TextFillSecondaryBrush}"
+                                           Visibility="{Binding TestResultMessage, Converter={StaticResource NullableToVisibilityConverter}}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Outlook -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10" DataContext="{Binding Outlook}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="Outlook local" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                                    <TextBlock Text="Interop COM · lecture du calendrier par défaut · sujets et organisateurs seulement"
+                                               FontSize="13" Margin="0,2,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                </StackPanel>
+                                <ContentControl Grid.Column="1" Content="{Binding StatusLabel}" Style="{StaticResource OutlookStatusChipStyle}" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Onglet Règles -->
+                <StackPanel MaxWidth="1000" HorizontalAlignment="Left">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedTab}" Value="Regles">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="Coffre verrouillé : reconnectez votre YubiKey pour gérer les règles."
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextFillTertiaryBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Rules}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <Border Padding="0" DataContext="{Binding Rules}">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource CardStyle}">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <Grid Margin="14,10" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="180" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Type" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                <TextBlock Grid.Column="1" Text="Motif" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                <TextBlock Grid.Column="2" Text="Cible" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                <TextBlock Grid.Column="3" Text="Priorité" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                <TextBlock Grid.Column="4" Text="Origine" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                            </Grid>
+                            <Border BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="0,1,0,0">
+                                <ItemsControl ItemsSource="{Binding Rows}" ItemTemplate="{StaticResource RuleRowTemplate}" Focusable="False">
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style>
+                                            <Setter Property="FrameworkElement.Margin" Value="0" />
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                </ItemsControl>
+                            </Border>
+                            <Border BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="0,1,0,0" Background="{DynamicResource CardBackgroundSecondaryBrush}">
+                                <StackPanel Orientation="Horizontal" Margin="14,10">
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddRuleCommand}" Margin="0,0,10,0"
+                                            AutomationProperties.Name="Ajouter une règle">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="+" FontWeight="Bold" Margin="0,0,6,0" />
+                                            <TextBlock Text="Ajouter une règle" />
+                                        </StackPanel>
+                                    </Button>
+                                    <TextBlock Text="Chaque correction manuelle d'un bloc propose une règle « apprise » à la prochaine corrélation."
+                                               FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource TextFillTertiaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

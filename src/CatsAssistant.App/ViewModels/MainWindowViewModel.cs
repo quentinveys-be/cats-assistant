@@ -1,5 +1,6 @@
 using CatsAssistant.App.Mvvm;
 using CatsAssistant.Correlator;
+using CatsAssistant.Secrets;
 using CatsAssistant.Store;
 
 namespace CatsAssistant.App.ViewModels;
@@ -26,7 +27,8 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         ICalendarEventRepository? calendarEventRepository = null,
         IVcsCommitRepository? vcsCommitRepository = null,
         IRuleRepository? ruleRepository = null,
-        ICorrelationEngine? correlationEngine = null)
+        ICorrelationEngine? correlationEngine = null,
+        ISecretVault? secretVault = null)
     {
         _settingsRepository = settingsRepository;
 
@@ -73,7 +75,13 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         };
         summary.BadgeCount = dayScreen.ValidatedLinesCount;
 
-        SettingsItem = new NavigationItemViewModel("Paramètres", new SettingsViewModel(), Select);
+        // Coffre verrouillé ou base métier indisponible au démarrage (docs/adr/D6, mode dégradé) : les
+        // onglets restent affichés mais désactivés plutôt que d'empêcher l'accès aux Paramètres.
+        var connections = secretVault is not null && settingsRepository is not null && vaultCoordinator is not null
+            ? new ConnectionsViewModel(secretVault, settingsRepository, vaultCoordinator, syncService)
+            : null;
+        var rules = ruleRepository is not null ? new RulesViewModel(ruleRepository) : null;
+        SettingsItem = new NavigationItemViewModel("Paramètres", new SettingsViewModel(connections, rules), Select);
 
         NavigationItems = [day, catchUp, summary];
 
@@ -128,5 +136,9 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         Select(day);
     }
 
-    public void Dispose() => StatusBar.Dispose();
+    public void Dispose()
+    {
+        StatusBar.Dispose();
+        (SettingsItem.Screen as IDisposable)?.Dispose();
+    }
 }
