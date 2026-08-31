@@ -27,6 +27,9 @@
         <DataTemplate DataType="{x:Type vm:CatchUpViewModel}">
             <views:CatchUpView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView />
+        </DataTemplate>
     </Window.Resources>
 
     <Border x:Name="RootBorder" BorderBrush="{DynamicResource ControlStrokeBrush}" BorderThickness="1">

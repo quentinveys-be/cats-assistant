@@ -1,11 +1,71 @@
+using CatsAssistant.App;
 using CatsAssistant.App.Services;
 using CatsAssistant.App.ViewModels;
+using CatsAssistant.Secrets;
 using CatsAssistant.Store;
+using CatsAssistant.Tests.Secrets;
+using Microsoft.Data.Sqlite;
 
 namespace CatsAssistant.Tests.App;
 
 public class MainWindowViewModelTests
 {
+    [Fact]
+    public void Constructor_NoVaultOrRuleRepository_SettingsTabsAreNull()
+    {
+        using var viewModel = new MainWindowViewModel(syncService: null);
+
+        var settings = Assert.IsType<SettingsViewModel>(viewModel.SettingsItem.Screen);
+        Assert.Null(settings.Connections);
+        Assert.Null(settings.Rules);
+    }
+
+    [Fact]
+    public void Constructor_WithVaultAndRuleRepository_SettingsTabsAreWired()
+    {
+        var challengeFilePath = Path.Combine(Path.GetTempPath(), $"cats-assistant-mainwindow-tests-{Guid.NewGuid():N}.challenge");
+        try
+        {
+            var coordinator = new YubiKeyVaultCoordinator(new BusinessMasterKeyProvider(
+                challengeFilePath, new FakeYubiKeyChallengeResponseClient()));
+            var vault = new FakeSecretVault();
+            var settingsRepository = new FakeSettingsRepository();
+            using var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+            new SqliteMigrator(SqliteMigrator.BusinessMigrations).Migrate(connection);
+            var ruleRepository = new SqliteRuleRepository(connection);
+
+            using var viewModel = new MainWindowViewModel(
+                syncService: null, settingsRepository, coordinator, secretVault: vault, ruleRepository: ruleRepository);
+
+            var settings = Assert.IsType<SettingsViewModel>(viewModel.SettingsItem.Screen);
+            Assert.NotNull(settings.Connections);
+            Assert.NotNull(settings.Rules);
+        }
+        finally
+        {
+            if (File.Exists(challengeFilePath))
+            {
+                File.Delete(challengeFilePath);
+            }
+        }
+    }
+
+    private sealed class FakeSecretVault : ISecretVault
+    {
+        public bool IsYubiKeyPresent => true;
+
+        public void Store(SecretName name, string secretValue)
+        {
+        }
+
+        public string? TryRead(SecretName name) => null;
+
+        public void Delete(SecretName name)
+        {
+        }
+    }
+
     [Fact]
     public void Constructor_SelectsDayScreenByDefault()
     {
