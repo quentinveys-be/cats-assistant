@@ -9,4 +9,8 @@ public interface IRuleRepository
     void Delete(long id);
 
     IReadOnlyList<RuleRow> GetAll();
+
+    int CountByOrigin(RuleOrigin origin);
+
+    int DeleteByOrigin(RuleOrigin origin);
 }

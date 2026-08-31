@@ -157,14 +157,6 @@
         <Setter Property="BorderBrush" Value="{DynamicResource NeutralStrokeBrush}" />
     </Style>
 
-    <!-- Ajouté pour les cartes "Connexions" (issue #24) : les 4 chips existants n'ont pas d'équivalent
-         rouge (token expiré, connecteur en erreur) — mêmes jetons Critical* que le reste du thème. -->
-    <Style x:Key="CriticalStatusChipStyle" TargetType="ContentControl" BasedOn="{StaticResource StatusChipBaseStyle}">
-        <Setter Property="Foreground" Value="{DynamicResource CriticalBrush}" />
-        <Setter Property="Background" Value="{DynamicResource CriticalBgBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource CriticalStrokeBrush}" />
-    </Style>
-
     <!-- Interrupteur (toggle) : CheckBox retemplaté en piste + poignée Fluent. -->
     <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
         <Setter Property="Cursor" Value="Hand" />
