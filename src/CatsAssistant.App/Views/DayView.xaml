@@ -68,6 +68,88 @@
             </Setter>
         </Style>
 
+        <!-- Rangée d'ouverture du tiroir « Encodage rapide » (issue #20) : pleine largeur, sans bordure,
+             survol teinté accent comme le prototype. -->
+        <Style x:Key="QuickEntryToggleStyle" TargetType="Button">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisualStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="{TemplateBinding Background}" CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentTintBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Boutons -/+ du stepper de durée : 28x30, collés au compteur central. -->
+        <Style x:Key="QuickEntryStepperButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeStrongBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisualStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="{TemplateBinding Background}" BorderThickness="1"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillSecondaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Entrée de la liste de suggestions de tickets : bouton pleine largeur, accessible clavier. -->
+        <Style x:Key="QuickEntrySuggestionStyle" TargetType="Button">
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisualStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+                                BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerStrokeBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillSecondaryBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Liseré gauche 3 px de la carte de ligne CATS, coloré par statut. -->
         <Style x:Key="CatsLineAccentStripeStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
@@ -426,6 +508,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
@@ -447,8 +530,144 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Tiroir « Encodage rapide » (issue #20) : ligne manuelle sans activité captée. -->
+                    <Border Grid.Row="1" Padding="10,8" BorderThickness="0,0,0,1"
+                            BorderBrush="{DynamicResource DividerStrokeBrush}" DataContext="{Binding QuickEntry}">
+                        <StackPanel>
+                            <Button Command="{Binding ToggleCommand}" Style="{StaticResource QuickEntryToggleStyle}"
+                                    AutomationProperties.Name="Encodage rapide — ligne manuelle, sans activité captée">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Path Grid.Column="0" Data="M7,1 L7,13 M1,7 L13,7" Stroke="{DynamicResource AccentTextBrush}"
+                                          StrokeThickness="1.7" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <TextBlock Grid.Column="1" Text="Encodage rapide" FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource AccentTextBrush}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="ligne manuelle, sans activité captée" FontSize="11"
+                                               Foreground="{DynamicResource TextFillTertiaryBrush}" VerticalAlignment="Center" />
+                                </Grid>
+                            </Button>
+
+                            <Border Margin="0,8,0,0" Padding="10" CornerRadius="4" BorderThickness="1"
+                                    BorderBrush="{DynamicResource AccentStrokeBrush}" Background="{DynamicResource AccentTintBrush}"
+                                    Visibility="{Binding IsOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Stepper de durée, pas 0,25 h -->
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <Button Command="{Binding DecrementCommand}" Style="{StaticResource QuickEntryStepperButtonStyle}"
+                                                    AutomationProperties.Name="Réduire la durée de 15 minutes">
+                                                <Path Data="M1,5.5 L10,5.5" Stroke="{DynamicResource TextFillPrimaryBrush}" StrokeThickness="2" />
+                                            </Button>
+                                            <Border Width="56" Height="30" Background="{DynamicResource CardBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource ControlStrokeStrongBrush}" BorderThickness="0,1">
+                                                <TextBlock Text="{Binding DurationLabel}" FontSize="14" FontWeight="SemiBold"
+                                                           Typography.NumeralAlignment="Tabular" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource TextFillPrimaryBrush}" />
+                                            </Border>
+                                            <Button Command="{Binding IncrementCommand}" Style="{StaticResource QuickEntryStepperButtonStyle}"
+                                                    AutomationProperties.Name="Augmenter la durée de 15 minutes">
+                                                <Path Data="M5.5,1 L5.5,10 M1,5.5 L10,5.5" Stroke="{DynamicResource TextFillPrimaryBrush}" StrokeThickness="2" />
+                                            </Button>
+                                        </StackPanel>
+
+                                        <!-- Recherche de ticket -->
+                                        <Grid Grid.Column="1" Margin="8,0,0,0">
+                                            <TextBox x:Name="QuickEntryQueryBox" Height="30" VerticalContentAlignment="Center"
+                                                     Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}"
+                                                     AutomationProperties.Name="Rechercher un ticket JIRA" />
+                                            <TextBlock Text="Ticket…" Margin="6,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                                                       Foreground="{DynamicResource TextFillTertiaryBrush}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Text, ElementName=QuickEntryQueryBox}" Value="">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Grid>
+
+                                    <!-- Suggestions (cache jira_tickets) -->
+                                    <Border MaxHeight="168" Margin="0,8,0,0" CornerRadius="4" BorderThickness="1"
+                                            BorderBrush="{DynamicResource ControlStrokeStrongBrush}" Background="{DynamicResource LayerBackgroundBrush}"
+                                            Visibility="{Binding HasSuggestions, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <ItemsControl ItemsSource="{Binding Suggestions}" Focusable="False">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Style="{StaticResource QuickEntrySuggestionStyle}"
+                                                                Command="{Binding DataContext.PickTicketCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding Key}" Style="{StaticResource MonoTextStyle}" FontSize="11"
+                                                                           FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}"
+                                                                           VerticalAlignment="Center" />
+                                                                <TextBlock Text="{Binding Summary}" FontSize="12" Margin="8,0,0,0"
+                                                                           Foreground="{DynamicResource TextFillSecondaryBrush}"
+                                                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                                            </StackPanel>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+
+                                    <!-- Note (80 caractères) -->
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBox x:Name="QuickEntryNoteBox" Height="30" VerticalContentAlignment="Center" MaxLength="80"
+                                                 Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
+                                                 AutomationProperties.Name="Note de la ligne (80 caractères maximum)" />
+                                        <TextBlock Text="Note (80 caractères)" Margin="6,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                                                   Foreground="{DynamicResource TextFillTertiaryBrush}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=QuickEntryNoteBox}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+
+                                    <!-- Codes du ticket choisi + actions -->
+                                    <Grid Margin="0,8,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding CodesLabel}" Style="{StaticResource MonoTextStyle}" FontSize="11"
+                                                   Foreground="{DynamicResource TextFillTertiaryBrush}" TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0" />
+                                        <Button Grid.Column="1" Content="Annuler" Command="{Binding ToggleCommand}"
+                                                Style="{StaticResource SecondaryButtonStyle}" Height="30" Padding="10,0" FontSize="13" />
+                                        <Button Grid.Column="2" Content="Ajouter la ligne" Command="{Binding AddCommand}"
+                                                Style="{StaticResource PrimaryButtonStyle}" Height="30" Padding="10,0" FontSize="13" Margin="8,0,0,0" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Cartes de lignes -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="10">
                         <ItemsControl ItemsSource="{Binding Lines}" Focusable="False">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -464,7 +683,7 @@
                     </ScrollViewer>
 
                     <!-- Pied : Tout valider / Récapitulatif -->
-                    <Border Grid.Row="2" Padding="10" BorderThickness="0,1,0,0"
+                    <Border Grid.Row="3" Padding="10" BorderThickness="0,1,0,0"
                             BorderBrush="{DynamicResource DividerStrokeBrush}" Background="{DynamicResource CardBackgroundSecondaryBrush}">
                         <Grid>
                             <Grid.ColumnDefinitions>

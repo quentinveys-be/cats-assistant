@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using CatsAssistant.App.Mvvm;
 using CatsAssistant.App.Timeline;
+using CatsAssistant.Connectors;
 using CatsAssistant.Correlator;
 using CatsAssistant.Store;
 
@@ -47,7 +48,8 @@ public sealed class DayViewModel : ScreenViewModelBase
         IRuleRepository? ruleRepository = null,
         ICorrelationEngine? correlationEngine = null,
         Action? navigateToCatchUp = null,
-        Action? navigateToSummary = null)
+        Action? navigateToSummary = null,
+        IJiraTicketRepository? jiraTicketRepository = null)
         : base("Journée")
     {
         _activityEventRepository = activityEventRepository;
@@ -64,6 +66,8 @@ public sealed class DayViewModel : ScreenViewModelBase
         GoToCatchUpCommand = new RelayCommand(() => navigateToCatchUp?.Invoke(), () => navigateToCatchUp is not null);
         ValidateAllCommand = new RelayCommand(ValidateAll);
         GoToSummaryCommand = new RelayCommand(() => _navigateToSummary?.Invoke());
+
+        QuickEntry = new QuickEntryViewModel(jiraTicketRepository, AddManualLine);
 
         Hours = [];
         Segments = [];
@@ -98,6 +102,8 @@ public sealed class DayViewModel : ScreenViewModelBase
     public ObservableCollection<TimelineMeetingItem> Meetings { get; }
 
     public ObservableCollection<CatsLineViewModel> Lines { get; }
+
+    public QuickEntryViewModel QuickEntry { get; }
 
     /// <summary>Jour ciblé par la navigation "Ouvrir la journée" du Rattrapage (issue #22) : assigner une
     /// valeur recharge immédiatement la timeline sur ce jour.</summary>
@@ -239,6 +245,34 @@ public sealed class DayViewModel : ScreenViewModelBase
         var correlation = _correlationEngine.Correlate(activityEvents, commits, meetings, rules: rules);
 
         return DayTimelineBuilder.Build(activityEvents, correlation, meetings, timeBlocksForDay);
+    }
+
+    // Encodage rapide (issue #20) : ligne manuelle sans activité captée, statut 'edited' et durée
+    // manuelle — la corrélation ne la recalcule jamais (les lignes viennent telles quelles du repo).
+    private void AddManualLine(JiraTicket ticket, double durationHours, string note)
+    {
+        if (_timeBlockRepository is null)
+        {
+            return;
+        }
+
+        var startUtc = _selectedDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
+        var block = new TimeBlock(
+            _selectedDate,
+            startUtc,
+            startUtc.AddHours(durationHours),
+            "Encodage manuel",
+            ticket.Key,
+            ticket.Posid ?? string.Empty,
+            ticket.Zwpid ?? string.Empty,
+            note,
+            durationHours,
+            TimeBlockStatus.Edited,
+            SapCounter: null);
+
+        var id = _timeBlockRepository.Insert(block);
+        Lines.Add(new CatsLineViewModel(new TimeBlockRow(id, block), _timeBlockRepository, RecomputeLineAggregates));
+        RecomputeLineAggregates();
     }
 
     private void ValidateAll()

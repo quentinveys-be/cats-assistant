@@ -28,7 +28,8 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
         IVcsCommitRepository? vcsCommitRepository = null,
         IRuleRepository? ruleRepository = null,
         ICorrelationEngine? correlationEngine = null,
-        ISecretVault? secretVault = null)
+        ISecretVault? secretVault = null,
+        IJiraTicketRepository? jiraTicketRepository = null)
     {
         _settingsRepository = settingsRepository;
 
@@ -62,7 +63,8 @@ public sealed class MainWindowViewModel : ObservableObject, IDisposable
             ruleRepository,
             correlationEngine,
             navigateToCatchUp: () => Select(catchUp!),
-            navigateToSummary: () => Select(summary));
+            navigateToSummary: () => Select(summary),
+            jiraTicketRepository: jiraTicketRepository);
         day = new NavigationItemViewModel("Journée", dayScreen, Select);
 
         // Badge du nombre de lignes CATS validées (issue #18), tenu à jour en direct.

@@ -472,7 +472,8 @@ public partial class App : Application
                     new SqliteCalendarEventRepository(_businessConnection),
                     new SqliteVcsCommitRepository(_businessConnection),
                     _ruleRepository,
-                    secretVault: _secretVault);
+                    secretVault: _secretVault,
+                    jiraTicketRepository: new SqliteJiraTicketRepository(_businessConnection));
             _mainWindow = new MainWindow(viewModel);
             _mainWindow.Closed += (_, _) => _mainWindow = null;
             select?.Invoke(viewModel);
