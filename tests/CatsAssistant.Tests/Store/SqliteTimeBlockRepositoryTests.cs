@@ -51,6 +51,27 @@ public class SqliteTimeBlockRepositoryTests
     }
 
     [Fact]
+    public void Delete_RemovesRow()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteTimeBlockRepository(connection);
+        var id = repository.Insert(SampleTimeBlock);
+
+        repository.Delete(id);
+
+        Assert.Null(repository.GetById(id));
+    }
+
+    [Fact]
+    public void Delete_UnknownId_Throws()
+    {
+        using var connection = OpenMigratedConnection();
+        var repository = new SqliteTimeBlockRepository(connection);
+
+        Assert.Throws<KeyNotFoundException>(() => repository.Delete(999));
+    }
+
+    [Fact]
     public void Update_OverwritesFieldsAndStatus()
     {
         using var connection = OpenMigratedConnection();

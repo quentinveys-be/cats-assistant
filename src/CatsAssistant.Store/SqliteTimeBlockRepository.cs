@@ -49,6 +49,20 @@ public sealed class SqliteTimeBlockRepository : ITimeBlockRepository
         }
     }
 
+    public void Delete(long id)
+    {
+        lock (_gate)
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "DELETE FROM time_blocks WHERE id = $id;";
+            command.Parameters.AddWithValue("$id", id);
+            if (command.ExecuteNonQuery() == 0)
+            {
+                throw new KeyNotFoundException($"time_blocks.id={id} introuvable");
+            }
+        }
+    }
+
     public TimeBlockRow? GetById(long id)
     {
         lock (_gate)

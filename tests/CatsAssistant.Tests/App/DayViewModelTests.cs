@@ -1,4 +1,6 @@
 using CatsAssistant.App.ViewModels;
+using CatsAssistant.Connectors;
+using CatsAssistant.Correlator;
 using CatsAssistant.Store;
 
 namespace CatsAssistant.Tests.App;
@@ -166,6 +168,108 @@ public class DayViewModelTests
         var viewModel = new DayViewModel(timeBlockRepository: repository);
 
         Assert.Equal(100, viewModel.GaugePercent);
+    }
+
+    // ---------- dialogue d'édition (issue #19) ----------
+
+    [Fact]
+    public void EditLine_Save_PersistsChangesWithEditedStatus()
+    {
+        var repository = new FakeTimeBlockRepository();
+        var id = repository.Insert(ProposedLine);
+        var viewModel = new DayViewModel(timeBlockRepository: repository);
+        viewModel.ShowEditDialog = dialog =>
+        {
+            dialog.DurationPlusCommand.Execute(null); // 1,5 -> 1,75 h
+            dialog.SaveCommand.Execute(null);
+            return true;
+        };
+
+        viewModel.Lines.Single().EditCommand.Execute(null);
+
+        var stored = repository.GetById(id)!.TimeBlock;
+        Assert.Equal(TimeBlockStatus.Edited, stored.Status);
+        Assert.Equal(1.75, stored.DurationHours);
+        Assert.Equal("Modifié", viewModel.Lines.Single().StatusLabel); // panneau rechargé
+    }
+
+    [Fact]
+    public void EditLine_Delete_RemovesLine()
+    {
+        var repository = new FakeTimeBlockRepository();
+        var id = repository.Insert(ProposedLine);
+        var viewModel = new DayViewModel(timeBlockRepository: repository);
+        viewModel.ShowEditDialog = dialog =>
+        {
+            dialog.DeleteCommand.Execute(null);
+            return true;
+        };
+
+        viewModel.Lines.Single().EditCommand.Execute(null);
+
+        Assert.Null(repository.GetById(id));
+        Assert.Empty(viewModel.Lines);
+    }
+
+    [Fact]
+    public void EditLine_Cancelled_ChangesNothing()
+    {
+        var repository = new FakeTimeBlockRepository();
+        var id = repository.Insert(ProposedLine);
+        var viewModel = new DayViewModel(timeBlockRepository: repository);
+        viewModel.ShowEditDialog = _ => false;
+
+        viewModel.Lines.Single().EditCommand.Execute(null);
+
+        Assert.Equal(ProposedLine, repository.GetById(id)!.TimeBlock);
+    }
+
+    [Fact]
+    public void ImputeGap_CreatesEditedRangeAndRemovesGapFromTimeline()
+    {
+        var startLocal = DateTime.Now.Date.AddHours(9);
+        var startUtc = startLocal.ToUniversalTime();
+        var events = new FakeActivityEventRepository(
+        [
+            new ActivityEvent(1, startUtc, ActivityEventKind.Foreground, "chrome.exe", "sans ticket", null),
+            new ActivityEvent(2, startUtc.AddMinutes(30), ActivityEventKind.IdleStart, null, null, null),
+        ]);
+        var engine = new FakeCorrelationEngine(new CorrelatedBlock(startUtc, startUtc.AddMinutes(30), null, null));
+        var repository = new FakeTimeBlockRepository();
+        var viewModel = new DayViewModel(
+            activityEventRepository: events, timeBlockRepository: repository, correlationEngine: engine);
+        Assert.Single(viewModel.Gaps);
+
+        viewModel.ShowEditDialog = dialog =>
+        {
+            dialog.SelectTicket(new TicketSuggestion("ULISTROIS-3428", "Refonte", "En cours", "P.X-01", "ZS042"));
+            dialog.SaveCommand.Execute(null);
+            return true;
+        };
+        viewModel.EditGapCommand.Execute(viewModel.Gaps.Single());
+
+        // Répercussion : nouvelle plage CATS (= ligne créée) aux bornes de la zone, statut Modifié.
+        var row = Assert.Single(repository.GetByDateRange(Today, Today));
+        Assert.Equal(TimeBlockStatus.Edited, row.TimeBlock.Status);
+        Assert.Equal("ULISTROIS-3428", row.TimeBlock.JiraKey);
+        Assert.Equal(startUtc, row.TimeBlock.StartUtc);
+        Assert.Equal(0.5, row.TimeBlock.DurationHours);
+        Assert.Equal("ULISTROIS-3428 - Refonte", row.TimeBlock.Note);
+
+        // Critère d'acceptation : la zone imputée disparaît des zones « à imputer » et devient une plage.
+        Assert.Empty(viewModel.Gaps);
+        Assert.Equal("ULISTROIS-3428", Assert.Single(viewModel.Groups).Key);
+        Assert.Single(viewModel.Lines);
+    }
+
+    private sealed class FakeCorrelationEngine(params CorrelatedBlock[] blocks) : ICorrelationEngine
+    {
+        public CorrelationResult Correlate(
+            IReadOnlyList<ActivityEvent> activityEvents,
+            IReadOnlyList<VcsCommit> commits,
+            IReadOnlyList<CalendarEventData> meetings,
+            int minBlockDurationMinutes = 15,
+            IReadOnlyList<RuleRow>? rules = null) => new(blocks, [], []);
     }
 
     private sealed class FakeActivityEventRepository(IReadOnlyList<ActivityEvent> events) : IActivityEventRepository

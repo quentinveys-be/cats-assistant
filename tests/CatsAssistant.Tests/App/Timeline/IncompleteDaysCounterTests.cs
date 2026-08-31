@@ -57,6 +57,8 @@ public class IncompleteDaysCounterTests
 
         public void Update(long id, TimeBlock timeBlock) => throw new NotSupportedException();
 
+        public void Delete(long id) => throw new NotSupportedException();
+
         public TimeBlockRow? GetById(long id) => throw new NotSupportedException();
 
         public IReadOnlyList<TimeBlockRow> GetByDateRange(DateOnly fromDate, DateOnly toDate) =>
