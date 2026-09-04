@@ -1,30 +1,83 @@
+using System.Windows.Threading;
 using CatsAssistant.App.Mvvm;
+using CatsAssistant.Filler;
 
 namespace CatsAssistant.App.ViewModels;
 
 /// <summary>
-/// Carte "Connexions" SAP (issue #24). Le logon SAP réel (fenêtre WebView2, D4) est Phase 4 : hors périmètre
-/// de cette issue. "Se connecter" reste affiché mais ne fait qu'annoncer la disponibilité future, jamais
-/// de crédential SAP stocké ni simulé ici (docs/adr/D4-sap-odata-webview2.md).
+/// Carte "Connexions" SAP (issue #24, logon réel issue #27). "Se connecter" délègue à
+/// <see cref="ISapSessionProvider"/>, qui ouvre la fenêtre WebView2 (D4) ; aucun identifiant SAP n'est jamais
+/// lu ni stocké ici. La pastille de statut suit <see cref="ISapSessionProvider.State"/>, y compris l'expiration
+/// signalée par le client OData (401/302), pour proposer la reconnexion.
 /// </summary>
-public sealed class SapConnectionCardViewModel : ObservableObject
+public sealed class SapConnectionCardViewModel : ObservableObject, IDisposable
 {
-    private bool _showStubMessage;
+    private readonly ISapSessionProvider _sessionProvider;
+    private readonly Dispatcher _dispatcher;
+    private bool _isConnecting;
+    private string? _errorMessage;
 
-    public SapConnectionCardViewModel()
+    public SapConnectionCardViewModel(ISapSessionProvider sessionProvider)
     {
-        OpenLogonCommand = new RelayCommand(() => ShowStubMessage = true);
+        _sessionProvider = sessionProvider;
+        _dispatcher = Dispatcher.CurrentDispatcher;
+        _sessionProvider.StateChanged += OnSessionStateChanged;
+
+        OpenLogonCommand = new RelayCommand(() => _ = ConnectAsync(), () => !IsConnecting);
     }
 
     public RelayCommand OpenLogonCommand { get; }
 
-    public ConnectionStatus Status => ConnectionStatus.NotConfigured;
-
-    public string StatusLabel => "non configuré";
-
-    public bool ShowStubMessage
+    public ConnectionStatus Status => _sessionProvider.State switch
     {
-        get => _showStubMessage;
-        private set => SetProperty(ref _showStubMessage, value);
+        SapSessionState.Connected => ConnectionStatus.Connected,
+        SapSessionState.Expired => ConnectionStatus.Expired,
+        _ => ConnectionStatus.NotConfigured,
+    };
+
+    public string StatusLabel => Status switch
+    {
+        ConnectionStatus.Connected => "connecté",
+        ConnectionStatus.Expired => "session expirée — reconnexion nécessaire",
+        _ => "non configuré",
+    };
+
+    public bool IsConnecting
+    {
+        get => _isConnecting;
+        private set => SetProperty(ref _isConnecting, value);
     }
+
+    public string? ErrorMessage
+    {
+        get => _errorMessage;
+        private set => SetProperty(ref _errorMessage, value);
+    }
+
+    public async Task ConnectAsync()
+    {
+        if (IsConnecting)
+        {
+            return;
+        }
+
+        IsConnecting = true;
+        ErrorMessage = null;
+
+        var connected = await _sessionProvider.EnsureLogonAsync();
+
+        IsConnecting = false;
+        ErrorMessage = connected ? null : "Connexion annulée : la fenêtre a été fermée avant la fin du logon.";
+        RefreshStatus();
+    }
+
+    private void OnSessionStateChanged(object? sender, EventArgs e) => _dispatcher.BeginInvoke(RefreshStatus);
+
+    private void RefreshStatus()
+    {
+        OnPropertyChanged(nameof(Status));
+        OnPropertyChanged(nameof(StatusLabel));
+    }
+
+    public void Dispose() => _sessionProvider.StateChanged -= OnSessionStateChanged;
 }

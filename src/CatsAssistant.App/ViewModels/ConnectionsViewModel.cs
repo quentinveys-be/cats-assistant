@@ -1,5 +1,7 @@
 using System.Windows.Threading;
 using CatsAssistant.App.Mvvm;
+using CatsAssistant.App.Services;
+using CatsAssistant.Filler;
 using CatsAssistant.Secrets;
 using CatsAssistant.Store;
 
@@ -15,12 +17,13 @@ public sealed class ConnectionsViewModel : ObservableObject, IDisposable
         ISecretVault vault,
         ISettingsRepository settingsRepository,
         YubiKeyVaultCoordinator vaultCoordinator,
-        SyncService? syncService)
+        SyncService? syncService,
+        ISapSessionProvider? sapSessionProvider = null)
     {
         _syncService = syncService;
         _dispatcher = Dispatcher.CurrentDispatcher;
 
-        Sap = new SapConnectionCardViewModel();
+        Sap = new SapConnectionCardViewModel(sapSessionProvider ?? new SapSessionProvider());
         Jira = new TokenConnectionCardViewModel(
             "JIRA Cloud — ulis-uliege.atlassian.net",
             "Token API personnel · coffre YubiKey",
@@ -76,5 +79,7 @@ public sealed class ConnectionsViewModel : ObservableObject, IDisposable
         {
             _syncService.StateChanged -= OnSyncStateChanged;
         }
+
+        Sap.Dispose();
     }
 }
