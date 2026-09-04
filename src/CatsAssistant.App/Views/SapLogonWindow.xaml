@@ -1,0 +1,33 @@
+<Window x:Class="CatsAssistant.App.Views.SapLogonWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Connexion SAP · fenêtre WebView2" Height="540" Width="760"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{DynamicResource CardBackgroundBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Padding="12,8" Background="{DynamicResource LayerBackgroundBrush}"
+                BorderBrush="{DynamicResource DividerStrokeBrush}" BorderThickness="0,0,0,1">
+            <TextBlock x:Name="UrlText" FontFamily="Consolas" FontSize="12"
+                       Foreground="{DynamicResource TextFillSecondaryBrush}"
+                       TextTrimming="CharacterEllipsis" Text="Connexion sécurisée" />
+        </Border>
+
+        <wv2:WebView2 x:Name="Browser" Grid.Row="1" />
+
+        <TextBlock Grid.Row="2" Margin="14,10" TextWrapping="Wrap" FontSize="12"
+                   Foreground="{DynamicResource TextFillTertiaryBrush}"
+                   Text="Aucun identifiant n'est enregistré par CATS Assistant. À la fermeture de cette fenêtre, seuls les cookies de session (SAP_SESSIONID_P09_010, sap-usercontext) sont récupérés en mémoire, puis le jeton x-csrf-token est demandé." />
+    </Grid>
+</Window>

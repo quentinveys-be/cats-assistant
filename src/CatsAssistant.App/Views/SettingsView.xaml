@@ -318,7 +318,7 @@
                                         <TextBlock Text="p09.sap.ulg.ac.be · client 010" FontSize="13" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource TextFillTertiaryBrush}" />
                                     </StackPanel>
-                                    <ContentControl Grid.Column="1" Content="{Binding StatusLabel}" Style="{StaticResource NeutralStatusChipStyle}"
+                                    <ContentControl Grid.Column="1" Content="{Binding StatusLabel}" Style="{StaticResource ConnectionStatusChipStyle}"
                                                      VerticalAlignment="Center" Margin="0,0,10,0" />
                                     <Button Grid.Column="2" Content="Se connecter" Style="{StaticResource PrimaryButtonStyle}"
                                             Command="{Binding OpenLogonCommand}" AutomationProperties.Name="Se connecter à SAP" />
@@ -328,12 +328,15 @@
                                     <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextFillSecondaryBrush}">
                                         <Run Text="Aucun identifiant SAP n'est enregistré." />
                                         <LineBreak />
-                                        <Run Text="La fenêtre de logon SAP (WebView2) arrive en Phase 4 (D4) : jamais de mot de passe stocké sur disque." />
+                                        <Run Text="Le bouton ouvre la fenêtre de logon SAP (WebView2) ; seuls les cookies de session sont réutilisés, jamais stockés sur le disque." />
                                     </TextBlock>
                                 </Border>
-                                <TextBlock Text="Se connecter sera disponible avec la Phase 4 (logon WebView2)." Margin="0,8,0,0" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource AccentTextBrush}"
-                                           Visibility="{Binding ShowStubMessage, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Text="Connexion en cours…" Margin="0,8,0,0" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextFillTertiaryBrush}"
+                                           Visibility="{Binding IsConnecting, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Text="{Binding ErrorMessage}" Margin="0,8,0,0" FontSize="12"
+                                           Foreground="{DynamicResource CriticalBrush}"
+                                           Visibility="{Binding ErrorMessage, Converter={StaticResource NullableToVisibility}}" />
                             </StackPanel>
                         </Border>
 
